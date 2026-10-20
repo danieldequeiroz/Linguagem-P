@@ -2,7 +2,7 @@
 
 Learning [P](https://p-org.github.io/P/) — modeling and formally verifying distributed systems — starting from zero formal methods.
 
-A browsable version of this tutorial lives in [`docs/index.html`](docs/index.html).
+A browsable version of this tutorial lives in [`docs/index.html`](../docs/index.html) at the repo root, published via GitHub Pages.
 
 ---
 
