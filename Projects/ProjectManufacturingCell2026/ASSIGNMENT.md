@@ -1,6 +1,6 @@
 # Assignment: verified regulation for a manufacturing cell
 
-Graduate project · teams of 3 · 6 weeks
+Graduate project · teams of 3 · 45 days
 
 ## Goal
 
@@ -25,25 +25,26 @@ A result counts only if it is reproducible. For every claim in your report ("the
 
 ## Schedule
 
-| Week | Work | Checkpoint (end of week) |
+The project runs over **45 calendar days** in five phases, the same plan as section 8 of [`SPECIFICATION.md`](SPECIFICATION.md). Deliverables D1–D5 are due at the end of their phase.
+
+| Phase | Work | Due |
 |---|---|---|
-| 1 | Install the toolchain. Compile the model and fix the first-compile errors. Run `tcCellTwoPhase` and `tcCellNaive`. Read Yan et al. (COINE 2025) on the regulation capabilities. | Section 5 of `INSTRUCTIONS.md` filled in for the P steps. A one-page note mapping each machine in `Common/` to a regulation capability |
-| 2 | Design experiments. Run at least three changes from section 2.4 of the guide, or your own. For each, **write your prediction before running**, then compare. | Experiment log: change, prediction, result, explanation of each counterexample |
-| 3 | Two technicians, analysis. Add a second `HumanRequester` and reproduce the failure described in section 2.5. Write the property that fails as a new P monitor, and show it catches the bug. | Failing trace, with the interleaving explained step by step. The new monitor |
-| 4 | Two technicians, fix. Change the regulation so a resource reopens only when no human is inside (e.g. lock-out holders tracked per resource). Re-run every existing test. | All monitors hold on the fixed model, including yours. A short argument for why your schedule count is enough |
-| 5 | Run time. Build the PObserve package and run it on both sample logs. Generate logs that include your two-technician scenario (extend `tools/simulate_logs.py`) and check them. Calibrate the 5-tick bound of `AdaptationBoundedTime` from data (the guide shows the simulator exceeds it). Inject at least two log defects from section 3.9 (missing `LEAVE`, duplicate `COMMIT`, ...) and report what the monitors do. | PObserve output for every log. The chosen adaptation bound with its justification |
-| 6 | Report and presentation. | Final submission |
+| **Days 1–7** · Background | Install the toolchain and work through the P tutorial ([`P-Tutorial/`](../../P-Tutorial/)). Read Yan et al. (COINE 2025) on the regulation capabilities. Run a first `p compile` and record the errors. | **D1 (day 7):** background note, 2–3 pages, including a one-page mapping of each machine in `Common/` to a regulation capability |
+| **Days 8–17** · Model | Fix the first-compile errors and justify each modelling choice. Run `tcCellTwoPhase` and `tcCellNaive`. Then run at least three design experiments from section 2.4 of the guide, or your own. For each, **write your prediction before running**, then compare. | Day 17 checkpoint: section 5 of `INSTRUCTIONS.md` filled in for the P steps; experiment log (change, prediction, result, explanation of each counterexample) |
+| **Days 18–28** · Verification | Two technicians. *Analysis (days 18–22):* add a second `HumanRequester` and reproduce the failure described in section 2.5. Write the property that fails as a new P monitor, and show it catches the bug. *Fix (days 23–28):* change the regulation so a resource reopens only when no human is inside (e.g. lock-out holders tracked per resource). Re-run every existing test. | **D2 (day 28):** verified model: failing trace with the interleaving explained step by step, the new monitor, all monitors holding on the fixed model, and a short argument for why your schedule count is enough |
+| **Days 29–38** · Run time | Build the PObserve package and run it on both sample logs. Generate logs that include your two-technician scenario (extend `tools/simulate_logs.py`) and check them. Calibrate the 5-tick bound of `AdaptationBoundedTime` from data (the guide shows the simulator exceeds it). Inject at least two log defects from section 3.9 (missing `LEAVE`, duplicate `COMMIT`, ...) and report what the monitors do. | **D3 (day 38):** PObserve package and output for every log; the chosen adaptation bound with its justification |
+| **Days 39–45** · Analysis | Report and presentation. | **D4 and D5 (day 45):** report and presentation |
 
 ## Deliverables
 
-1. **Repository** (a branch or fork of this one): your model changes, new monitors, tests, scripts, generated logs, and the traces you cite. Every `p check` and PObserve command in the report must run from it.
-2. **Report**, 8–12 pages, structured as:
-   - the system and its regulation, with the capability mapping (week 1),
+1. **Repository**, kept up to date through D2 and D3 (a branch or fork of this one): your model changes, new monitors, tests, scripts, generated logs, and the traces you cite. Every `p check` and PObserve command in the report must run from it.
+2. **Report (D4, day 45)**, 8–12 pages, structured as:
+   - the system and its regulation, with the capability mapping (D1),
    - design-time results: baseline, experiments, the two-technician bug and fix,
    - run-time results: sample logs, your logs, log defects, bound calibration,
    - threats to validity: what the checker did not explore, what the logs cannot show, where the model differs from a real cell,
    - the filled validation record as an appendix.
-3. **Presentation**, 15 minutes plus 5 for questions, including a live run of one counterexample.
+3. **Presentation (D5, day 45)**, 15 minutes plus 5 for questions, including a live run of one counterexample.
 4. **Contribution statement**: one paragraph per member on what they did.
 
 ## Grading
