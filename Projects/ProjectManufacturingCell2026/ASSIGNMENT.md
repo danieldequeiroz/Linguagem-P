@@ -13,6 +13,8 @@ A robot arm and an AGV share a work envelope, and a technician needs it locked o
 
 Read `ManufacturingCell/INSTRUCTIONS.md` first. It holds the commands, the log format and the validation record you will fill in.
 
+Section 8 of [`SPECIFICATION.md`](SPECIFICATION.md) is the authoritative source for phases, deliverables and grading; this file summarizes it. Property names (S1–S4, L1–L2, R1–R3) and experiment ids (E1–E8) refer to sections 7.2 and 7.3 of the specification.
+
 ## Ground rule: every claim needs evidence
 
 A result counts only if it is reproducible. For every claim in your report ("the two-phase design is safe", "the naive design fails"), record:
@@ -21,7 +23,7 @@ A result counts only if it is reproducible. For every claim in your report ("the
 - the seed or number of schedules (`-s`),
 - the actual output, and the trace for every failure (`PCheckerOutput/BugFinding/`).
 
-"No bug found in N schedules" is a result. "The design is correct" is not, unless you argue why N schedules cover the relevant behaviors.
+"No bug found in N schedules" is a result. "The design is correct" is not. Justify N as in section 5.9 of the specification: report the schedule count at which the checker first finds the known naive-policy bug, and run the fixed model with a margin over that count. Show that every monitor can fail by running it against a mutant (section 5.11), so that a passing monitor is not a vacuous one.
 
 ## Schedule
 
@@ -30,9 +32,9 @@ The project runs over **45 calendar days** in five phases, the same plan as sect
 | Phase | Work | Due |
 |---|---|---|
 | **Days 1–7** · Background | Install the toolchain and work through the P tutorial ([`P-Tutorial/`](../../P-Tutorial/)). Read Yan et al. (COINE 2025) on the regulation capabilities. Run a first `p compile` and record the errors. | **D1 (day 7):** background note, 2–3 pages, including a one-page mapping of each machine in `Common/` to a regulation capability |
-| **Days 8–17** · Model | Fix the first-compile errors and justify each modelling choice. Run `tcCellTwoPhase` and `tcCellNaive`. Then run at least three design experiments from section 2.4 of the guide, or your own. For each, **write your prediction before running**, then compare. | Day 17 checkpoint: section 5 of `INSTRUCTIONS.md` filled in for the P steps; experiment log (change, prediction, result, explanation of each counterexample) |
-| **Days 18–28** · Verification | Two technicians. *Analysis (days 18–22):* add a second `HumanRequester` and reproduce the failure described in section 2.5. Write the property that fails as a new P monitor, and show it catches the bug. *Fix (days 23–28):* change the regulation so a resource reopens only when no human is inside (e.g. lock-out holders tracked per resource). Re-run every existing test. | **D2 (day 28):** verified model: failing trace with the interleaving explained step by step, the new monitor, all monitors holding on the fixed model, and a short argument for why your schedule count is enough |
-| **Days 29–38** · Run time | Build the PObserve package and run it on both sample logs. Generate logs that include your two-technician scenario (extend `tools/simulate_logs.py`) and check them. Calibrate the 5-tick bound of `AdaptationBoundedTime` from data (the guide shows the simulator exceeds it). Inject at least two log defects from section 3.9 (missing `LEAVE`, duplicate `COMMIT`, ...) and report what the monitors do. | **D3 (day 38):** PObserve package and output for every log; the chosen adaptation bound with its justification |
+| **Days 8–17** · Model | Fix the first-compile errors and justify each modelling choice. Run `tcCellTwoPhase` and `tcCellNaive` (experiments E1 and E2 of specification section 7.3). Then run at least three further experiments among E3, E5, E6, E7 and E8 (E4 belongs to the next phase), or your own. For each, **write your prediction before running** (the expected verdict and, for a failure, the property that fails), then compare. | Day 17 checkpoint: section 5 of `INSTRUCTIONS.md` filled in for the P steps; experiment log (change, prediction, result, explanation of each counterexample with the template of section 7.8) |
+| **Days 18–28** · Verification | Two technicians (experiment E4). *Analysis (days 18–22):* add a second `HumanRequester` and reproduce the failure described in section 4.5 of the specification. Write property S4 (no committed norm set reopens a resource while a person is inside) as a new P monitor, show that it fails on the unfixed model, and check it against a mutant. *Fix (days 23–28):* change the regulation so that a resource reopens only when no person is inside (e.g., lock-out holders tracked per resource). Re-run every existing test. Run every monitor against a mutant (section 5.11) and calibrate the schedule count (section 5.9). | **D2 (day 28):** verified model: failing trace with the interleaving explained step by step, the S4 monitor, all monitors holding on the fixed model, the mutant results, and the schedule-count justification |
+| **Days 29–38** · Run time | Build the PObserve package and run it on both sample logs. Generate logs that include your two-technician scenario (extend `tools/simulate_logs.py`) and check them. Calibrate the bound B of R2 (`AdaptationBoundedTime`, currently 5 ticks) from data: R2 holds only if B is at least the maximum drain time observed, and the simulator exceeds 5 ticks. Inject at least one *system fault* (the system misbehaves, the log records it faithfully, e.g., a commit before the drain completes) and at least two *log defects* from section 3.9 of `INSTRUCTIONS.md` (the log misrepresents the system: missing `LEAVE`, duplicate `COMMIT`, …), and report which monitor reacts, if any, and why. | **D3 (day 38):** PObserve package and output for every log; the chosen bound B with its justification; the fault and defect analysis |
 | **Days 39–45** · Analysis | Report and presentation. | **D4 and D5 (day 45):** report and presentation |
 
 ## Deliverables
@@ -42,21 +44,24 @@ The project runs over **45 calendar days** in five phases, the same plan as sect
    - the system and its regulation, with the capability mapping (D1),
    - design-time results: baseline, experiments, the two-technician bug and fix,
    - run-time results: sample logs, your logs, log defects, bound calibration,
-   - threats to validity: what the checker did not explore, what the logs cannot show, where the model differs from a real cell,
+   - threats to validity, discussed per assumption as in section 7.7 of the specification: what the checker did not explore, what the logs cannot show, where the model over- or under-approximates a real cell,
    - the filled validation record as an appendix.
-3. **Presentation (D5, day 45)**, 15 minutes plus 5 for questions, including a live run of one counterexample.
+3. **Presentation (D5, day 45)**, 15 minutes plus 5 for questions, including a live run of one checker counterexample and one PObserve violation.
 4. **Contribution statement**: one paragraph per member on what they did.
 
 ## Grading
 
-| Component | Weight | What earns full marks |
-|---|---|---|
-| Baseline reproduced, validation record | 10% | Every step recorded with command, versions, seed and actual output |
-| Design experiments | 15% | Predictions made before running; counterexamples explained, not just reported |
-| Two technicians: analysis and new monitor | 20% | The failure reproduced, the interleaving explained, a monitor that fails before the fix |
-| Two technicians: fix and verification | 20% | All monitors hold after the fix; schedule count justified; no existing test weakened |
-| Run-time monitoring | 15% | PObserve results on all logs; adaptation bound justified from data; log defects analyzed |
-| Report and presentation | 20% | Claims match the evidence; limits stated plainly; clear explanation of the design-time / run-time split |
+The weights below match the rubric of section 8 of the specification, which also describes the adequate and insufficient levels.
+
+| Component | Deliverable | Weight | What earns full marks |
+|---|---|---|---|
+| Background and capability mapping | D1 | 5% | Every machine mapped to a capability with justification; position in the grid argued |
+| Baseline and validation record | D2 | 10% | Every step recorded with command, versions, seed and output; mutants for every monitor |
+| Design experiments | D2 | 15% | Predictions recorded before running; counterexamples explained with the template of section 7.8 |
+| Two technicians: analysis and S4 | D2 | 20% | Failure reproduced; interleaving explained; S4 fails before the fix |
+| Two technicians: fix and verification | D2 | 20% | All monitors hold; schedule count justified by calibration; no test weakened |
+| Run-time monitoring | D3 | 15% | All logs checked; R2 bound justified from data; system faults and log defects distinguished and analyzed |
+| Report and presentation | D4, D5 | 15% | Claims match the evidence; threats to validity discussed per assumption; design-time / run-time split explained |
 
 Individual grades may be adjusted from the contribution statements and the presentation questions.
 
@@ -64,7 +69,7 @@ Individual grades may be adjusted from the contribution statements and the prese
 
 Rotate if you prefer, but someone should own each area:
 - **Modeler**: P machines, the two-technician fix.
-- **Verifier**: monitors, checker runs, traces, the validation record.
+- **Verifier**: monitors, mutants, checker runs, traces, the validation record.
 - **Run time**: PObserve build, log generation, defect injection, bound calibration.
 
 Everyone must be able to explain the counterexamples in the presentation.

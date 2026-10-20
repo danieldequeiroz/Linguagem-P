@@ -97,7 +97,7 @@ p check -tc tcCellTwoPhase -s 10000     # two-phase adaptation (prepare, drain, 
 p check -tc tcCellNaive    -s 10000     # naive adaptation (commit first, install later)
 ```
 
-`-s` sets the number of schedules explored. Raise it (100000) for more confidence on the passing test.
+`-s` sets the number of schedules explored. A larger count gives more confidence on the passing test, but the count must be justified, not just raised (specification section 5.9): run `tcCellNaive` with increasing `-s` (or several seeds) and record the count at which the known bug is first found; then check `tcCellTwoPhase` with a clear margin over that count. With `--sch-pct` the checker uses the PCT strategy, whose probabilistic bound is discussed in the same section.
 
 ### 2.3 Read the results
 
@@ -117,11 +117,15 @@ When a bug is found, the checker writes a trace under `PCheckerOutput/BugFinding
 
 ### 2.4 Experiments worth running
 
-| Change | Where | What to look for |
-|---|---|---|
-| Agents never release the envelope (remove the `send guard, eRelease` in `Working`) | `PSrc/CellAgent.p` | `AdaptationCompletes` fails: the lock-out can never drain. This argues for a physical e-stop below the MAS |
-| Shorter deadlines (`due = 2`) | `ManufacturingSystem` | More sanctions; `EveryObligationResolved` must still hold |
-| Two technicians (a challenge, not a check of existing behavior) | add a second `HumanRequester` | See 2.5 |
+The ids refer to the experiment table in section 7.3 of the specification, which also gives each experiment's hypothesis and acceptance criterion. Write the prediction down before running.
+
+| Id | Change | Where | What to look for |
+|---|---|---|---|
+| E3 | Agents never release the envelope (remove the `send guard, eRelease` in `Working`) | `PSrc/CellAgent.p` | `AdaptationCompletes` (L2) fails: the lock-out can never drain. This argues for a physical e-stop below the MAS |
+| E5 | Shorter deadlines (`due = 2`) | `ManufacturingSystem` | More sanctions; `EveryObligationResolved` (L1) must still hold |
+| E4 | Two technicians (a challenge, not a check of existing behavior) | add a second `HumanRequester` | See 2.5 |
+
+E6–E8 (specification section 7.3) are further options.
 
 ### 2.5 Challenge: two technicians
 
@@ -134,7 +138,7 @@ The coordinator defers a new trigger while an adaptation is in progress, so adap
 
 Serialization orders the norm-set changes, but nothing tracks who is still inside. To fix it:
 - **Track human presence.** The coordinator keeps the set of technicians who hold a lock-out on each resource, and reopens only when the last one leaves.
-- **Verify it.** Add a monitor such as "no committed norm set opens a resource while a human is inside" (observe `eHumanEntered`, `eHumanLeft`, `eNormCommitted`), and check that it fails before your fix and holds after.
+- **Verify it.** Add a monitor for property S4 of the specification, "no committed norm set opens a resource while a human is inside" (observe `eHumanEntered`, `eHumanLeft`, `eNormCommitted`), and check that it fails before your fix and holds after. Also run it against a mutant (specification section 5.11) to show it is not vacuous.
 
 ---
 
@@ -273,13 +277,13 @@ The run-time results are only as good as the log. The monitors assume:
 
 **The two bounds:**
 - `ObligationDeadlineRespected` uses a grace of **1 tick**. The obligation engine sanctions at the first tick where `now > Due`, and logs the `SANCTION` *after* that `TICK` line. So an obligation due at tick *d* is resolved by tick *d+1* at the latest, and the monitor complains at tick *d+2*. One tick is the smallest grace that does not raise false alarms; in 500 simulated runs every sanction came exactly one tick after its due time. Raise it if your engine checks deadlines less often than every tick.
-- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining the envelope takes as long as the agent inside stays there. **The simulator already exceeds it**: in 500 simulated two-phase cell runs, 9 of 5,180 adaptations took 6 to 8 ticks, so longer two-phase logs can fail this monitor although the design is safe. Set the bound from your cell (maximum job time in the envelope plus the controller's reaction time) and record why.
+- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining the envelope takes as long as the agent inside stays there. **The simulator already exceeds it**: in 500 simulated two-phase cell runs, 9 of 5,180 adaptations took 6 to 8 ticks, so longer two-phase logs can fail this monitor although the design is safe. The property (R2 in the specification) holds only if the bound is at least the maximum drain time. Set the bound from your cell (maximum job time in the envelope plus the controller's reaction time) and record why.
 
 **Bounded monitors need later ticks.** Both bounded monitors check only when a `TICK` arrives. If the log ends before tick *d+2* (or 5 ticks after `ADAPT_START`), an unresolved obligation or adaptation is simply not reported. A clean result on a log that stops early does not show that work completed.
 
 **Restarts.** `CONFIG` must come first for each site. `RegimentationSafety` handles `CONFIG` only in its initial state, so a second `CONFIG` after a restart is an event the monitor does not handle. P treats that as an error. Monitor state (occupancy, committed norm set, open obligations) is also not reset. Split logs at restarts and check each segment separately.
 
-**Missing and duplicate events** produce false results, in both directions:
+**Missing and duplicate events** are *log defects*: the log misrepresents what the system did. They differ from *system faults*, where the system misbehaves and the log records it faithfully (e.g., a `COMMIT` before the envelope has drained); a monitor should report a system fault, whereas a log defect produces false results, in both directions:
 
 | Problem | Effect |
 |---|---|
