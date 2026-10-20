@@ -9,7 +9,7 @@ All material is in the GitHub repository [perkusic/P-Language](https://github.co
 - **This project:** [`Projects/ProjectRobot2026`](https://github.com/perkusic/P-Language/tree/main/Projects/ProjectRobot2026). It contains the starter kit, the instructions and this specification.
 - **P tutorial:** [`P-Tutorial`](https://github.com/perkusic/P-Language/tree/main/P-Tutorial). It covers installation, a first P program, specs and the checker; work through it in days 1–7.
 
-**To get access, send your GitHub username by email to <perkusic@dee.ufcg.edu.br>**, so that the repository can be shared with you. Fork or clone it only after access has been granted.
+**The repository is public: no account or authorization is needed.** Anyone can read it on GitHub, clone it (`git clone https://github.com/perkusic/P-Language.git`) or download it as a ZIP (green **Code** button → **Download ZIP**). A GitHub account is only needed to fork it or to propose changes.
 
 ## 1. Summary
 
