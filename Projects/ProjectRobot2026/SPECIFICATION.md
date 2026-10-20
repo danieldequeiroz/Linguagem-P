@@ -18,26 +18,46 @@ The objective of this project is to build and verify the regulation layer of a s
 1. The regulation layer is modeled in the P language and model-checked.
 2. Fleet logs, either simulated or recorded from a ROS 2 system, are checked against the same P monitors with PObserve.
 
-The project instantiates one cell of the conceptual grid proposed by [Yan, Nardin, Boissier & Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) (*A Unified View on Regulation Management in Multi-Agent Systems*, COINE 2025) as a system whose properties can be verified. The grid combines three perspectives: regulation capabilities, programming dimensions and architectural style. The cell considered here is **hybrid (environment + organization + agent), distributed**: each corridor zone has its own controller, and the controllers coordinate exclusively through messages.
+The project instantiates one cell of the conceptual grid proposed by [Yan, Nardin, Boissier & Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) (*A Unified View on Regulation Management in Multi-Agent Systems*, COINE 2025) as a system whose properties can be verified. The grid combines three perspectives: regulation capabilities, programming dimensions and architectural style. The cell considered here is **hybrid (environment + organization + agent), with distributed regimentation and centralized adaptation and sanctioning**: each corridor zone has its own controller, which admits or denies robots on the basis of local information only, whereas a single coordinator changes the norm set and a single fleet manager tracks obligations and applies sanctions (section 4.3).
 
 **Research questions:**
 
-1. Does a distributed regulation layer preserve its safety guarantees while a zone is closed for a person, and which adaptation protocol is required to ensure this?
-2. When regulation and physical traffic block robots, does the sanctioning mechanism sanction only genuine non-compliance?
-3. (Stretch goal) Can the distributed design be shown to refine a centralized regulator?
+1. Does a regulation layer with distributed regimentation preserve its safety guarantees while a zone is closed for a person, and which adaptation protocol is required to ensure this?
+2. When regulation and physical traffic block robots, which sanctions are applied to obligations that robots abandoned after repeated denials, can each such sanction be attributed to a regulation-caused or a traffic-caused denial (by means of the refined, cause-aware monitor required in phase 3), and which organizational remedy removes the regulation-caused cases without weakening safety?
+3. (Stretch goal) Does the distributed design refine a centralized regulator with respect to the observable events (admissions, releases, commits and human entries and exits)? Refinement in the sense of trace inclusion preserves safety properties but not liveness properties, which require a separate argument.
 
 **Expected results:**
 
-- **Safety.** A naive adaptation, in which the closure is declared first and each zone controller installs it upon receipt, is expected to admit a robot into a zone that is already closed and may contain a person. A two-phase adaptation (prepare, drain, commit) is expected to prevent this.
-- **Fairness.** Even under the safe protocol, robots blocked by the closure or by a head-on conflict are expected to be sanctioned for missing their deadlines. This would constitute a design flaw in the norms rather than misconduct by the robots; the project is to expose it and evaluate a remedy.
+- **Safety.** A naive adaptation, in which the closure is declared first and each zone controller installs it upon receipt, is expected to admit a robot into a zone that is already closed and may contain a person. A prepare–drain–commit adaptation is expected to prevent this.
+- **Sanction fairness.** In the starter kit, a robot that abandons its delivery after three denials remains obliged, and nothing excuses the abandoned obligation; the final far-future tick of the clock therefore guarantees that the obligation is eventually sanctioned. The fairness monitor F1 is consequently expected to fail by construction of the kit's policy, under both protocols. The substantive results of the project concern the causes of the flagged sanctions (regulation-caused or traffic-caused denials) and the effect of a remedy on each cause.
 
 **Learning outcomes.** On completion of the project, the student is able to:
 
-- explain multi-agent systems, normative multi-agent systems and regulation management, and locate a given design in the unified-view grid;
-- formalize distributed regulation, obligations, sanctions and adaptation as communicating state machines in P;
-- express safety, liveness and fairness requirements as P monitors and interpret the resulting counterexamples;
-- compile the monitors for PObserve, implement a log parser and check fleet logs;
-- analyze how physical constraints (for example, that a robot cannot leave a zone instantaneously) interact with norms.
+- **LO1** explain multi-agent systems, normative multi-agent systems and regulation management, and position the fleet in the unified-view grid, distinguishing distributed regimentation from centralized adaptation and sanctioning;
+- **LO2** formalize distributed regulation, obligations, sanctions and adaptation as communicating state machines in P, and state the modeling assumptions on which the results depend;
+- **LO3** express safety, liveness, bounded-response and sanction-fairness requirements as P monitors, classify them, and interpret the resulting counterexamples;
+- **LO4** justify what a given number of explored schedules establishes, and demonstrate with mutants that each monitor can fail;
+- **LO5** attribute flagged sanctions to their causes (regulation or traffic), and design, model and verify a remedy;
+- **LO6** compile the monitors for PObserve, adapt and extend the provided log parser, check fleet logs, and state what a finite log can and cannot establish;
+- **LO7** analyze how physical constraints (for example, that a robot cannot leave a zone instantaneously) interact with norms, and state the threats to the validity of the results.
+
+Section 8 relates each outcome to the deliverables and to the assessment criteria.
+
+**Property overview.** The properties below are referred to by their identifiers throughout the document. They are defined in section 7.2 and traced to norms, events and tests in section 7.7.
+
+| Id | Property (informal) | Class |
+| --- | --- | --- |
+| S1 | never two robots in a zone; never a robot and a person in the same zone | safety |
+| S2 | no admission to a zone that the committed norm set closes; norm sets installed in version order | safety |
+| S3 | no delivery both fulfilled and sanctioned | safety (organizational integrity) |
+| L1 | every obligation is eventually fulfilled or sanctioned | liveness |
+| L2 | every adaptation eventually commits | liveness |
+| R1 | every obligation is resolved by tick Due + 1 | bounded response (run time) |
+| R2 | every adaptation commits within 5 ticks | bounded response (run time) |
+| R3 | a person enters only a zone that the committed norm set closes | safety (procedure) |
+| F1 | no obligation is sanctioned after the robot abandoned it following repeated denials | safety (approximation of sanction fairness) |
+
+**How to read this document.** Sections 2 to 5 provide background, and section 6 onward specifies the project. Appendix A contains a glossary and a reading map that marks each background subsection as essential or as enrichment and indicates the phase in which it is needed. Each background section ends with self-check questions.
 
 ## 2. Background: multi-agent systems
 
@@ -67,7 +87,7 @@ Most MAS platforms adopt the belief–desire–intention (BDI) model, in which a
 
 The physical layer lies outside the MAS. The environment dimension is the interface between the two, which is why regimented safety norms are placed there.
 
-**Open systems.** In an open MAS, the designer does not control the internal code of the agents. Robots may be supplied by different vendors, execute learned policies or be teleoperated. Consequently, correctness cannot rely on agent compliance: the regulation layer must maintain its guarantees under *any* agent behavior. Section 7 models this assumption with nondeterministic agents.
+**Open systems.** In an open MAS, the designer does not control the internal code of the agents. Robots may be supplied by different vendors, execute learned policies or be teleoperated. Consequently, correctness cannot rely on agent compliance: the regulation layer must maintain its guarantees under *any* agent behavior. The model of section 7 approximates this requirement with nondeterministic agents that may, for example, fail to report. These agents nevertheless follow the interaction protocol: they request access before entering and never enter without a grant. The guarantees are therefore established for any behavior within the protocol, not for arbitrary behavior; section 7.6 lists this and the other modeling assumptions.
 
 **Robot fleets as MAS.** Warehouses, hospitals and factories operate fleets of autonomous mobile robots in spaces shared with people. Traffic is typically managed per zone, because a narrow aisle can accommodate only one robot, and zones are closed while people work in them. Each zone controller decides locally, and messages between controllers incur delays. The fleet therefore poses a *distributed* regulation problem: two controllers may temporarily disagree on which zones are closed.
 
@@ -176,6 +196,8 @@ A simplified normative specification:
 </normative-specification>
 ```
 
+In this project, time is measured in logical ticks of the organization's clock. Moise and NPL express deadlines in physical time units; the examples in this section and in section 3.5 use minutes only for illustration, and the mapping from ticks to physical time is a deployment decision (`MobileRobots/INSTRUCTIONS.md`, section 3.6).
+
 At run time, the organization is itself represented as an artifact. Agents adopt roles and commit to missions, and the normative engine of the organization (NPL, section 3) creates and tracks the resulting obligations.
 
 ### 2.5 Multi-robot coordination
@@ -184,9 +206,15 @@ Robot fleets face three classical coordination problems, each of which gives ris
 
 - **Task allocation**, i.e., the assignment of deliveries to robots. Gerkey and Matarić (IJRR 2004) classify task-allocation problems by robot type (single- or multi-task), task type (single- or multi-robot) and timing (instantaneous or time-extended).
 - **Path planning and traffic management.** Multi-agent path finding computes collision-free routes. Industrial fleets frequently rely on the simpler **zone reservation** scheme, in which a robot may enter a zone only while it holds a reservation for that zone. This scheme is adopted in this project.
-- **Deadlock.** Two robots facing each other in a one-lane corridor, each holding its own zone and waiting for the other's, form a cyclic wait. Standard remedies include one-way lanes, priorities, timeouts with back-off (in this project, parking after three denials) and reservation of the entire corridor.
+- **Deadlock.** Two robots facing each other in a one-lane corridor, each holding its own zone and waiting for the other's, form a cyclic wait. Standard remedies include one-way lanes, priorities, timeouts with back-off (in this project, parking after three denials) and reservation of the entire corridor. Section 6 analyzes this deadlock in terms of the four necessary conditions identified by Coffman, Elphick and Shoshani.
 
 Each remedy can be expressed as a norm: "one direction at a time" is a prohibition, and "yield to the robot with priority" is an obligation. The project examines whether such norms interact safely with sanctions and zone closures.
+
+**Self-check questions (section 2).**
+
+1. Which responsibilities of the fleet's regulation are distributed and which are centralized, and what does each choice imply for the consistency of the norm set during a change?
+2. Why is the environment dimension the natural place for regimentation, and which norm of the fleet cannot be regimented there?
+3. In the Jason plan of section 2.1, which decision belongs to the robot's autonomy, and through which event can the regulation layer observe its outcome?
 
 ## 3. Background: norms and normative MAS
 
@@ -211,9 +239,9 @@ Norms are usually *conditional*: they comprise an activation condition, a deonti
 
 Safety-critical norms (people and robots in the same zone) should be regimented, whereas performance norms (deadlines) are normally sanctioned. [Alechina, Bulling, Dastani and Logan (AAMAS 2015)](https://nottingham-repository.worktribe.com/output/752739) show that not every norm can be enforced by a guard, which is why the distinction is significant.
 
-**Fairness of sanctions.** A sanction is justified only if the agent could have complied. In a fleet, regimentation itself can render compliance impossible: a robot denied entry to a closed zone, or obstructed by another robot in a one-lane corridor, misses its deadline through no fault of its own. Sanctioning such a robot penalizes side effects of the regulation itself and distorts any reputation or incentive scheme built on sanctions.
+**Fairness of sanctions.** A sanction is justified only if the agent could have complied; this is an instance of the principle *ought implies can*. In a fleet, regimentation itself can render compliance impossible: a robot denied entry to a closed zone, or obstructed by another robot in a one-lane corridor, misses its deadline through no fault of its own. Sanctioning such a robot penalizes side effects of the regulation itself and distorts any reputation or incentive scheme built on sanctions.
 
-This project formulates fairness as a verifiable property: *an agent is sanctioned only for its own non-compliance, never for being blocked*. [Dell'Anna, Dastani and Dalpiaz](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf) study the run-time revision of sanctions that prove ineffective. The present project addresses a different question: the detection of unfairness that is inherent in the design. The monitor F1 approximates this property conservatively: it flags a sanction on an obligation whose task the robot abandoned after repeated access denials, but it establishes neither the cause of the denials (regulation or traffic) nor that the denials caused the missed deadline. A violation of F1 therefore identifies a candidate unfair sanction rather than a proven one.
+This project formulates sanction fairness as a property to be verified: *an agent is sanctioned only for its own non-compliance, never for being blocked*. [Dell'Anna, Dastani and Dalpiaz](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf) study the run-time revision of sanctions that prove ineffective. The present project addresses a different question: the detection of unfairness that is inherent in the design. The monitor F1 approximates this property conservatively: it flags a sanction on an obligation whose task the robot abandoned after repeated access denials, but it establishes neither the cause of the denials (regulation or traffic) nor that the denials caused the missed deadline. A violation of F1 therefore identifies a candidate unfair sanction rather than a proven one.
 
 **Norms in JaCaMo.** Moise organizations are compiled into programs of the Normative Programming Language (NPL). An NPL engine creates obligations when agents adopt roles and commit to missions, tracks their deadlines and reports violations to the organization.
 
@@ -242,7 +270,7 @@ The norm is a template: each assignment creates a new **norm instance** with its
 
 ### 3.2 Deontic logic in brief
 
-Standard deontic logic (SDL) is a modal logic with the operators O (obligatory), P (permitted) and F (forbidden). The operators are interdefinable, and axiom D states that an obligation implies a permission, so that no agent is obliged to bring about the impossible:
+Standard deontic logic (SDL) is a modal logic with the operators O (obligatory), P (permitted) and F (forbidden). The operators are interdefinable, and axiom D states that an obligation implies a permission, equivalently, ¬O⊥: nothing *logically* impossible is obligatory:
 
 ```latex
 P(\varphi) \equiv \neg O(\neg\varphi) \qquad F(\varphi) \equiv O(\neg\varphi) \qquad O(\varphi) \rightarrow P(\varphi)
@@ -271,7 +299,7 @@ For readers familiar with temporal logics such as LTL and CTL, the semantics of 
 
 A note on notation: the symbol F denotes *eventually* in temporal logic and *forbidden* in deontic logic. To avoid ambiguity, this document writes Forb for the deontic operator.
 
-The last two rows of the table express the essential difference. The temporal operator G is reflexive: if φ holds at every point, it holds at the current one, so a single state satisfying ¬φ refutes G φ. The deontic operator O is *not* reflexive: the set of ideal worlds need not contain the actual world, so the statements "the parcel ought to be delivered" and "the parcel was not delivered" are jointly consistent. This property is essential for a normative system, in which a violation is neither a contradiction nor an error but a state that the system must be able to represent and to which it must respond. Axiom D requires only that every world have at least one ideal alternative; it excludes conflicting obligations (O φ ∧ O ¬φ) and nothing else. Conflicting obligations are a practical concern in a fleet, for instance when a delivery deadline can be met only through a zone that has recently been closed.
+The last two rows of the table express the essential difference. The temporal operator G is reflexive: if φ holds at every point, it holds at the current one, so a single state satisfying ¬φ refutes G φ. The deontic operator O is *not* reflexive: the set of ideal worlds need not contain the actual world, so the statements "the parcel ought to be delivered" and "the parcel was not delivered" are jointly consistent. This property is essential for a normative system, in which a violation is neither a contradiction nor an error but a state that the system must be able to represent and to which it must respond. Axiom D requires only that every world have at least one ideal alternative; it thereby excludes logically conflicting obligations (O φ ∧ O ¬φ) and obligations to bring about a contradiction (O⊥). Axiom D concerns logical consistency only. It does not express the principle *ought implies can*, according to which an agent can be obliged only to do what it is practically able to do: a robot whose route has been closed is subject to an obligation that is logically consistent but practically impossible to fulfill. SDL does not represent ability and therefore cannot distinguish the two cases; the fairness monitor F1 (section 3.9) approximates the principle at run time. Conflicting obligations are a practical concern in a fleet, for instance when a delivery deadline can be met only through a zone that has recently been closed.
 
 #### The Andersonian reduction
 
@@ -298,7 +326,7 @@ The reduction also clarifies *whose* behavior a given property specifies (Figure
 - **For the robots, norms are deontic.** A robot may miss a deadline. The specification must therefore not reject such a trace; instead, it must determine the consequences. Requiring G ¬V would be inappropriate, because it would convert every norm into a regimented constraint and eliminate the autonomy that characterizes an open MAS.
 - **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit a robot to a zone that the committed norm set closes, and must complete every adaptation. These are G and F properties that must hold on every run; a run that violates them reveals a defect.
 
-Accordingly, the P monitors never assert that robots behave correctly. They assert that the *regulation* behaves correctly, irrespective of the robots' behavior: S1 to S3 and R3 address regimented norms, which the regulator can enforce by blocking; L1 and R1 address sanctioned norms, to which the regulator must respond; and F1 addresses the fairness of these responses.
+Accordingly, the P monitors never assert that robots behave correctly. They assert that the *regulation* behaves correctly, irrespective of the robots' behavior: S1 and S2 address regimented norms, which the regulator enforces by blocking; S3 concerns the integrity of the organization's records; R3 addresses a procedural norm that can only be monitored; L1 and R1 address sanctioned norms, to which the regulator must respond; L2 and R2 address the adaptation itself, which must terminate; and F1 addresses the sanction fairness of the responses. Table 7.2 states the enforcement mechanism of each property.
 
 #### Kinds of norms as temporal patterns
 
@@ -306,16 +334,16 @@ Once violations are represented as events, each kind of norm corresponds to a ch
 
 | Kind of norm | Example in the fleet | Violation V occurs when | What the regulator must guarantee |
 | --- | --- | --- | --- |
-| Achievement obligation with a deadline | deliver the parcel by tick d | tick d passes without delivery | G(created → F(fulfilled ∨ sanctioned)), L1; bounded at run time, R1 |
+| Achievement obligation with a deadline | deliver the parcel by tick Due | tick Due passes without delivery | G(created → F(fulfilled ∨ sanctioned)), L1; at run time G(created → F≤(Due+1) resolved), R1 |
 | Maintenance obligation | keep zone 1 free of robots while it is closed | a robot is admitted while it is closed | regimented: G(closed → ¬admitted), S2 |
 | Prohibition | no robot in a zone with the picker | both are in the zone | regimented: G ¬(robot in zone ∧ picker in zone), S1 |
-| Contrary-to-duty obligation | if a robot is in a zone with the picker, it must stop | the prohibition above is violated | G(V → X protective stop): a property of the *reaction* |
+| Contrary-to-duty obligation | if a robot is in a zone with the picker, it must stop | the prohibition above is violated | G(V → F≤k protective stop), a bounded response on the *reaction*; not modeled in the starter kit |
 | Permission | a robot may enter an open, free zone | never: a permission cannot be violated | AG(request ∧ open ∧ free → EF granted): branching, not a trace property |
 
 Two rows of the table require further discussion.
 
-- **Contrary-to-duty norms become straightforward to express.** Chisholm's paradox arises in SDL because SDL represents neither time nor violations explicitly. When V is an event, the secondary obligation is triggered by that event. Temporal deontic logics with deadlines avoid the paradox by the same means.
-- **Permission is not a trace property.** The statement "a robot *may* enter" asserts that some admissible continuation allows the robot to enter. A single run in which the robot did not enter provides no evidence against it, since another robot may have occupied the zone first. In CTL, this corresponds to an EF property quantified over all possible futures; consequently, neither a single-trace monitor nor PObserve can check it. The P checker can approximate it by a liveness property under fairness: every request to an open zone is eventually granted. The corridor deadlock demonstrates that this approximation can fail even when no norm forbids entry, which relates permissions to section 6. The report should state which of the fleet's norms become safety, liveness or branching properties.
+- **Contrary-to-duty norms become straightforward to express.** Chisholm's paradox arises in SDL because SDL represents neither time nor violations explicitly. When V is an event, the secondary obligation is triggered by that event. Temporal deontic logics with deadlines avoid the paradox by the same means. The reaction is stated as a bounded response F≤k rather than with the next-step operator X: in an asynchronous model, the event that immediately follows a violation may belong to an unrelated machine, so that X would impose an ordering that no implementation can guarantee.
+- **Permission is not a trace property.** The statement "a robot *may* enter" asserts that some admissible continuation allows the robot to enter. A single run in which the robot did not enter provides no evidence against it, since another robot may have occupied the zone first. In CTL, this corresponds to an EF property quantified over all possible futures; consequently, neither a single-trace monitor nor PObserve can check it. The P checker can only check the stronger liveness property AG(request ∧ open ∧ free → AF granted), i.e., that every such request is eventually granted, under the fairness assumptions of section 5.10. Because this property is stronger than the permission, its failure does not refute the permission: it exhibits a run in which a robot was not granted entry, for example the corridor deadlock of section 6, although no norm forbids entry. The report should state which of the fleet's norms become safety, liveness or branching properties.
 
 #### Two further paradoxes
 
@@ -334,6 +362,8 @@ Each norm instance evolves according to a small state machine. The monitors of s
 
 An instance that remains **Active** indefinitely constitutes the failure detected by the liveness property L1. A transition from **Violated** to **Sanctioned** on an obligation whose task the robot abandoned after repeated access denials is the event flagged by the fairness monitor F1; it indicates a potentially unfair sanction, since F1 does not establish that the robot could not have complied.
 
+**Excused obligations.** Figure 5 and the starter kit lack one transition that NPL provides (section 3.5): from **Active** to **Inactive**, taken when the activation condition ceases to hold, for example when the organization excuses an obligation whose task was abandoned because of the regulation. Without this transition, an abandoned obligation remains active until its deadline passes, and the final far-future tick of the clock (section 7.1) guarantees that it is sanctioned. Consequently, a remedy for unfair sanctions must determine what happens to an abandoned obligation, not only how its deadline is computed: suspending or extending the deadline alone merely postpones the sanction (experiment E7). The fairness monitor F1 additionally depends on the order in which abandonment and sanction occur (section 3.9).
+
 ### 3.4 Norms as temporal properties
 
 For verification with a model checker, each kind of norm is expressed as a temporal-logic property (G = always, F = eventually). The class of the property determines how it is checked in P:
@@ -341,15 +371,52 @@ For verification with a model checker, each kind of norm is expressed as a tempo
 | Norm kind | Temporal property | Property class | P construct | Checked at run time? |
 | --- | --- | --- | --- | --- |
 | Prohibition: *never two robots in a zone* | G ¬(occupancy > 1) | safety | `assert` in a spec | yes (PObserve) |
-| Obligation without deadline: *every delivery is eventually resolved* | G(assigned → F resolved) | liveness | `hot` state in a spec | no: a finite log cannot show "never" |
-| Obligation with deadline d | G(assigned → F≤d resolved) | bounded response (a safety property over time) | `assert` when the clock passes d | yes (PObserve) |
-| Permission | none on its own | — | only as an exception inside a prohibition's monitor | — |
+| Obligation, deadline abstracted: *every delivery is eventually resolved* | G(assigned → F resolved) | liveness | `hot` state in a spec | no: on a finite log the verdict is always *inconclusive* |
+| Obligation with deadline Due | G(assigned → F≤(Due+1) resolved) | bounded response, i.e., a safety property over time | `assert` when the clock passes Due + 1 | yes (PObserve) |
+| Permission | AG(request → EF granted) | branching, not a trace property | not expressible as a monitor; approximated by the stronger liveness property AG(request → AF granted) with a `hot` state | no |
 
 In an open system, the regulation cannot guarantee that every obligation is *fulfilled*; it can guarantee only that every obligation is *resolved*, either by fulfillment or by sanction. The property checked is therefore:
 
 ```latex
-\mathbf{G}\big(\mathit{assigned}(r,d) \rightarrow \mathbf{F}_{\le 5}\,(\mathit{reported}(r,d) \lor \mathit{sanctioned}(r,d))\big)
+\mathbf{G}\big(\mathit{assigned}(r,o) \rightarrow \mathbf{F}_{\le \mathit{Due}(o)+1}\,(\mathit{reported}(r,o) \lor \mathit{sanctioned}(r,o))\big)
 ```
+
+Here Due(o) is the tick of assignment plus five. The additional tick of **grace** results from the order of events within a tick (Figure 6): the fleet manager sanctions at the first tick at which now > Due and records the sanction after that tick, so that an obligation due at tick d is resolved by tick d + 1 at the latest. The run-time monitor R1 therefore reports a violation at tick d + 2 if the obligation is still open.
+
+![Figure 6 · deadline, grace tick and the bounded-response monitor R1](figures/figure6.png)
+
+*Figure 6 · deadline, grace tick and the bounded-response monitor R1*
+
+**Worked example: from a norm to a monitor.** The construction of L1 illustrates the general procedure.
+
+1. *Norm.* Every delivery that is assigned is eventually either reported or sanctioned.
+2. *Temporal property.* For every obligation o: G(created(o) → F(fulfilled(o) ∨ sanctioned(o))). The propositions denote events rather than states: a P trace is a sequence of events, and created(o) holds at the position at which `eObligationCreated` with identifier o occurs.
+3. *Automaton.* The property is checked by a deterministic monitor with two states (Figure 7). Because the monitor stores the set of open obligations in a variable, a single automaton covers all obligations. The state in which some obligation is open is *hot*: an execution must not end, or remain forever, in it.
+4. *P code.* The automaton becomes a `spec` machine, and the hot state carries the liveness requirement.
+
+![Figure 7 · the monitor of L1 as an automaton with a cold and a hot state](figures/figure7.png)
+
+*Figure 7 · the monitor of L1 as an automaton with a cold and a hot state*
+
+```
+spec EveryObligationResolved observes eObligationCreated, eObligationFulfilled, eSanctionApplied {
+  var pending: set[int];
+  start cold state NoneOpen {
+    on eObligationCreated do (o: tObligation) { pending += (o.id); goto SomeOpen; }
+  }
+  hot state SomeOpen {
+    on eObligationCreated do (o: tObligation) { pending += (o.id); }
+    on eObligationFulfilled, eSanctionApplied do (o: tOutcome) {
+      if (o.id in pending) { pending -= (o.id); }
+      if (sizeof(pending) == 0) { goto NoneOpen; }
+    }
+  }
+}
+```
+
+The version in `Common/Specs.p` additionally rejects outcomes for unknown obligations. The same procedure applies to the other classes. Safety properties (G ¬bad) translate into monitors without hot states, in which an `assert` fails on the first bad event; bounded-response properties translate into monitors that assert on each clock tick, as R1 does; unbounded liveness properties (G(p → F q)) require hot states. Properties that compare several runs, such as permissions or the counterfactual reading of sanction fairness (section 3.9), cannot be expressed as monitors.
+
+**Finite traces and three-valued verdicts.** A monitor that reads a finite log can reach only three verdicts ([Bauer, Leucker and Schallhart](https://doi.org/10.1145/2000799.2000800)): *violated*, when no extension of the prefix read so far satisfies the property; *satisfied*, when every extension satisfies it; and *inconclusive* otherwise. A property is *monitorable* if every prefix has an extension with a definite verdict. Safety properties, including bounded response, can be violated on a finite prefix. Liveness properties such as L1 can never be violated on a finite prefix and therefore always yield *inconclusive* on a log. A clean PObserve run on a log that stops early is likewise inconclusive with respect to R1 and R2 for every obligation or adaptation still open at its end; it does not confirm that they hold.
 
 ### 3.5 Normative programming in JaCaMo: NPL
 
@@ -396,33 +463,48 @@ Sanctions may be applied by the organization, by peers or by the environment. Sa
 
 ### 3.8 Choosing an enforcement mechanism
 
-The appropriate enforcement mechanism for a norm depends on two factors: the cost of a single violation, and whether the environment can physically prevent the forbidden action. Figure 6 positions the norms of the fleet along these two dimensions.
+The appropriate enforcement mechanism for a norm depends on two factors: the cost of a single violation, and whether the environment can physically prevent the forbidden action. Figure 8 positions the norms of the fleet along these two dimensions.
 
-![Figure 6 · the norms of the fleet placed by cost and controllability](figures/figure6.png)
+![Figure 8 · the norms of the fleet placed by cost and controllability](figures/figure8.png)
 
-*Figure 6 · the norms of the fleet placed by cost and controllability*
+*Figure 8 · the norms of the fleet placed by cost and controllability*
 
 - **High cost, preventable: regimentation.** A zone controller can refuse entry to a robot, and a collision, or an encounter between a robot and the picker, is unacceptable. Zone capacity and zone closures are therefore regimented.
 - **High cost, not preventable: monitoring complemented by a safety layer.** The MAS cannot prevent a person from walking into a zone. The norm "the picker enters only a closed zone" can therefore only be monitored (property R3), and the actual guarantee must be provided by a layer below the MAS, such as a badge gate, a light curtain, or the robots' safety-rated speed and separation monitoring.
 - **Low cost, not preventable: sanctioning.** A late delivery affects throughput, not safety. The robots' autonomy to reroute or reorder tasks outweighs the benefit of strict control.
 - **Low cost, preventable: a design decision.** Parking after three denials may either be enforced by the zone controller or left to the robot and sanctioned when disregarded.
 
-The figure also indicates where verification is most critical. A regimented norm must hold in every interleaving, which is precisely the space the P checker explores. A sanctioned norm need only be resolved, by fulfillment or sanction; this is a liveness requirement and, in the fleet, also a fairness requirement.
+The figure also indicates where verification is most critical. A regimented norm must hold in every interleaving, which is precisely the space the P checker explores. A sanctioned norm need only be resolved, by fulfillment or sanction; this is a liveness requirement and, in the fleet, also a sanction-fairness requirement.
 
 ### 3.9 Conditions for a fair sanction
 
 A sanction is intended to influence behavior by signaling to the agent that its choice was incorrect. This function presupposes that the agent could have chosen otherwise. A robot that missed its deadline because the regulator closed its route, or because another robot occupied the next zone, did not act wrongly. Sanctioning such a robot penalizes side effects of the regulation itself, and a learning robot may infer an inappropriate policy, for example avoiding all tasks that traverse zone 1.
 
-![Figure 7 · when a missed deadline deserves a sanction](figures/figure7.png)
+![Figure 9 · conditions for sanctioning a missed deadline](figures/figure9.png)
 
-*Figure 7 · when a missed deadline deserves a sanction*
+*Figure 9 · conditions for sanctioning a missed deadline*
 
-Figure 7 formalizes this principle as a decision rule. Before applying a sanction, the organization determines whether the delay was caused by a regulator or by traffic. Only if neither is the case is the delay attributed to the robot.
+Figure 9 formalizes this principle as a decision rule. Before applying a sanction, the organization determines whether the delay was caused by a regulator or by traffic. Only if neither is the case is the delay attributed to the robot.
 
 Two observations indicate that this is more than a matter of policy detail:
 
-- **The required information resides in another dimension.** Denials are known to the zone controllers (environment), whereas deadlines and sanctions belong to the organization. A fair sanction requires both kinds of information; fairness is therefore a cross-dimension property, of the kind that the unified view classifies but does not verify.
-- **Safety and fairness are independent.** The two-phase protocol renders the closure safe, yet the starter kit is expected to sanction robots that abandon their tasks after repeated denials. Property F1 is therefore expected to fail under both protocols. The remedy lies within the organization: deadlines are suspended while the regulation blocks an agent, after which F1 is checked again.
+- **The required information resides in another dimension.** Denials are known to the zone controllers (environment), whereas deadlines and sanctions belong to the organization. A fair sanction requires both kinds of information; sanction fairness is therefore a cross-dimension property, of the kind that the unified view classifies but does not verify.
+- **Safety and sanction fairness are independent.** The prepare–drain–commit protocol renders the closure safe, yet the starter kit is expected to sanction robots that abandon their tasks after repeated denials, so that F1 is expected to fail under both protocols. This failure follows from the kit's policy rather than from a subtle interaction: nothing in the kit excuses an abandoned obligation (section 3.3). A remedy lies within the organization and must determine the status of abandoned obligations, for instance by excusing those whose denials were caused by the regulation; suspending deadlines alone is not sufficient.
+
+**The property class of sanction fairness.** The intended property, *a robot is sanctioned only if it could have complied*, is counterfactual: it compares the actual run with alternative runs in which the robot might have acted differently. Such properties relate several traces (they are hyperproperty-like, or causal) and cannot be decided by observing a single trace. F1 is a safety property over single traces that approximates the intended one: it flags a sanction on an obligation whose task the robot abandoned after repeated denials. Every flagged case is a candidate for an unfair sanction, but the approximation is incomplete in two respects. First, it establishes neither that the robot could not have complied nor whether the denials were caused by the regulation or by traffic; the refined, cause-aware monitor of phase 3 narrows this gap by recording the cause of each denial. Second, it depends on the order of events, as described next. In the terms of section 3.2, F1 is a run-time check of an approximation of *ought implies can*.
+
+**Order sensitivity of F1.** F1 flags a sanction only if the abandonment of the same obligation was observed earlier. If the deadline passes while the robot is still retrying, the sanction precedes the abandonment and F1 remains silent, although the situation is essentially the same (Figure 10). At run time, the two events are recorded by different nodes (the robot and the fleet manager) with different clocks, so that clock skew can reverse their order in the merged log and change the verdict (section 5.12). Students either refine the monitor so that it correlates abandonment and sanction on the obligation identifier regardless of their order, or report the resulting false negatives as a threat to validity.
+
+![Figure 10 · F1 in the two possible orders of abandonment and sanction](figures/figure10.png)
+
+*Figure 10 · F1 in the two possible orders of abandonment and sanction*
+
+**Self-check questions (section 3).**
+
+1. Why would requiring G ¬V of the robots be a modeling error, and which property of the regulator replaces it?
+2. Why does axiom D not capture the situation of a robot whose route has been closed?
+3. Why can L1 never be violated on a finite log, whereas R1 can?
+4. Which two limitations prevent a violation of F1 from proving that a sanction was unfair?
 
 ## 4. Background: regulation management in MAS
 
@@ -432,11 +514,11 @@ Regulation management balances the autonomy of the agents against control over t
 | --- | --- | --- |
 | Regulation capabilities | what the regulation layer can do; operationalized here as *represent, monitor, enforce (regiment or sanction), adapt* | all four |
 | MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | **hybrid**: environment (zone controllers) + organization (fleet manager, closures) + agent (robots decide to park and give up) |
-| Architectural style | centralized vs. decentralized / distributed regulators | **distributed**: one controller per zone, coordinated only by messages |
+| Architectural style | centralized vs. decentralized / distributed regulators | **distributed regimentation**: one controller per zone deciding locally; adaptation (one coordinator) and sanctioning (one fleet manager) are **centralized** |
 
-![Figure 8 · the fleet placed in the unified-view grid](figures/figure8.png)
+![Figure 11 · the fleet placed in the unified-view grid](figures/figure11.png)
 
-*Figure 8 · the fleet placed in the unified-view grid*
+*Figure 11 · the fleet placed in the unified-view grid*
 
 Because the COINE 2025 paper is not openly available, the student verifies its exact list of capabilities during the first week and adjusts the mapping in section 7 accordingly.
 
@@ -448,7 +530,7 @@ Because the COINE 2025 paper is not openly available, the student verifies its e
 
 Constitutive and regulative norms determine who may perform each step and under which conditions. The authors implement the model by extending the SAI and NPL(s) normative engines within JaCaMo.
 
-**Challenges of the distributed style.** With a single regulator, executing an adaptation amounts to one local update. With one regulator per zone, the update must reach every controller. Messages arrive in an arbitrary order, and agents continue to act while messages are in transit. During this interval, controllers may disagree, and a robot may be admitted under the superseded rules. Two-phase commit, a protocol from distributed databases, eliminates this interval:
+**Challenges of the distributed style.** With a single regulator, executing an adaptation amounts to one local update. With one regulator per zone, the update must reach every controller. Messages arrive in an arbitrary order, and agents continue to act while messages are in transit. During this interval, controllers may disagree, and a robot may be admitted under the superseded rules. A protocol modeled on two-phase commit from distributed databases removes this interval:
 
 - **Prepare.** The affected controllers stop admitting robots and drain the zone.
 - **Commit.** The new norm set takes effect only after every controller has acknowledged.
@@ -494,6 +576,17 @@ The fleet follows the hybrid view. Safety norms reside in the environment (zone 
 
 Warehouses with hundreds of robots typically require the distributed style. This project studies its smallest non-trivial instance: three zone controllers.
 
+Strictly, the fleet combines two styles: regimentation is distributed, whereas adaptation, time and sanctioning are centralized.
+
+| Responsibility | P machine | Style | Where it runs |
+| --- | --- | --- | --- |
+| Admission to a zone (regimentation) | `ResourceGuard`, one per zone | distributed | each zone controller decides from its own occupancy and its installed norm set |
+| Change of the norm set (adaptation) | `AdaptationCoordinator`, one | centralized | one coordinator runs prepare and commit with every zone controller |
+| Obligations, deadlines and sanctions | `ObligationManager`, one | centralized | the fleet manager |
+| Logical time | `Clock`, one | centralized | only the obligation manager subscribes to it |
+
+The coordinator, the fleet manager and the clock are single points of coordination and of failure. The model does not represent their failure; the optional coordinator-crash extension of the assignment addresses it.
+
 ### 4.4 Adaptation as a control loop
 
 The detect–design–execute model of [Yan et al.](https://hal-lara.archives-ouvertes.fr/ISCOD-ENSMSE/hal-05350751v1) is analogous to the **MAPE-K loop** of autonomic computing (Kephart and Chess, 2003), which comprises the steps Monitor, Analyze, Plan and Execute over shared Knowledge:
@@ -515,20 +608,26 @@ The **transition window** is the interval between the decision to change the nor
 2. **Premature entry.** The person enters before the zone has been drained (properties S1 and R3).
 3. **Lost or reordered updates.** Two adaptations overlap, and controllers apply them in different orders. Version numbers and the serialization of adaptations in the coordinator prevent this hazard.
 
-The remedy adopted from distributed databases is **two-phase commit**, which guarantees that either all regulators switch to the new norm set or none does; in this project, it is extended with a drain step. The protocol has a known cost: a participant that cannot complete its prepare phase blocks all others. In the fleet, this participant is the zone 1 controller waiting for a robot that cannot leave because the next zone is held by another robot. Whether such blocking can occur is the subject of liveness property L2.
+The remedy is a protocol modeled on **two-phase commit** from distributed databases, reduced to three steps: *prepare* (the affected controller stops admitting robots), *drain* (it waits until its zone is empty) and *commit* (the new norm set takes effect everywhere). It is therefore more precisely a **prepare–drain–commit barrier**: unlike classical two-phase commit, the participants do not vote, and there is no abort path. Two kinds of blocking must be distinguished. In classical two-phase commit, blocking arises when the coordinator fails after the participants have prepared, leaving them uncertain about the outcome; the starter kit does not model coordinator failure. In the fleet, blocking arises instead when a participant cannot complete its prepare phase: the controller of zone 1 waits for a robot that cannot leave because the next zone is held by another robot. Whether this can occur is the subject of liveness property L2. The protocol is also an instance of the quiescence-based approach to dynamic reconfiguration of [Kramer and Magee](https://doi.org/10.1109/32.60317), in which a component is changed only after it has been brought to a quiescent state, here an empty zone. A variant with a timeout and an abort path, in which the coordinator cancels the adaptation if the zone does not drain in time, is evaluated in experiment E9.
 
 ### 4.6 The inconsistency window
 
-With one controller per zone, there is no single instant at which the rules change: each controller learns of the new norm set when the corresponding message arrives. Figure 9 depicts the versions held by each controller over time.
+With one controller per zone, there is no single instant at which the rules change: each controller learns of the new norm set when the corresponding message arrives. Figure 12 depicts the versions held by each controller over time.
 
-![Figure 9 · versions of the norm set in each zone controller over time](figures/figure9.png)
+![Figure 12 · versions of the norm set in each zone controller over time](figures/figure12.png)
 
-*Figure 9 · versions of the norm set in each zone controller over time*
+*Figure 12 · versions of the norm set in each zone controller over time*
 
 - **Naive protocol (top).** The coordinator commits v1 and informs the picker that the zone is closed. Zones 0 and 2 install v1 promptly, whereas the message to zone 1 is delayed. During the shaded interval, zone 1 still operates under v0 and admits robot 1, while the picker already acts under v1. Consequently, both S1 and S2 can be violated.
 - **Two-phase protocol (bottom).** Zone 1 stops admitting robots at *prepare* and drains. The commit occurs only after the zone is empty. The zones still install v1 at slightly different times, so an interval of inconsistency remains; within it, however, no behavior depends on the difference, because zone 1 is closed to robots under both versions.
 
 This observation extends beyond the corridor considered here. In a distributed regulator, a change of norms is not an assignment but a protocol. Its correctness must be established over all possible message delays, which is why it is verified with a model checker rather than by inspection of the norm sets.
+
+**Self-check questions (section 4).**
+
+1. Why is the fleet's adaptation protocol a barrier rather than a full two-phase commit, and which failure does it not tolerate?
+2. Which hazard of the transition window does S2 detect, and which does R3 detect?
+3. Why is an inspection of the norm sets insufficient to establish that a change of norms is safe in a regulator with distributed regimentation?
 
 ## 5. Background: the P language and PObserve
 
@@ -545,7 +644,7 @@ P has also been applied in robotics. SOTER ([Desai et al.](https://arxiv.org/pdf
 | State and handler | `state Moving { on eAccessDenied do (z: int) { … } }` | how the machine reacts to an event in a state |
 | Send | `send guards[next], eAccessRequest, (agent = id, …);` | asynchronous message to another machine |
 | Defer / ignore | `defer eX;` / `ignore eX;` | keep the event for later / drop it in this state |
-| Nondeterminism | `if ($) { … }` | the checker tries both branches: models robots that may not report |
+| Nondeterminism | `if ($) { … }` | the checker resolves the choice differently across schedules: models robots that may not report |
 | Monitor (spec) | `spec S observes eA, eB { … }` | a global observer that asserts properties |
 | Announce | `announce eTaskAbandoned, (id = job.id, agent = id, where = z);` | notify monitors without sending to any machine |
 | Hot / cold state | `hot state InProgress { … }` | liveness: an execution must not stay in a hot state forever |
@@ -571,7 +670,7 @@ spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
 }
 ```
 
-**Checking.** The command `p compile` builds the project, and `p check -tc <test> -s 10000` executes 10,000 schedules of the given test case. A failed assertion produces a trace under `PCheckerOutput/BugFinding/`, which can be replayed with the corresponding seed. The checker is a bug-finding tool: it explores a large number of schedules but does not establish correctness for arbitrary fleet sizes.
+**Checking.** The command `p compile` builds the project, and `p check -tc <test> -s 10000` executes 10,000 schedules of the given test case. A failed assertion produces a trace under `PCheckerOutput/BugFinding/`, which can be replayed with the corresponding seed. The checker is a bug-finding tool: it samples a large number of schedules but does not establish correctness, not even for the small configuration (section 5.9).
 
 **Modules and refinement.** [Desai's ModP work](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2020/EECS-2020-3.pdf) introduces a module system for compositional, assume–guarantee reasoning, with which it can be shown that a composition of modules refines an abstract specification. This capability underlies research question 3. Before these features are relied upon, it must be determined which of them the current P release supports.
 
@@ -582,19 +681,19 @@ spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
 3. The PObserve command-line interface (`java -jar PObserve-1.0.0.jar --jars <package> --spec <Monitor> -l <log>`) or its JUnit integration replays the events through the monitor.
 4. PObserve reports the first violation together with a replay of the events that led to it.
 
-![Figure 10 · design-time and run-time checking share one set of monitors](figures/figure10.png)
+![Figure 13 · design-time and run-time checking share most monitors](figures/figure13.png)
 
-*Figure 10 · design-time and run-time checking share one set of monitors*
+*Figure 13 · design-time and run-time checking share most monitors*
 
-Design-time and run-time checks therefore share a single definition of correctness. Because PObserve orders events by timestamp within a key, logs from several fleet nodes require synchronized clocks (NTP or PTP).
+Design-time and run-time checks therefore share most of their definition of correctness, but not all of it: R1 and R2 are checked only at run time, and L1 and L2 only at design time (section 5.11). By default, PObserve sorts the events of each partition key by timestamp before replaying them; logs from several fleet nodes therefore require synchronized clocks (NTP or PTP), and the effect of clock skew is discussed in section 5.12.
 
 PObserve reports assertion failures but does not report hot states that remain open at the end of a finite log. Liveness properties are therefore reformulated as **bounded-response** properties for run-time checking.
 
-**Scope of each check.** The checker and PObserve answer different questions, and neither can replace the other (Figure 11).
+**Scope of each check.** The checker and PObserve answer different questions, and neither can replace the other (Figure 14).
 
-![Figure 11 · what the checker and PObserve can each establish](figures/figure11.png)
+![Figure 14 · what the checker and PObserve can each establish](figures/figure14.png)
 
-*Figure 11 · what the checker and PObserve can each establish*
+*Figure 14 · what the checker and PObserve can each establish*
 
 - **The checker** explores many schedules, but only schedules of the model. A violation that it reports reflects the real system only to the extent that the model is faithful; a violation in the "model only" region is an artifact of abstraction, for example of robots moving between zones instantaneously. The absence of violations constitutes evidence about the design, bounded by the number of schedules explored.
 - **PObserve** examines few executions, but executions of the deployed system. A violation that it reports did occur, insofar as the log is accurate. It provides no information about executions that were not logged, nor about faults that the log cannot reflect, such as a localization error that places a robot in the wrong zone.
@@ -653,7 +752,7 @@ A `spec` machine is a global observer with the following characteristics:
 
 - It declares the events that it `observes` and executes synchronously each time one of these events is sent or announced.
 - It cannot send events; it can only update its own variables and evaluate `assert` statements.
-- An execution may terminate in a **cold** state, whereas a **hot** state must eventually be exited. If a run remains in a hot state beyond the bound, the checker reports a liveness violation.
+- An execution may terminate in a **cold** state, whereas a **hot** state must eventually be exited. Section 5.10 explains when the checker reports a liveness violation.
 - `announce e, payload;` delivers an event to monitors only. Machines use it to publish institutional facts (an entry, a commit, a sanction) without sending them to another machine.
 
 ### 5.5 How the checker explores
@@ -664,21 +763,21 @@ A single run up to a step bound is called a **schedule**, and the option `-s 100
 
 The search detects bugs but does not prove their absence. Models should therefore be kept small (two robots, three zones and a bounded clock) and enlarged only after the small model satisfies its properties.
 
-**Why interleavings matter.** Failures in a concurrent system arise from particular orderings of events rather than from individual events. Consider three events of a naive closure of zone 1: robot 1 is admitted to zone 1 (A), the coordinator commits v1 (C), and zone 1's controller installs v1 (I). In the naive protocol, I always follows C, which leaves three possible orderings (Figure 12).
+**Why interleavings matter.** Failures in a concurrent system arise from particular orderings of events rather than from individual events. Consider three events of a naive closure of zone 1: robot 1 is admitted to zone 1 (A), the coordinator commits v1 (C), and zone 1's controller installs v1 (I). In the naive protocol, I always follows C, which leaves three possible orderings (Figure 15).
 
-![Figure 12 · the orders of three closure events under the naive protocol](figures/figure12.png)
+![Figure 15 · the orders of three closure events under the naive protocol](figures/figure15.png)
 
-*Figure 12 · the orders of three closure events under the naive protocol*
+*Figure 15 · the orders of three closure events under the naive protocol*
 
 Only one of these orderings is safe. If the robot is admitted before the commit, it is not drained, and the picker subsequently enters a zone that the robot occupies. If it is admitted between the commit and the installation, zone 1 applies a rule that has already been superseded. Neither failure results from a defect in an individual component, since each controller behaves as specified. Testing would reveal these failures only if message delays happened to align, which is rare in a laboratory setting but plausible in a heavily loaded warehouse network.
 
-The checker enumerates these orderings systematically. The two-phase protocol does not make the unsafe orderings less likely; it eliminates them, because zone 1 refuses new robots and is emptied before the commit. A modification that only makes a race less frequent, such as a delay before the commit, leaves both unsafe branches in the tree.
+The checker samples schedules; for a race of this size, which involves few events and few context switches, it finds the unsafe orderings with high probability (section 5.9). The two-phase protocol does not make the unsafe orderings less likely; it eliminates them, because zone 1 refuses new robots and is emptied before the commit. A modification that only makes a race less frequent, such as a delay before the commit, leaves both unsafe branches in the tree.
 
 ### 5.6 Common pitfalls
 
 - **Over-deterministic test drivers.** If a test always starts the picker after the robots, many bugs cannot manifest. Nondeterministic choices (`$`) and several drivers should be used to widen the set of reachable orderings.
 - **Monitor timing.** A monitor observes an event when it is *sent*, before the receiver processes it. A clock tick is therefore visible to a monitor before the fleet manager has applied it. For this reason, the run-time deadline monitors (R1, R2) are not used in the checker.
-- **Liveness and fairness.** Hot-state checks assume that every enabled machine is eventually scheduled. A reported violation caused solely by the indefinite starvation of a machine does not constitute a genuine bug.
+- **Liveness and fairness.** The interpretation of hot-state violations depends on fairness assumptions (section 5.10). Each liveness violation must be classified as a defect of the design or as an artifact of the scheduling assumptions before it is reported.
 - **Unbounded models.** An unbounded clock or retry loop yields unbounded schedules. Such loops must be bounded (`maxTicks`, a retry limit), and the bounds must be reported.
 
 ### 5.7 Mapping normative concepts to P
@@ -698,29 +797,88 @@ The checker enumerates these orderings systematically. The two-phase protocol do
 ### 5.8 PObserve in more detail
 
 - **Partition keys.** The parser assigns a key to each event. All events with the same key are delivered, in timestamp order, to a dedicated instance of the monitor. The key must be chosen such that every property depends only on the events of a single key. Here, the key is the site, because a closure involves all zones of a site.
-- **Ordering.** Events that are out of timestamp order within a key are counted as errors. PObserve also retains a replay window of recent events (`--replay`) for reporting. The clocks of fleet nodes must be synchronized, and timestamps require microsecond precision.
+- **Ordering.** By default, PObserve sorts the events of each key by timestamp before replaying them; with the option `--assumeInputsAreSorted`, it merges the input files without sorting and reports every out-of-order event as an error. PObserve also retains a replay window of recent events (`--replay`) for reporting. The clocks of fleet nodes must be synchronized, and timestamps require microsecond precision.
 - **Parser contract.** `apply(logLine)` returns a stream of zero or more events and an empty stream for lines that do not represent regulation events. The parser must not hold static mutable state, because PObserve executes parsers on several threads.
 - **Generated classes.** `p compile --mode pobserve` names tuple classes after their abbreviated field names; for example, `(agent, res, ver)` becomes `PTuple_agent_res_ver`. The generated `PTypes.java` should be inspected before the parser is written.
 - **Execution modes.** JUnit tests are suited to continuous integration on recorded logs, whereas the command-line interface is suited to on-demand checking of production logs.
 
 **Learning path (days 1–7):**
 
-- [ ] Install P and complete the official tutorials ([p-org.github.io/P](https://p-org.github.io/P/)) ClientServer and TwoPhaseCommit; the latter is directly relevant to this project.
+- [ ] Install P and work through the repository's `P-Tutorial` (days 1–7); as further reading, study the official tutorials ([p-org.github.io/P](https://p-org.github.io/P/)) ClientServer and TwoPhaseCommit; the latter is directly relevant to this project.
 - [ ] Study the PObserve documentation: [overview](https://p-org.github.io/P/advanced/pobserve/pobserve/), [log parser](https://p-org.github.io/P/advanced/pobserve/logparser/) and [command-line interface](https://p-org.github.io/P/advanced/pobserve/pobservecli/).
 - [ ] Build and run the LockServer PObserve example in the P repository (`Src/PObserve/Examples/LockServerPObserve`).
 - [ ] Read [Desai et al., PLDI 2013](https://www.microsoft.com/en-us/research/publication/p-safe-asynchronous-event-driven-programming-2/), sections 1–3, and the SOTER paper ([arXiv 1808.07921](https://arxiv.org/pdf/1808.07921)).
+
+### 5.9 What N schedules guarantee
+
+`p check -s N` executes N schedules, each of which resolves every scheduling decision and every `$` choice according to a search strategy, for instance random choices or probabilistic concurrency testing (PCT; [Burckhardt et al.](https://doi.org/10.1145/1736020.1736040)); the available strategies and their option names should be taken from `p check --help` of the installed release. The search samples the space of schedules; it does not enumerate it. A run without a violation is therefore statistical evidence, not a proof, even for the small configuration.
+
+For PCT, Burckhardt et al. give a lower bound on the probability that a single schedule exposes a bug of *depth* d, i.e., a bug that requires d specific ordering constraints between events: at least 1/(n · k^(d−1)), where n is the number of machines and k the number of steps of a schedule. The races of this project have small depth (the unsafe closure of Figure 15 requires only that one admission occur between a commit and an installation), so that they are expected to be found after few schedules, whereas bugs of greater depth may require many more.
+
+The choice of N is justified by three arguments, which the report states:
+
+1. **Small-scope hypothesis.** Most design errors are exhibited by small configurations (two robots, three zones); larger configurations are examined in experiment E8.
+2. **Calibration with seeded bugs.** A known defect (the naive protocol, or a mutant from section 5.11) is reintroduced, and the number of schedules needed to find it is measured over several seeds. N is then chosen as a generous multiple of this number.
+3. **Reporting.** Every result states N, the strategy, the step bound, the seeds and the P version in the validation record.
+
+In this project, exploratory runs use `-s 10000`, and the final evidence for experiment E1 uses `-s 100000`, justified by the calibration.
+
+### 5.10 What a hot-state violation means
+
+A monitor in a hot state represents an obligation of the system that has not yet been discharged. The checker reports a liveness violation in two situations: when an execution terminates, i.e., no machine can take a step, while a monitor is in a hot state; and when a monitor remains in a hot state for more consecutive steps than a threshold (the *liveness temperature*) in a long execution. The second criterion is a heuristic for infinite executions; the exact options and defaults should be taken from the documentation of the installed release.
+
+Liveness verdicts depend on **fairness assumptions** about the scheduler:
+
+- **Weak fairness:** a machine that is *continuously* enabled is eventually scheduled.
+- **Strong fairness:** a machine that is enabled *infinitely often* is eventually scheduled.
+
+The retry loop of experiment E5 illustrates the difference. If two robots hold each other's next zone, neither request can ever succeed, and the violation of L2 is genuine under any fairness assumption. If, instead, one robot is repeatedly overtaken by another that re-acquires the zone, the request of the first robot is enabled infinitely often but not continuously, and only strong fairness guarantees that it is eventually granted. A reported violation that relies solely on such starvation is classified as an artifact of the scheduling assumptions rather than as a defect.
+
+Nondeterministic choices `$` are **not** assumed to be fair: the checker may resolve a choice in the same way in every iteration. A robot that may never release its zone because of a `$` choice therefore represents a behavior that the model explicitly admits, and the resulting violation of L2 is genuine with respect to the model. L1 requires that the obligation manager eventually processes every tick; L2 requires that every robot in a zone to be drained eventually leaves it, which in turn requires parking or another remedy for the corridor deadlock (section 6).
+
+### 5.11 Vacuity and sanity checks
+
+A monitor that never fails provides evidence only if it *can* fail. Two features of the starter kit make some properties hold by construction:
+
+- The clock ends every execution with a far-future tick (section 7.1), which causes every open obligation to be sanctioned. L1 therefore holds as long as the obligation manager processes this tick; it does not establish that obligations are resolved in time, which only R1 checks.
+- The picker in the model always waits for the commit before entering, so that R3 cannot fail in the model, although it is a meaningful run-time property.
+
+For each monitor, a **mutant** of the model that is expected to violate it is therefore required: for example, an obligation manager that never sanctions (L1, R1), a coordinator that commits before the zone is empty (S1, S2, R3), a picker that does not wait (R3), a duplicated sanction (S3) and a zone controller that never acknowledges (L2). In addition, **event coverage** is reported: for each monitor, the number of observed events of each type in the explored schedules, which demonstrates that the monitored situations actually occur.
+
+The checker and PObserve also share only part of the monitors. R1 and R2 are not run in the checker, because the model announces `eTick` before the obligation manager acts on it (section 5.6); L1 and L2 are not run by PObserve, because a finite log cannot violate them (section 3.4). Two remedies are possible: announcing a separate event after the obligation manager has processed a tick, so that R1 and R2 can also run in the checker, or an argument in the report that R1 implies L1 for logs that extend sufficiently far beyond the last deadline.
+
+### 5.12 Clock skew and causal order
+
+PObserve orders the events of a partition key by their timestamps. In a fleet, these timestamps originate from different nodes: zone controllers, robots, the fleet manager and the coordinator. Microsecond *precision* of a timestamp does not imply microsecond *accuracy*: clocks synchronized by NTP typically differ by milliseconds, which may exceed the latency of a message between two nodes. Two causally related events, for example a `COMMIT` and a subsequent `ENTER` at another node, can therefore appear in the merged log in the wrong order.
+
+The effect depends on the property. S2, as implemented, compares each admission with the most recently logged commit and is therefore sensitive to skew between the coordinator and the zone controllers. However, each `ENTER` line also carries the version `Ver` of the norm set under which the admission was decided; this field acts as a logical clock, which allows a refined monitor to check the consistency of versions independently of timestamps. F1 has no such field and depends entirely on the timestamp order of `ABANDON` and `SANCTION`, which are recorded by different nodes (section 3.9). The report states the assumed synchronization accuracy, identifies the monitors whose verdict depends on cross-node order and treats clock skew as a threat to validity; injecting artificial skew into a simulated log is a suitable experiment.
+
+### 5.13 Common misconceptions
+
+- **"No bug was found in N schedules, so the design is correct."** The checker samples schedules (section 5.9); the result is evidence whose strength depends on N, on the strategy and on calibration.
+- **"A violation of F1 proves that a sanction was unfair."** F1 flags candidates only (section 3.9).
+- **"A clean PObserve run shows that the system is safe."** It shows that the logged executions violated no safety monitor, insofar as the log is complete and correctly ordered; liveness properties remain inconclusive (section 3.4).
+- **"`defer` or `ignore` resolves an unhandled-event error."** These constructs change the protocol; they must be justified and must never be added merely to silence the checker (section 5.3).
+- **"A monitor that always holds is a good monitor."** It may be vacuous (section 5.11).
+
+**Self-check questions (section 5).**
+
+1. Why can L1 not be checked by PObserve, and which property replaces it at run time?
+2. How is the number of schedules needed to find the naive-protocol bug measured, and how does it inform the choice of `-s`?
+3. Why is the violation of L2 in experiment E5 genuine under any fairness assumption?
+4. Why does clock skew affect F1, and how could the `Ver` field make a check of S2 robust against it?
 
 ## 6. The system: robots in a shared corridor
 
 Two mobile robots deliver goods through a one-lane corridor consisting of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot 1 travels 0 → 1 → 2 and robot 2 travels 2 → 1 → 0; their paths therefore meet head-on. A fleet manager assigns deliveries with deadlines. At unpredictable times, a human picker requires access to zone 1, which first necessitates a **zone closure**: a regulation adaptation that closes zone 1 to robots.
 
-![Figure 13 · the corridor seen from above (illustrative)](figures/figure13.png)
+![Figure 16 · the corridor seen from above (illustrative)](figures/figure16.png)
 
-*Figure 13 · the corridor seen from above (illustrative)*
+*Figure 16 · the corridor seen from above (illustrative)*
 
-![Figure 14 · fleet architecture, components by MAOP dimension](figures/figure14.png)
+![Figure 17 · fleet architecture, components by MAOP dimension](figures/figure17.png)
 
-*Figure 14 · fleet architecture, components by MAOP dimension*
+*Figure 17 · fleet architecture, components by MAOP dimension*
 
 Because each zone controller decides independently, a closure is safe only if all three controllers switch norm sets before the picker enters. The project verifies the coordinator's protocol and the ability of the robots to drain zone 1.
 
@@ -742,33 +900,36 @@ Because each zone controller decides independently, a closure is safe only if al
 
 **Norms of the fleet:**
 
-| Norm | Modality | Enforcement | Level |
-| --- | --- | --- | --- |
-| At most one robot per zone | prohibition | regimented by each zone controller | physical safety |
-| No robot in a zone while a person is inside | prohibition | regimented by the zone controllers | physical safety |
-| A person enters only after the closure is committed | obligation on the procedure | monitored | safety procedure |
-| Report a delivery before its deadline | obligation with deadline | sanctioned by the fleet manager | performance |
-| A delivery ends either fulfilled or sanctioned, never both | integrity of the organization | by construction, monitored | organizational |
-| Sanction only an agent's own non-compliance | meta-norm on the sanction policy | monitored | fairness |
+| Norm | Modality | Enforcement | Level | Monitors |
+| --- | --- | --- | --- | --- |
+| At most one robot per zone | prohibition | regimented by each zone controller | physical safety | S1 |
+| No robot in a zone while a person is inside | prohibition | regimented by the zone controllers | physical safety | S1 |
+| No admission under a norm set that has been superseded | prohibition on the regulator | regimented by the adaptation protocol | consistency of regulation | S2 |
+| Norm sets are installed in version order | obligation on the regulator | by construction of the coordinator, monitored | consistency of regulation | S2 |
+| A requested closure is eventually installed | obligation on the regulator | by the protocol, monitored | liveness of regulation | L2; R2 at run time |
+| A person enters only after the closure is committed | obligation on the procedure | monitored | safety procedure | R3 |
+| Report a delivery before its deadline | obligation with deadline | sanctioned by the fleet manager | performance | L1; R1 at run time |
+| A delivery ends either fulfilled or sanctioned, never both | integrity of the organization | by construction, monitored | organizational | S3 |
+| Sanction only an agent's own non-compliance | meta-norm on the sanction policy | monitored (approximation) | sanction fairness | F1 |
 
 **Execution policies.** Two policies for executing a closure are compared:
 
 - **Naive.** The coordinator declares the new norm set immediately, and each zone controller installs it upon receipt of the corresponding message.
 - **Two-phase.** The coordinator sends *prepare*. Controllers whose zone is unaffected acknowledge immediately and continue to serve robots. The controller of the affected zone stops admitting robots, waits until the zone is empty and then acknowledges. The coordinator *commits* only after all controllers have acknowledged.
 
-![Figure 15 · naive vs. two-phase zone closure, as message sequences](figures/figure15.png)
+![Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences](figures/figure18.png)
 
-*Figure 15 · naive vs. two-phase zone closure, as message sequences*
+*Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences*
 
 In the naive sequence, the zone 1 controller still holds norm set v0 when the robot requests entry, because v1 is still in transit. The two-phase sequence cannot reach this state, since the picker is notified only after zone 1 has been drained and its controller has acknowledged.
 
-The two central results expected from the project are a demonstration that the naive policy is unsafe and an analysis of why even the safe policy is unfair to robots.
+The two central results expected from the project are a demonstration that the naive policy is unsafe and an analysis of the sanctions that even the safe policy applies to robots blocked by regulation or traffic.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines (Figure 16): the `AdaptationCoordinator` and one `ResourceGuard` per zone.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines (Figure 19): the `AdaptationCoordinator` and one `ResourceGuard` per zone.
 
-![Figure 16 · the two-phase protocol as two communicating state machines](figures/figure16.png)
+![Figure 19 · the prepare–drain–commit protocol as two communicating state machines](figures/figure19.png)
 
-*Figure 16 · the two-phase protocol as two communicating state machines*
+*Figure 19 · the prepare–drain–commit protocol as two communicating state machines*
 
 - **Prepare.** The coordinator sends `eNormPrepare` to every zone controller. The controller of zone 1, which the new norm set closes, enters `Draining`: it denies new robots but permits the current occupant to leave. Zones 0 and 2 are unaffected and acknowledge immediately, so they continue to serve robots throughout.
 - **Acknowledge.** When zone 1 is empty, its controller sends `eNormPrepareAck` and continues to deny requests, because it cannot yet determine whether the commit has occurred.
@@ -776,17 +937,28 @@ The two central results expected from the project are a demonstration that the n
 
 The safety argument rests on the highlighted states. The figure also reveals the cost of the protocol: the coordinator remains in `Preparing` until zone 1 is empty, and in the corridor, emptying a zone is not always possible.
 
-**Deadlock in the corridor.** A robot retains its zone until the next zone is granted. Consequently, two robots moving head-on may each hold the zone that the other requires (Figure 17). This configuration is an instance of the hold-and-wait cycle known from operating systems.
+**Deadlock in the corridor.** A robot retains its zone until the next zone is granted. Consequently, two robots moving head-on may each hold the zone that the other requires (Figure 20). This configuration is a deadlock in the sense of operating systems: a circular wait among processes that hold resources.
 
-![Figure 17 · head-on robots form a wait-for cycle, and three ways to resolve it](figures/figure17.png)
+![Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes](figures/figure20.png)
 
-*Figure 17 · head-on robots form a wait-for cycle, and three ways to resolve it*
+*Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes*
 
 The cycle is relevant to regulation in two respects. First, it can block the closure: if robot 1 occupies zone 1 while waiting for zone 2, zone 1 is never drained and the adaptation never commits. Property L2 (`AdaptationCompletes`) detects this situation when parking is removed. Second, every resolution of the cycle has a normative cost:
 
-- **Breaking hold-and-wait.** The robots of the starter kit abandon the task after three denials and park. This resolves the deadlock but leaves the task incomplete, and the robot is subsequently sanctioned for that obligation, which F1 flags as a potentially unfair sanction.
+- **Voluntary release (parking).** The robots of the starter kit abandon the task after three denials and park. This resolves the deadlock but leaves the task incomplete, and the robot is subsequently sanctioned for that obligation, which F1 flags as a potentially unfair sanction.
 - **Preventing the cycle.** A traffic norm that admits only one direction of travel at a time renders the cycle impossible. It constitutes an additional regimented norm and reduces throughput.
 - **Detection and recovery.** A supervisor detects the cycle and backs one robot out. This approach requires a free bay and introduces an additional component that must itself be verified.
+
+**Coffman conditions.** A deadlock requires four conditions to hold simultaneously ([Coffman, Elphick and Shoshani](https://doi.org/10.1145/356586.356588)). Each remedy removes one of them:
+
+| Condition | In the corridor | Remedy that removes it |
+| --- | --- | --- |
+| Mutual exclusion | a zone admits one robot (capacity 1) | none: it is the safety norm S1 |
+| Hold and wait | a robot keeps its zone while it requests the next one | reservation of the whole route before departure |
+| No preemption | a robot cannot be forced out of its zone | voluntary release after three denials (parking), or a supervisor that backs a robot out |
+| Circular wait | head-on robots wait for each other's zone | a traffic norm that admits one direction at a time |
+
+Parking thus removes the *no-preemption* condition through voluntary release; it does not remove hold-and-wait, because a robot holds its zone while it retries. Two risks remain even without deadlock. **Livelock** occurs if robots repeatedly park and re-enter in the same pattern without progress, and **starvation** occurs if one robot is always overtaken by another (section 5.10). Both affect L1 and the sanction counts rather than safety.
 
 A comparison of these remedies with the checker, with respect to both the closure properties and the fairness property, is one of the experiments of the project (section 7.3).
 
@@ -809,36 +981,40 @@ A starter kit containing draft versions of all three parts is provided (section 
 | `ObligationManager` | sanctioning | organization | fleet manager: creates delivery obligations, checks deadlines on each tick, sanctions |
 | `AdaptationCoordinator` | adaptation (detect → design → execute) | organization | versioned norm sets sent to all 3 controllers; two-phase or naive |
 | `HumanRequester` | source of the detect-fact | environment (human) | the picker: requests the closure of zone 1, enters on commit, leaves, requests reopening |
-| `Clock` | time | — | logical ticks; one final far-future tick so that every deadline passes |
+| `Clock` | time | — | logical ticks; one final far-future tick so that every deadline passes; consequently, L1 holds whenever the obligation manager processes this tick (section 5.11) |
 
 ### 7.2 Property catalog
 
-| Id | Monitor | Kind | Checked by | Expected with two-phase / naive |
-| --- | --- | --- | --- | --- |
-| S1 | `RegimentationSafety`: never two robots in a zone; never a robot and a person together | safety | checker + PObserve | holds / **violated** |
-| S2 | `NoStaleAdmission`: no admission to a zone the committed norm set closes; versions in order | safety | checker + PObserve | holds / **violated** |
-| S3 | `NoDoubleOutcome`: a delivery is never both fulfilled and sanctioned | safety | checker + PObserve | holds / holds |
-| L1 | `EveryObligationResolved`: every delivery eventually fulfilled or sanctioned | liveness (hot state) | checker | holds / holds |
-| L2 | `AdaptationCompletes`: every closure eventually commits | liveness (hot state) | checker | holds / holds |
-| R1 | `ObligationDeadlineRespected`: resolved within 1 tick of the deadline | bounded response | PObserve | holds / holds |
-| R2 | `AdaptationBoundedTime`: commits within 5 ticks | bounded response | PObserve | holds / holds |
-| R3 | `LockoutBeforeEntry`: a person enters only a closed zone | safety (procedure) | checker + PObserve | holds / holds |
-| F1 | `SanctionsReflectMisconduct`: no obligation is sanctioned after the robot abandoned it following repeated access denials | fairness | checker + PObserve | **violated** / **violated** |
+| Id | Monitor | Class | Enforcement | Checked by | Expected with prepare–drain–commit / naive |
+| --- | --- | --- | --- | --- | --- |
+| S1 | `RegimentationSafety`: never two robots in a zone; never a robot and a person together | safety | regimented | checker + PObserve | holds / **violated** |
+| S2 | `NoStaleAdmission`: no admission to a zone the committed norm set closes; versions in order | safety | regimented (adaptation protocol) | checker + PObserve | holds / **violated** |
+| S3 | `NoDoubleOutcome`: a delivery is never both fulfilled and sanctioned | safety (integrity) | by construction | checker + PObserve | holds / holds |
+| L1 | `EveryObligationResolved`: every delivery eventually fulfilled or sanctioned | liveness (hot state) | sanctioned | checker | holds / holds, possibly vacuously (section 5.11) |
+| L2 | `AdaptationCompletes`: every closure eventually commits | liveness (hot state) | protocol | checker | holds / holds, with parking |
+| R1 | `ObligationDeadlineRespected`: resolved by tick Due + 1 | bounded response | sanctioned | PObserve | holds / holds |
+| R2 | `AdaptationBoundedTime`: commits within 5 ticks | bounded response | protocol | PObserve | holds if the bound is at least the maximum drain time / holds |
+| R3 | `LockoutBeforeEntry`: a person enters only a closed zone | safety (procedure) | monitored | checker + PObserve | holds / holds, by construction of the picker model (section 5.11) |
+| F1 | `SanctionsReflectMisconduct`: no obligation is sanctioned after the robot abandoned it following repeated access denials | safety (approximation of sanction fairness) | monitored | checker + PObserve | **violated** / **violated** |
 
-The expected outcomes are **hypotheses** derived from the design. They are consistent with the output of a sample-log simulator but have not yet been confirmed with `p check`; confirming or refuting them is part of the project. F1 is *expected* to fail, and its counterexample would constitute a finding about the norms rather than a defect of the monitor.
+The expected outcomes are **hypotheses** derived from the design. They are consistent with the output of a sample-log simulator but have not yet been confirmed with `p check`; confirming or refuting them is part of the project. F1 is *expected* to fail, and its counterexample would constitute a finding about the kit's sanction policy rather than a defect of the monitor (section 3.9); the refined monitor of phase 3 attributes each flagged sanction to a cause.
 
 ### 7.3 Experiments (priorities in 7.5)
 
-| # | Experiment | Change to the model | Question answered |
-| --- | --- | --- | --- |
-| E1 | Baseline, two-phase | none | Do S1–S3, L1, L2 and R3 hold under 10^5 schedules? |
-| E2 | Baseline, naive | `twoPhase = false` | Which monitor fails first, and in which zone? The trace is explained step by step |
-| E3 | Sanction fairness | test `tcFleetSanctionFairness` | Which situations cause unfair sanctions: the closure, the head-on conflict, or both? |
-| E4 | Block every controller during prepare | remove the "unaffected controller acks at once" branch | Does draining now depend on parking? Does anything deadlock? |
-| E5 | No parking | robots retry forever | Does hold-and-wait occur in the corridor, and does L2 fail when zone 1 must drain? |
-| E6 | Traffic norm (remedy 1) | add a direction controller: one travel direction per corridor at a time | Does F1 then fail only because of closures? |
-| E7 | Deadline suspension (remedy 2) | the fleet manager suspends a deadline while the regulation blocks the robot | Does F1 hold? At what cost to L1 and R1? |
-| E8 | Scale | 3–4 robots or 4–5 zones | Checker run time; where does exploration stop scaling? |
+| # | Experiment and change to the model | Question | Prediction | Acceptance criterion | Min. `-s` | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| E0 | Monitor sanity: one mutant per monitor (section 5.11) | Can each monitor fail? | each mutant violates its monitor | every monitor fails on its mutant; event coverage reported | 10,000 | mutants, traces, coverage table |
+| E1 | Baseline, prepare–drain–commit: no change | Do S1–S3, L1, L2 and R3 hold? | no violation | no violation; N justified by calibration (section 5.9) | 100,000 | command, seeds, versions, output |
+| E2 | Baseline, naive: `twoPhase = false` | Which monitor fails first, and in which zone? | S1 or S2 in zone 1 | violation found and explained with the template of section 7.8 | 10,000 | trace and explanation |
+| E3 | Sanction fairness: test `tcFleetSanctionFairness` | Which situations produce flagged sanctions? | F1 violated after closures and after head-on conflicts | each flagged trace attributed to a cause | 10,000 | traces for both causes, or an argument that one cannot occur |
+| E4 | Block every controller during prepare: remove the "unaffected controller acks at once" branch | Does draining depend on parking? Does anything deadlock? | L2 holds only with parking | prediction confirmed or refuted with a trace | 10,000 | trace or run summary |
+| E5 | No parking: robots retry forever | Does the corridor deadlock occur, and does L2 fail when zone 1 must drain? | L2 violated by circular wait | violation found and classified as genuine (section 5.10) | 10,000 | trace and classification |
+| E6 | Traffic norm (remedy 1): one travel direction at a time | Do flagged sanctions then follow only closures? | traffic-caused cases disappear | refined monitor reports no traffic-caused case; all safety monitors hold | 10,000 | refined-monitor output; safety results |
+| E7 | Excusing obligations (remedy 2): deadlines suspended while the regulation blocks a robot, and obligations abandoned because of a closure excused | Does F1 hold for regulation-caused cases, and at what cost? | suspension alone: F1 still fails; with excusal: no regulation-caused case | refined monitor reports no regulation-caused case; safety monitors and L1 hold | 10,000 | outputs before and after; cost in L1 (checker) and in sanction counts (PObserve) |
+| E8 | Scale: 3–4 robots or 4–5 zones | Where does exploration stop scaling? | run time grows rapidly | run times reported per size | as feasible | table of sizes and times |
+| E9 | Prepare timeout and abort: the coordinator aborts if the zone does not drain within k ticks | Does L2 hold without parking, and are S1 and S2 preserved? | L2 holds; the picker may be refused | prediction confirmed or refuted | 10,000 | traces and discussion |
+
+Predictions are recorded before each run. The identifiers E0–E9 are also used in the assignment and in the instructions.
 
 **Stretch goal: refinement (research question 3).** An abstract centralized regulator is specified as a single machine holding the state of the entire corridor. It is then shown, either by refinement testing or by means of P's module system, that the three distributed controllers together with the coordinator behave as this regulator. Such a result would turn the architectural-style axis of the unified view into a verified claim.
 
@@ -856,10 +1032,11 @@ Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serv
 
 **Validation criteria:**
 
-- the two-phase sample log satisfies every safety monitor;
+- the prepare–drain–commit sample log satisfies every safety monitor;
 - the naive sample log violates S1 and S2;
 - both logs violate F1;
-- R1 and R2 detect injected faults, namely a deleted `SANCTION` line and a delayed `COMMIT`.
+- **injected system faults** (true positives): R1 detects a deleted `SANCTION` line, and R2 detects a delayed `COMMIT`;
+- **injected log defects** (false results): at least two defects from `MobileRobots/INSTRUCTIONS.md`, section 3.6, such as a missing `LEAVE` or a duplicate `COMMIT`, are injected, and the resulting false verdicts are explained.
 
 **Instrumentation (stretch goal).** The log is emitted from a ROS 2 simulation of the corridor (e.g., three zones in Gazebo or in a 2D simulator) using the `regulation_log.py` helper. The output is written to a dedicated file rather than through the ROS logger, whose prefix the parser does not accept. PObserve is then run on the resulting log.
 
@@ -867,42 +1044,144 @@ Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serv
 
 | Priority | Requirement |
 | --- | --- |
-| Must | All P files compile; E1–E3 run; each result is explained with the trace or report |
-| Must | Every monitor is justified against a norm of section 6 |
+| Must | All P files compile; E0–E3 run; each result is explained with the trace or report |
+| Must | Every monitor is traced to a norm of section 6 (section 7.7) and shown to be able to fail (E0) |
+| Must | Predictions are recorded before each experiment, and the validation record is complete |
+| Must | Denial causes are recorded, the refined monitor distinguishes regulation-caused from traffic-caused cases, and one remedy (E6 or E7) is verified |
 | Must | The PObserve package builds; the safety and fairness JUnit tests pass on the sample logs |
-| Should | E4 and E5; one remedy (E6 or E7) evaluated; the fault-injection runs for R1 and R2 |
-| Could | E8; the second remedy; the refinement stretch; ROS 2 instrumentation and a run on its logs |
+| Must | The report states the modeling assumptions and the threats to validity (section 7.6) |
+| Should | E4 and E5; the fault-injection runs of section 7.4; an order-insensitive refinement of F1 |
+| Could | E8 and E9; the second remedy; the refinement stretch goal; ROS 2 instrumentation and a run on its logs |
+
+### 7.6 Modeling assumptions and threats to validity
+
+Every result of the project holds relative to the model and to the logs. The following assumptions are recorded, and the report discusses each as a potential threat to validity. An *over-approximation* admits more behaviors than the real fleet, so that safety results transfer to the real fleet; an *under-approximation* admits fewer, so that safety results do not transfer without further argument.
+
+| Model assumption | Real-fleet counterpart | Approximation | Properties affected |
+| --- | --- | --- | --- |
+| Robots follow the access protocol: they request before entering and never enter without a grant | robots may malfunction or be teleoperated into a zone | under-approximation | S1, S2 |
+| Robots may fail to report (`$`) | robots may crash or lose connectivity | over-approximation of reporting failures | L1, R1, S3 |
+| Messages are neither lost nor duplicated | networks lose and duplicate messages | under-approximation | S2, L2 |
+| Messages between two machines arrive in order; different senders interleave arbitrarily | ROS 2 topics with suitable QoS; arbitrary delays | over-approximation of delays | S1, S2 |
+| Zone moves are discrete; a robot holds its zone until the next is granted | continuous motion; a robot occupies two zones while crossing a boundary | abstraction | S1, deadlock |
+| The picker waits for the commit before entering | people may enter without permission | under-approximation | R3, S1 |
+| Light curtains and badge readers detect every person | sensors fail | under-approximation | S1, R3 |
+| Logical ticks; deadlines in ticks | physical time and clock drift | abstraction | L1, R1, R2 |
+| The coordinator, the fleet manager and the clock never fail | single points of failure | under-approximation | L1, L2, R2 |
+| Two robots, three zones, bounded retries and ticks | larger fleets, unbounded operation | under-approximation (small scope) | all |
+
+The report groups threats to validity into four classes: *internal* (errors in the model or the monitors; addressed by E0), *construct* (whether a monitor expresses the intended norm, in particular F1, section 3.9), *external* (whether the results transfer to real fleets; the table above) and *conclusion* (whether the number of schedules suffices; section 5.9).
+
+### 7.7 Traceability
+
+The following table traces each norm of section 6 to the property that expresses it and to the evidence that checks it.
+
+| Norm (section 6) | Property | Formula (informal) | Class | Enforcement | Design time | Run time | Test case | Log events |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| One robot per zone; no robot with a person | S1 | G ¬(occupancy > capacity ∨ (robot ∧ person in the same zone)) | safety | regimented | checker | PObserve | `tcFleetTwoPhase`, `tcFleetNaive` | CONFIG, ENTER, LEAVE, HUMAN\_ENTER, HUMAN\_LEAVE |
+| No admission under a superseded norm set; versions in order | S2 | G(admitted(z) → z not closed by the last committed norm set) ∧ commits in version order | safety | regimented | checker | PObserve | `tcFleetNaive` | ENTER, COMMIT |
+| Fulfilled or sanctioned, never both | S3 | G ¬(fulfilled(o) ∧ sanctioned(o)) | safety | by construction | checker | PObserve | all | FULFILLED, SANCTION |
+| Report before the deadline | L1, R1 | G(created → F resolved); G(created → F≤(Due+1) resolved) | liveness; bounded response | sanctioned | L1 | R1 | all | OBLIGATION, FULFILLED, SANCTION, TICK |
+| A requested closure is eventually installed | L2, R2 | G(started → F committed); within 5 ticks | liveness; bounded response | protocol | L2 | R2 | `tcFleetTwoPhase` | ADAPT\_START, COMMIT, TICK |
+| A person enters only after the commit | R3 | G(person enters z → z closed by the committed norm set) | safety | monitored | checker | PObserve | `tcFleetTwoPhase` | HUMAN\_ENTER, COMMIT |
+| Sanction only own non-compliance | F1 | G ¬(sanctioned(o) ∧ o abandoned earlier) | safety (approximation) | monitored | checker | PObserve | `tcFleetSanctionFairness` | ABANDON, SANCTION |
+
+**Event vocabulary.**
+
+| P event | Log event | Fields | Observed by |
+| --- | --- | --- | --- |
+| `eMonitorConfig` | CONFIG | Capacity | S1 |
+| `eTick` | TICK | Now | R1, R2 |
+| `eObligationCreated` | OBLIGATION | Id, Agent, Task, Due | L1, R1 |
+| `eObligationFulfilled` | FULFILLED | Id, Agent | S3, L1, R1 |
+| `eSanctionApplied` | SANCTION | Id, Agent | S3, L1, R1, F1 |
+| `eResourceEntered` | ENTER | Agent, Res, Ver | S1, S2 |
+| `eResourceLeft` | LEAVE | Agent, Res | S1 |
+| `eAdaptationStarted` | ADAPT\_START | Ver | L2, R2 |
+| `eNormCommitted` | COMMIT | Ver, Closed | S2, L2, R2, R3 |
+| `eHumanEntered`, `eHumanLeft` | HUMAN\_ENTER, HUMAN\_LEAVE | Res | S1; R3 (entry only) |
+| `eTaskAbandoned` | ABANDON | Id, Agent, Where | F1 |
+
+### 7.8 Reporting a counterexample
+
+Each counterexample in the report follows this template:
+
+1. **Setup.** Test case, configuration (robots, zones, protocol), command, seed, strategy and P version.
+2. **Violated property.** Monitor, assertion message and the norm of section 6 that it expresses.
+3. **Shortest violating prefix.** Only the relevant events, as a message-sequence chart or a numbered list; events of unrelated machines are omitted, and the omission is stated.
+4. **Root cause.** The interleaving or design decision that permits the violation, related to a hazard of section 4.5 or to a figure of section 6.
+5. **Real defect or model artifact.** An argument, with reference to the assumptions of section 7.6, whether the trace can occur in a real fleet.
+6. **Fix.** The change to the model, with its justification.
+7. **Regression.** The run that shows that the fix removes the violation and that no other monitor fails.
+
+**Annotated log excerpt.** The following excerpt of the naive sample log `fleet_naive.log` is illustrative: it was produced by the simulator, not by a running fleet, and its timestamps are shortened. It shows the violation of S1 and S2 at tick 3:
+
+```
+08:00:03.001  TICK         Now=3
+08:00:03.002  ADAPT_START  Ver=1                  <- the picker requests the closure of zone 1
+08:00:03.003  COMMIT       Ver=1, Closed=1        <- naive: committed before any controller installed v1
+08:00:03.004  HUMAN_ENTER  Res=1                  <- the picker enters on the commit
+08:00:03.005  ENTER        Agent=1, Res=1, Ver=0  <- zone 1 still applies v0: S2 (stale admission), S1 (robot with person)
+08:00:03.006  LEAVE        Agent=1, Res=0
+```
+
+A complete write-up adds the setup (here, simulator seed 2 and the naive policy) and relates the violation to hazards 1 and 2 of section 4.5. The same template applies to F1: later in the same log, obligation 0 of robot 2 is abandoned at tick 5 (`ABANDON Id=0, Agent=2, Where=2`) and sanctioned at tick 8 (`SANCTION Id=0, Agent=2`), one tick after its deadline of 7.
 
 ## 8. Work plan and deliverables
 
 The project comprises five phases over 45 calendar days, counted from the start date. Each phase lasts between 7 and 11 days and concludes with a short checkpoint meeting and a tagged commit.
 
-![Figure 18 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure18.png)
+![Figure 21 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure21.png)
 
-*Figure 18 · work plan: 5 phases, 45 days, 5 deliverables*
+*Figure 21 · work plan: 5 phases, 45 days, 5 deliverables*
 
 The verification phase constitutes the core of the project. If the modeling work is delayed, the optional ROS 2 instrumentation and the refinement stretch goal are to be omitted, not experiments E1–E3.
 
 **Deliverables:**
 
-| # | Deliverable | Due (day) | Content |
-| --- | --- | --- | --- |
-| D1 | Background note | 7 | 2–3 pages: MAS, norms, the unified view, P; the fleet placed in the grid, with justification |
-| D2 | Verified model | 28 | compiling P project; results of E1–E3 and the Should experiments, with traces and explanations; one remedy evaluated |
-| D3 | PObserve package | 38 | parser, JUnit tests (safety and fairness), runner, fault-injection logs, results |
-| D4 | Final report | 45 | 8–12 pages in a workshop-paper format (e.g. EMAS, COINE or WESAAC) |
-| D5 | Presentation and demo | 45 | 15 minutes: one checker counterexample and one PObserve fairness violation shown live |
+| Phase | Days | Activities | Deliverable or checkpoint | Exit criterion |
+| --- | --- | --- | --- | --- |
+| 1 Background | 1–7 | toolchain; `P-Tutorial`; sections 2–5; first `p compile`, with the errors recorded | **D1** (day 7): background note, 2–3 pages, with the fleet placed in the unified-view grid and a one-page mapping of each machine to a regulation capability, stating which responsibilities are distributed and which centralized | note submitted; toolchain versions recorded |
+| 2 Model | 8–17 | compile errors fixed; modeling decisions justified; E0–E2 and at least three of E3–E5 and E9, each with a prediction recorded before the run | **Checkpoint** (day 17): validation record for the P steps; experiment log with change, prediction, result and explanation | project compiles; E0 shows that every monitor can fail; E1 and E2 recorded |
+| 3 Verification | 18–28 | analysis (days 18–22): denial causes recorded in `eTaskAbandoned`, refined cause-aware monitor; remedy (days 23–28): E6 or E7 | **D2** (day 28): verified model with the refined monitor, counterexample traces for both causes (or an argument that one cannot occur), all safety monitors still holding, the result of the remedy and the justification of the schedule count (section 5.9) | the Must requirements of section 7.5 that concern the model are met |
+| 4 Run time | 29–38 | PObserve package; logs with denial causes and remedy from the extended simulator; sanction counts by cause before and after the remedy; injection of system faults and log defects (section 7.4) | **D3** (day 38): PObserve package, verdicts for every log, counts of flagged sanctions by cause before and after the remedy | JUnit tests pass on the sample logs; every log has a recorded verdict |
+| 5 Analysis | 39–45 | report and presentation | **D4** (day 45): report, 8–12 pages in a workshop-paper format (e.g., EMAS, COINE or WESAAC), with the threats to validity (section 7.6) and the validation record as an appendix. **D5** (day 45): presentation of 15 minutes plus 5 minutes of questions, with one counterexample replayed live and one PObserve result shown | report and presentation delivered |
+
+This table is the authoritative statement of phases and deliverables; `ASSIGNMENT.md` reproduces it. D1 and the day-17 checkpoint are formative: they receive written feedback, and their content is assessed as part of the report.
+
+**Assessment rubric.**
+
+| Component | Weight | Excellent | Adequate | Insufficient |
+| --- | --- | --- | --- | --- |
+| Baseline and validation record | 10% | every step has command, versions, seed and output, and is reproducible from the repository | most steps recorded, with minor gaps | results without commands or output |
+| Design experiments (E0–E5, E9) | 15% | predictions recorded before running; every counterexample explained with the template of section 7.8; mutants for all monitors | predictions for most experiments; counterexamples described | results reported without prediction or explanation |
+| Sanction fairness: analysis and refined monitor | 20% | causes recorded and distinguished; traces for each cause explained; order sensitivity addressed | causes distinguished; traces partially explained | no attribution of causes |
+| Sanction fairness: remedy and verification | 20% | remedy verified for the targeted cases; safety monitors still hold; schedule count justified by calibration | remedy implemented and checked; justification of the schedule count incomplete | remedy not verified |
+| Run-time monitoring | 15% | verdicts for all logs; counts by cause before and after the remedy; system faults and log defects analyzed; clock skew discussed | verdicts and counts; defects partially analyzed | package does not run, or no analysis |
+| Report and presentation | 20% | claims match the evidence; no causal claim beyond what the monitors support; threats to validity complete | minor overstatements; threats partially discussed | claims unsupported by evidence |
+
+**Learning outcomes, deliverables and assessment.**
+
+| Outcome | D1 | Day 17 | D2 | D3 | D4 | D5 | Assessed in |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| LO1 grid and architecture | ✓ |  |  |  | ✓ |  | report and presentation |
+| LO2 modeling and assumptions |  | ✓ | ✓ |  | ✓ |  | baseline; design experiments |
+| LO3 monitors and counterexamples |  | ✓ | ✓ | ✓ | ✓ | ✓ | design experiments; fairness analysis |
+| LO4 schedules and vacuity |  | ✓ | ✓ |  | ✓ |  | design experiments; remedy |
+| LO5 causes and remedy |  |  | ✓ | ✓ | ✓ | ✓ | fairness analysis; remedy |
+| LO6 run-time monitoring |  |  |  | ✓ | ✓ | ✓ | run-time monitoring |
+| LO7 physical constraints and validity | ✓ |  | ✓ | ✓ | ✓ |  | report and presentation |
 
 ## 9. Starter kit, setup and references
 
-The `p-regulation` archive is given. This project uses `Common/`, `MobileRobots/` and `tools/`; `ManufacturingCell/` contains a simpler, centralized variant that serves as a reference.
+The `p-regulation` starter kit is given in the project folder of the repository; it was originally distributed as an archive. This project uses `Common/`, `MobileRobots/` and `tools/`; `ManufacturingCell/` contains a simpler, centralized variant that serves as a reference.
 
 | Path | Content | Status |
 | --- | --- | --- |
 | `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
 | `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, system configuration, fairness monitor, test cases | draft, not yet compiled |
 | `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API and exercised only with stand-ins for the generated classes; not yet built with p compile --mode pobserve; JUnit not yet run |
-| `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | ready |
+| `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | written; not yet validated with P or PObserve |
 | `tools/simulate_logs.py` | generates two-phase / naive fleet logs and previews monitor results | tested |
 | `tools/instrumentation/regulation_log.py` | logging helper for ROS 2 / Python | tested |
 
@@ -926,7 +1205,57 @@ p check -tc tcFleetSanctionFairness -s 10000
 cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 ```
 
-### References
+## Appendix A. Glossary and reading map
+
+**Glossary.**
+
+| Term | Meaning in this project |
+| --- | --- |
+| Abandonment | a robot gives up a delivery after three denials and parks; announced as `eTaskAbandoned` |
+| Adaptation | a run-time change of the norm set, executed by the coordinator (detect, design, execute) |
+| Announce | a P statement that delivers an event to monitors only |
+| Bounded response | a property of the form G(p → F≤k q); a safety property that can be checked on finite logs |
+| Cold / hot state | a monitor state in which an execution may / must not end or remain forever |
+| Constitutive rule | a count-as rule that relates physical facts to institutional facts |
+| Counterexample | a trace that violates a monitor, together with the seed that reproduces it |
+| Deadlock | a state in which robots wait for each other indefinitely; requires the four Coffman conditions |
+| Denial | the refusal of an access request by a zone controller |
+| Detect-fact | the institutional fact that a change of regulation is required |
+| Drain | waiting until the zone to be closed is empty |
+| Fairness assumption | an assumption about the scheduler (weak or strong fairness) under which liveness is judged |
+| Livelock | repeated activity without progress |
+| Liveness property | a property stating that something good eventually happens; it cannot be violated on a finite prefix |
+| Monitor (spec) | a P machine that observes events and asserts a property |
+| Mutant | a deliberately faulty variant of the model, used to show that a monitor can fail |
+| Norm instance | one activation of a norm, e.g., the obligation for one delivery |
+| Norm set (version) | the set of closed zones in force, numbered by a version |
+| Partition key | the log field by which PObserve groups events into independent monitor instances (here, `Site`) |
+| Regimentation | enforcement that makes a violation impossible |
+| Safety property | a property stating that nothing bad happens; every violation has a finite bad prefix |
+| Sanction fairness | the requirement that a robot is sanctioned only for non-compliance it could have avoided |
+| Sanctioning | enforcement that detects a violation and responds with a sanction |
+| Schedule | one execution explored by the checker, with all scheduling and `$` choices resolved |
+| Tick | one step of the organization's logical clock |
+| Transition window | the interval during which regulators may apply different norm sets |
+| Vacuity | satisfaction of a property for a trivial reason, which therefore carries no information |
+
+**Reading map.** Essential subsections are required for the phase indicated; enrichment subsections deepen the background and may be read later.
+
+| Section | Status | Needed in phase |
+| --- | --- | --- |
+| 2, 2.2, 2.4 | essential | 1 |
+| 2.1, 2.3, 2.5 | enrichment | 1 |
+| 3, 3.1, 3.3, 3.4, 3.7, 3.9 | essential | 1–3 |
+| 3.2: deontic and temporal readings, norm patterns | essential | 1 |
+| 3.2: Andersonian reduction, paradoxes; 3.5, 3.6, 3.8 | enrichment | 1 |
+| 4, 4.5, 4.6 | essential | 1–2 |
+| 4.1–4.4 | enrichment | 1 |
+| 5, 5.1–5.6, 5.9–5.11 | essential | 2 |
+| 5.7, 5.8, 5.12 | essential for the run-time part | 4 |
+| 5.13 | essential | 2–5 |
+| 6, 7, 8 | essential | 2–5 |
+
+## References
 
 Core:
 
@@ -957,6 +1286,13 @@ Deontic and temporal logic:
 - A. R. Anderson. [A reduction of deontic logic to alethic modal logic](https://doi.org/10.1093/mind/LXVII.265.100). *Mind* 67(265):100–103, 1958.
 - J.-J. Ch. Meyer. [A different approach to deontic logic: deontic logic viewed as a variant of dynamic logic](https://doi.org/10.1305/ndjfl/1093637776). *Notre Dame Journal of Formal Logic* 29(1):109–136, 1988.
 - P. McNamara and F. Van De Putte. [Deontic logic](https://plato.stanford.edu/entries/logic-deontic/). *Stanford Encyclopedia of Philosophy*.
+
+Concurrency, testing and run-time verification:
+
+- E. G. Coffman, M. J. Elphick, A. Shoshani. [System deadlocks](https://doi.org/10.1145/356586.356588). *ACM Computing Surveys* 3(2):67–78, 1971.
+- J. Kramer, J. Magee. [The evolving philosophers problem: dynamic change management](https://doi.org/10.1109/32.60317). *IEEE Transactions on Software Engineering* 16(11):1293–1306, 1990.
+- S. Burckhardt, P. Kothari, M. Musuvathi, S. Nagarakatte. [A randomized scheduler with probabilistic guarantees of finding bugs](https://doi.org/10.1145/1736020.1736040). ASPLOS 2010.
+- A. Bauer, M. Leucker, C. Schallhart. [Runtime verification for LTL and TLTL](https://doi.org/10.1145/2000799.2000800). *ACM Transactions on Software Engineering and Methodology* 20(4), 2011.
 
 Textbooks and background (from the field's standard literature; locate the current editions):
 

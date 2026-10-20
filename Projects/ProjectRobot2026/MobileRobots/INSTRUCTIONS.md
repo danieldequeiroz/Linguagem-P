@@ -99,7 +99,7 @@ The guide has not been validated against a specific toolchain. When you validate
 ```bash
 cd MobileRobots
 p compile
-p check -tc tcFleetTwoPhase         -s 10000
+p check -tc tcFleetTwoPhase         -s 100000   # E1; -s 10000 for exploratory runs
 p check -tc tcFleetNaive            -s 10000
 p check -tc tcFleetSanctionFairness -s 10000
 ```
@@ -124,12 +124,14 @@ So a violation is a *candidate* unfair sanction. To attribute it, log the denial
 
 ### 2.3 Experiments worth running
 
-| Change | Where | What to look for |
-|---|---|---|
-| Block **all** zone controllers during prepare (drop the "unaffected guard acks at once" branch) | `Common/ResourceGuard.p`, `Open.eNormPrepare` | Drain now depends on parking. A robot in zone 1 cannot advance to a blocked zone 2. Remove parking as well and `AdaptationCompletes` should fail |
-| Remove parking (retry forever) | `PSrc/Robot.p`, `eAccessDenied` | Head-on hold-and-wait: robots in zones 1 and 2 wait for each other forever. Expect `AdaptationCompletes` to fail when zone 1 must drain |
-| Add a traffic norm: one direction per corridor (e.g. a `DirectionGuard` granting the corridor to one direction at a time) | new machine | If head-on denials disappear, any remaining `SanctionsReflectMisconduct` failure must follow a closure. Check this in the trace; the monitor itself still does not record the cause |
-| Suspend deadlines while the regulation blocks an agent | `ObligationManager` | `SanctionsReflectMisconduct` is expected to hold if the remedy is effective; to be confirmed with `p check` |
+The experiment ids match section 7.3 of the specification, which also defines E0 (one mutant per monitor, to show that every monitor can fail; run it before trusting any "no bug found") and E9 (prepare timeout and abort). Write your prediction before each run.
+
+| # | Change | Where | What to look for |
+|---|---|---|---|
+| E4 | Block **all** zone controllers during prepare (drop the "unaffected guard acks at once" branch) | `Common/ResourceGuard.p`, `Open.eNormPrepare` | Drain now depends on parking. A robot in zone 1 cannot advance to a blocked zone 2. Remove parking as well and `AdaptationCompletes` should fail |
+| E5 | Remove parking (retry forever) | `PSrc/Robot.p`, `eAccessDenied` | Head-on hold-and-wait: robots in zones 1 and 2 wait for each other forever. Expect `AdaptationCompletes` to fail when zone 1 must drain |
+| E6 | Add a traffic norm: one direction per corridor (e.g. a `DirectionGuard` granting the corridor to one direction at a time) | new machine | If head-on denials disappear, any remaining `SanctionsReflectMisconduct` failure must follow a closure. Check this in the trace; the monitor itself still does not record the cause |
+| E7 | Suspend deadlines while the regulation blocks an agent | `ObligationManager` | Expected: `SanctionsReflectMisconduct` still fails, because an abandoned obligation is still sanctioned when it falls due; it holds for regulation-caused cases only if abandoned obligations are also excused. To be confirmed with `p check` |
 
 ---
 
@@ -165,7 +167,7 @@ Fleet-specific details:
 - `CONFIG` lists every zone: `Capacity=0:1;1:1;2:1`.
 - `COMMIT` lists the closed zones: `Closed=1`, or `Closed=-` when none are closed.
 - `Site` is the partition key (one fleet or warehouse per site).
-- Zone controllers, fleet manager and regulation coordinator may run on different machines, but their lines must share a clock source (NTP/PTP): PObserve orders events by timestamp within a site.
+- Zone controllers, fleet manager and regulation coordinator may run on different machines, but their lines must share a clock source (NTP/PTP). By default PObserve sorts the events of each site (partition) by timestamp before monitoring; with `--assumeInputsAreSorted` it merges the files as given and reports an out-of-order event as an error (`PObserveEventOutOfOrderException`). In both modes, clock skew between nodes can reorder events and change a verdict (specification, section 5.12).
 
 ### 3.2 Build and run
 
@@ -254,7 +256,7 @@ The run-time results are only as good as the log. The monitors assume:
 | duplicate `FULFILLED` / `SANCTION` | false `NoDoubleOutcome` violation |
 | duplicate `COMMIT` | false version-order violation |
 
-**Equal timestamps.** PObserve orders events by timestamp within a site. These guides do not establish how it orders events with equal timestamps, so do not rely on it: make timestamps strictly increasing within a site (the simulator adds 1 ms per event) and use a shared clock source (NTP/PTP) across nodes.
+**Equal timestamps.** By default PObserve sorts events by timestamp within a site; with `--assumeInputsAreSorted` it does not sort and reports out-of-order lines as errors. These guides do not establish how it orders events with equal timestamps, so do not rely on it: make timestamps strictly increasing within a site (the simulator adds 1 ms per event) and use a shared clock source (NTP/PTP) across nodes.
 
 ---
 
@@ -306,9 +308,9 @@ Across 500 simulated two-phase runs (seeds 0–499, 60 ticks), there were 4,479 
 | Step | Command | Tool versions | Seed / schedules | Actual result |
 |---|---|---|---|---|
 | Compile the model | `p compile` | | — | |
-| Two-phase design | `p check -tc tcFleetTwoPhase -s 10000` | | | |
-| Naive design | `p check -tc tcFleetNaive -s 10000` | | | |
-| Fairness | `p check -tc tcFleetSanctionFairness -s 10000` | | | |
+| Two-phase design (E1) | `p check -tc tcFleetTwoPhase -s 100000` | | | |
+| Naive design (E2) | `p check -tc tcFleetNaive -s 10000` | | | |
+| Fairness (E3) | `p check -tc tcFleetSanctionFairness -s 10000` | | | |
 | PObserve package build and JUnit | `./gradlew build` | | — | |
 | PObserve CLI on both sample logs | `./run_pobserve.sh <log>` | | — | |
 
