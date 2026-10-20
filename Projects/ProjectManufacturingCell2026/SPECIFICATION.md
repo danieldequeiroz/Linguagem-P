@@ -2,6 +2,15 @@
 
 Graduate project specification · Oct 20, 2026 · Angelo
 
+## Repository and access
+
+All material is in the GitHub repository [perkusic/P-Language](https://github.com/perkusic/P-Language):
+
+- **This project:** [`Projects/ProjectManufacturingCell2026`](https://github.com/perkusic/P-Language/tree/main/Projects/ProjectManufacturingCell2026). It contains the starter kit, the instructions and this specification.
+- **P tutorial:** [`P-Tutorial`](https://github.com/perkusic/P-Language/tree/main/P-Tutorial). It covers installation, a first P program, specs and the checker; work through it in days 1–7.
+
+**To get access, send your GitHub username by email to <perkusic@dee.ufcg.edu.br>**, so that the repository can be shared with you. Fork or clone it only after access has been granted.
+
 ## 1. Summary
 
 The student builds and verifies the regulation layer of a manufacturing cell, in two steps:
