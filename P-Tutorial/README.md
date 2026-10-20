@@ -10,7 +10,7 @@ A browsable version of this tutorial lives in [`docs/index.html`](../docs/index.
 
 Distributed systems fail because of *interleavings*, not bad logic. Your coordinator sends a commit, a replica dies mid-write, a retry arrives out of order. Tests catch maybe one of these orderings. There are millions.
 
-P's answer: write a **model** of your system as communicating state machines. A checker then explores the interleavings systematically — reordering messages, dropping them, killing machines — looking for a scenario that violates a property you stated. When it finds one, it hands you the exact sequence of steps.
+P's answer: write a **model** of your system as communicating state machines. A checker then explores the interleavings systematically — every order in which the machines can take their steps — looking for a scenario that violates a property you stated. Lost messages and crashed machines are part of that search too, once you model them (Lesson 4); P's `send` itself is reliable. When it finds one, it hands you the exact sequence of steps.
 
 Three concepts cover most of it:
 
@@ -70,7 +70,7 @@ p check -tc tcSingleClient -i 100
 
 Key points:
 
-- `send` is asynchronous and non-blocking — it drops the event in the target's queue and returns. The queue is **not** FIFO from the checker's perspective; that's the whole point.
+- `send` is asynchronous and non-blocking — it puts the event in the target's input queue and returns. Each queue is FIFO, so two events one machine sends to another arrive in the order sent. What the checker varies is which machine runs next, so events from *different* senders can reach a queue in any order — that's the whole point.
 - `on ePing do (client : machine) { ... }` handles the event and stays in the current state.
 - `on ePong goto Done` transitions instead.
 - `entry` runs once when you arrive in a state.
