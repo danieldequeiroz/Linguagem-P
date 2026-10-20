@@ -182,7 +182,7 @@ The last point sets the standard for the project. A lock-out that is respected o
 
 ## 3. Background: norms and normative MAS
 
-Norms allow a MAS to steer autonomous agents without programming their internal decision-making. They specify what *ought* to happen and what follows when it does not. A **normative MAS** is a MAS whose behavior is constrained by explicitly represented norms, which agents can reason about and the system can monitor and enforce ([Boella, van der Torre and Verhagen](#references)).
+Norms allow a MAS to regulate the behavior of autonomous agents without programming their internal decision-making. They specify what *ought* to happen and what follows when it does not. A **normative MAS** is a MAS whose behavior is constrained by explicitly represented norms, which agents can reason about and the system can monitor and enforce ([Boella, van der Torre and Verhagen](#references)).
 
 **Deontic modalities.** A regulative norm typically takes one of three forms:
 

@@ -190,7 +190,7 @@ Each remedy can be expressed as a norm: "one direction at a time" is a prohibiti
 
 ## 3. Background: norms and normative MAS
 
-Norms allow a MAS to steer autonomous agents without prescribing their internal behavior. They state what *ought* to happen and specify the consequences when it does not. A **normative MAS** is a MAS whose behavior is constrained by explicitly represented norms, about which agents can reason and which the system can monitor and enforce ([Boella, van der Torre and Verhagen](#references)).
+Norms allow a MAS to regulate the behavior of autonomous agents without prescribing their internal decision-making. They state what *ought* to happen and specify the consequences when it does not. A **normative MAS** is a MAS whose behavior is constrained by explicitly represented norms, about which agents can reason and which the system can monitor and enforce ([Boella, van der Torre and Verhagen](#references)).
 
 **Deontic modalities.** A regulative norm usually takes one of the following forms:
 
