@@ -1,0 +1,15 @@
+# artefatos do compilador e do checker P
+PGenerated/
+PCheckerOutput/
+PCheckerOutput*/
+
+# build .NET
+bin/
+obj/
+*.dll
+*.pdb
+
+# SO / editor
+.DS_Store
+Thumbs.db
+.vscode/

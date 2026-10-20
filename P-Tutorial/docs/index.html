@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learning P — a tutorial for people new to formal methods</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --fg: #1c1c1a;
+    --muted: #6b6b66;
+    --line: #e4e2dc;
+    --accent: #b8562f;
+    --accent-soft: #fdf4ef;
+    --code-bg: #f7f6f3;
+    --ok: #2f7a4f;
+    --bad: #b33a3a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 48px 28px 96px; }
+  header.top { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 8px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 650; margin: 0 0 10px;
+  }
+  h1 { font-size: 34px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.02em; }
+  .sub { color: var(--muted); margin: 0; font-size: 17px; }
+  nav.toc {
+    margin: 32px 0 44px; padding: 18px 22px;
+    background: var(--code-bg); border-radius: 10px; border: 1px solid var(--line);
+  }
+  nav.toc h2 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  nav.toc ol { margin: 0; padding-left: 20px; }
+  nav.toc li { margin: 5px 0; }
+  nav.toc a { color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; }
+  nav.toc a:hover { border-bottom-color: var(--accent); }
+  nav.toc .done::after { content: " ✓"; color: var(--ok); font-weight: 700; }
+  nav.toc .todo { color: var(--muted); }
+  section { margin: 0 0 56px; scroll-margin-top: 20px; }
+  h2.lesson {
+    font-size: 25px; margin: 0 0 6px; letter-spacing: -.015em;
+    padding-top: 10px;
+  }
+  h2.lesson .num {
+    display: block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 650; margin-bottom: 6px;
+  }
+  h3 { font-size: 17px; margin: 32px 0 10px; }
+  p { margin: 14px 0; }
+  code {
+    font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    font-size: .88em; background: var(--code-bg); padding: 2px 5px; border-radius: 4px;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; overflow-x: auto; margin: 18px 0;
+  }
+  pre code { background: none; padding: 0; font-size: 13.5px; line-height: 1.6; }
+  pre.shell { background: #1f1e1c; border-color: #1f1e1c; color: #e8e6e1; }
+  pre.shell code { color: #e8e6e1; }
+  pre.shell .cm { color: #8a877f; }
+  .label {
+    display: inline-block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    font-weight: 650; color: var(--muted); margin-bottom: -8px;
+  }
+  .concepts { border-collapse: collapse; width: 100%; margin: 20px 0; }
+  .concepts th, .concepts td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .concepts th { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .concepts td:first-child { white-space: nowrap; font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; color: var(--accent); }
+  .note {
+    border-left: 3px solid var(--accent); background: var(--accent-soft);
+    padding: 14px 18px; margin: 20px 0; border-radius: 0 8px 8px 0;
+  }
+  .note p { margin: 6px 0; }
+  .note .t { font-weight: 650; }
+  .warn { border-left-color: var(--bad); background: #fdf1f1; }
+  .q { border-left-color: #4a6fa5; background: #f1f5fb; }
+  ul, ol { padding-left: 24px; }
+  li { margin: 7px 0; }
+  .bug { color: var(--bad); font-weight: 650; }
+  footer {
+    border-top: 1px solid var(--line); margin-top: 20px; padding-top: 22px;
+    color: var(--muted); font-size: 14px;
+  }
+  footer a { color: var(--accent); }
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 650; letter-spacing: .06em;
+    text-transform: uppercase; padding: 3px 9px; border-radius: 99px;
+    background: #eef3ee; color: var(--ok); vertical-align: middle; margin-left: 8px;
+  }
+  .pill.next { background: var(--accent-soft); color: var(--accent); }
+  .pill.later { background: var(--code-bg); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="eyebrow">Tutorial</p>
+  <h1>Learning P</h1>
+  <p class="sub">Modeling and formally verifying distributed systems — starting from zero formal methods.</p>
+</header>
+
+<nav class="toc">
+  <h2>Lessons</h2>
+  <ol>
+    <li><a class="done" href="#l1">Why P exists, and installing it</a></li>
+    <li><a class="done" href="#l2">Your first P program</a></li>
+    <li><a class="done" href="#l3">Specs, and a bug worth finding</a></li>
+    <li><span class="todo">Nondeterminism, failures, and liveness</span></li>
+    <li><span class="todo">Two-phase commit, end to end</span></li>
+  </ol>
+</nav>
+
+<section id="l1">
+  <h2 class="lesson"><span class="num">Lesson 1</span>Why P exists<span class="pill">done</span></h2>
+
+  <p><strong>The problem.</strong> Distributed systems fail because of <em>interleavings</em>, not bad logic. Your coordinator sends a commit, a replica dies mid-write, a retry arrives out of order. Tests catch maybe one of these orderings. There are millions.</p>
+
+  <p><strong>P's answer.</strong> Write a <em>model</em> of your system as communicating state machines. Then a checker explores the interleavings systematically — reordering messages, dropping them, killing machines — looking for a scenario that violates a property you stated. When it finds one, it hands you the exact sequence of steps.</p>
+
+  <p>Three concepts, and that's really most of it:</p>
+
+  <table class="concepts">
+    <tr><th>Concept</th><th>What it is</th></tr>
+    <tr>
+      <td>event</td>
+      <td>A typed message. <code>event ePing : machine;</code> means "a ping carrying a machine reference."</td>
+    </tr>
+    <tr>
+      <td>machine</td>
+      <td>A state machine with local variables and an input queue. It's in exactly one state; it handles events, updates variables, and moves via <code>goto</code>.</td>
+    </tr>
+    <tr>
+      <td>spec</td>
+      <td>An observer machine that watches events and asserts invariants. Specs never send messages; they only judge.</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <p class="t">The mental shift from testing</p>
+    <p>You don't write "given input X, expect output Y." You write "<em>no matter what happens</em>, two clients must never hold the lock at once" — and let the checker hunt for the counterexample.</p>
+  </div>
+
+  <h3>Installing (Windows / PowerShell)</h3>
+  <p>P needs .NET SDK <strong>8.0</strong> specifically, plus Java 11+.</p>
+
+  <pre class="shell"><code>winget install Microsoft.DotNet.SDK.8
+winget install Microsoft.OpenJDK.17
+
+<span class="cm"># close and reopen PowerShell so PATH updates, then:</span>
+dotnet --list-sdks     <span class="cm"># need an 8.0.*</span>
+java -version          <span class="cm"># need 11+</span></code></pre>
+
+  <p>Then the P tool itself. If your machine has no NuGet feed configured, the install fails with <code>No NuGet sources are defined or enabled</code> — add the default feed first:</p>
+
+  <pre class="shell"><code>dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+dotnet tool install --global P
+
+<span class="cm"># verify (PowerShell has no `which`)</span>
+Get-Command p
+p --version</code></pre>
+
+  <p>If <code>p</code> isn't recognized, add <code>%USERPROFILE%\.dotnet\tools</code> to your <code>PATH</code> and restart the shell. Editor: VS Code plus the <strong>Peasy</strong> extension —</p>
+
+  <pre class="shell"><code>winget install Microsoft.VisualStudioCode
+code --install-extension PLanguage.peasy-extension</code></pre>
+</section>
+
+<section id="l2">
+  <h2 class="lesson"><span class="num">Lesson 2</span>Your first P program<span class="pill">done</span></h2>
+
+  <p>A client pings a server, the server pongs back. Save as <code>ClientServer.p</code>:</p>
+
+  <pre><code>event ePing : machine;   // payload: who to reply to
+event ePong;             // no payload
+
+machine Client {
+  var server : machine;
+
+  start state Init {
+    entry (s : machine) {      // payload passed at creation
+      server = s;
+      send server, ePing, this;
+      goto WaitingForPong;
+    }
+  }
+
+  state WaitingForPong {
+    on ePong goto Done;
+  }
+
+  state Done {
+    entry { print "client got pong"; }
+  }
+}
+
+machine Server {
+  start state Listening {
+    on ePing do (client : machine) {
+      send client, ePong;
+    }
+  }
+}
+
+machine Main {
+  start state Init {
+    entry {
+      var server : machine;
+      server = new Server();
+      new Client(server);
+    }
+  }
+}
+
+test tcSingleClient [main = Main]: { Main, Client, Server };</code></pre>
+
+  <pre class="shell"><code>p compile
+p check -tc tcSingleClient -i 100</code></pre>
+
+  <h3>What each piece is doing</h3>
+  <ul>
+    <li><code>send</code> is asynchronous and non-blocking — it drops the event in the target's queue and returns immediately. The queue is <em>not</em> FIFO from the checker's perspective; that's the whole point.</li>
+    <li><code>on ePing do (client : machine) { ... }</code> is a handler that stays in the current state.</li>
+    <li><code>on ePong goto Done</code> transitions instead.</li>
+    <li><code>entry</code> runs once when you arrive in a state.</li>
+    <li><code>-i 100</code> means: explore 100 different schedules, each with different interleavings and machine orderings.</li>
+  </ul>
+
+  <div class="note">
+    <p class="t">Read the output carefully</p>
+    <p>All 100 schedules pass, and the summary says <strong>"Explored 1 timeline."</strong> One client, one server, nothing to reorder — only one distinct behavior exists. The checker had nothing to do, because we never told it what "correct" means. That's Lesson 3.</p>
+  </div>
+</section>
+
+<section id="l3">
+  <h2 class="lesson"><span class="num">Lesson 3</span>Specs, and a bug worth finding<span class="pill next">current</span></h2>
+
+  <p>Two clients, one lock server, and a server that grants the lock to anyone who asks. Save as <code>LockServer.p</code> in the same folder — <code>p compile</code> picks up every <code>.p</code> file there, which is why the driver below is named <code>LockDriver</code> rather than <code>Main</code>: machine names must be unique across the project.</p>
+
+  <pre><code>event eAcquire : machine;
+event eRelease : machine;
+event eGranted : machine;
+
+machine LockClient {
+  var server : machine;
+
+  start state Init {
+    entry (s : machine) {
+      server = s;
+      send server, eAcquire, this;
+      goto WaitingForLock;
+    }
+  }
+
+  state WaitingForLock {
+    on eGranted goto InCriticalSection;
+  }
+
+  state InCriticalSection {
+    entry {
+      send server, eRelease, this;
+      goto Done;
+    }
+  }
+
+  state Done { }
+}
+
+machine LockServer {
+  start state WaitForRequests {
+    on eAcquire do (client : machine) {
+      send client, eGranted, client;      // BUG: grants to anyone who asks
+    }
+    on eRelease do (client : machine) { }
+  }
+}
+
+spec MutualExclusion observes eGranted, eRelease {
+  var holder : machine;
+  var locked : bool;
+
+  start state Init {
+    on eGranted do (client : machine) {
+      assert !locked,
+        format("lock granted to {0} while {1} still holds it", client, holder);
+      locked = true;
+      holder = client;
+    }
+    on eRelease do (client : machine) {
+      locked = false;
+    }
+  }
+}
+
+machine LockDriver {
+  start state Init {
+    entry {
+      var server : machine;
+      server = new LockServer();
+      new LockClient(server);
+      new LockClient(server);
+    }
+  }
+}
+
+test tcMutualExclusion [main = LockDriver]:
+  assert MutualExclusion in { LockDriver, LockClient, LockServer };</code></pre>
+
+  <h3>The one new idea: <code>spec</code></h3>
+  <p>A <code>spec</code> machine can't <code>send</code>, can't <code>new</code>, can't use <code>this</code>, and exactly one instance exists globally. It runs <em>synchronously</em>: the moment any machine executes <code>send client, eGranted, ...</code>, the spec's handler fires before anything else happens. So it sees a true global ordering of the events it observes — something no real participant in a distributed system could.</p>
+
+  <div class="note warn">
+    <p class="t">Don't forget to wire it up</p>
+    <p><code>assert MutualExclusion in { ... }</code> in the test declaration is what attaches the spec. Without that line, the spec is dead code and the test passes silently.</p>
+  </div>
+
+  <pre class="shell"><code>p compile
+p check -tc tcMutualExclusion -i 100</code></pre>
+
+  <div class="note q">
+    <p class="t">Question before you run it</p>
+    <p>The server grants unconditionally — so why might some of the 100 schedules still <em>pass</em>?</p>
+  </div>
+</section>
+
+<section id="l4">
+  <h2 class="lesson"><span class="num">Lesson 4</span>Nondeterminism, failures, and liveness<span class="pill later">not yet</span></h2>
+  <p>Modeling message loss and crashed machines; <code>hot</code> and <code>cold</code> states for liveness properties — "every request is <em>eventually</em> answered." A system satisfies a liveness spec if it never gets stuck in a <code>hot</code> state.</p>
+</section>
+
+<section id="l5">
+  <h2 class="lesson"><span class="num">Lesson 5</span>Two-phase commit, end to end<span class="pill later">not yet</span></h2>
+  <p>A real protocol, modeled with safety and liveness specs and multiple test cases — and a real bug found by the checker.</p>
+</section>
+
+<footer>
+  <p><strong>Reference:</strong>
+    <a href="https://p-org.github.io/P/">p-org.github.io/P</a> ·
+    <a href="https://p-org.github.io/P/manual/monitors/">Monitors manual</a> ·
+    <a href="https://p-org.github.io/P/tutorial/twophasecommit/">Two-phase commit tutorial</a> ·
+    <a href="https://github.com/p-org/P">GitHub</a>
+  </p>
+  <p>Working folder: <code>C:\Users\Angel\p-tutorial</code></p>
+</footer>
+
+</div>
+</body>
+</html>
