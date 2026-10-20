@@ -57,4 +57,4 @@ class RegulationLog:
 
     def human_enter(self, res): self._emit("HUMAN_ENTER", Res=res)
     def human_leave(self, res): self._emit("HUMAN_LEAVE", Res=res)
-    def abandon(self, agent, where): self._emit("ABANDON", Agent=agent, Where=where)
+    def abandon(self, id, agent, where): self._emit("ABANDON", Id=id, Agent=agent, Where=where)

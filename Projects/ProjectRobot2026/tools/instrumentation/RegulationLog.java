@@ -55,7 +55,7 @@ public final class RegulationLog {
     }
     public static void humanEnter(String site, long res) { emit(site, "HUMAN_ENTER", "Res=" + res); }
     public static void humanLeave(String site, long res) { emit(site, "HUMAN_LEAVE", "Res=" + res); }
-    public static void abandon(String site, long agent, long where) { emit(site, "ABANDON", "Agent=" + agent, "Where=" + where); }
+    public static void abandon(String site, long id, long agent, long where) { emit(site, "ABANDON", "Id=" + id, "Agent=" + agent, "Where=" + where); }
 
     /** One line per event. Replace System.out with your logger (keep the " - : " separator). */
     private static void emit(String site, String event, String... fields) {

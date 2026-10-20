@@ -28,7 +28,7 @@ Events and fields:
   COMMIT       Ver, Closed=<res>;<res>...  ("-" when empty)
   HUMAN_ENTER  Res
   HUMAN_LEAVE  Res
-  ABANDON      Agent, Where   (fleet; Where=-1 means blocked at the entrance)
+  ABANDON      Id, Agent, Where   (Id = abandoned obligation; Where=-1 means still at the entrance)
 
 Usage:
   python3 simulate_logs.py --scenario cell  --policy twophase --seed 1 --out cell_twophase.log --check
@@ -206,7 +206,7 @@ class CellAgent:
             else:
                 self.denials += 1
                 if self.denials >= 3:
-                    log.emit("ABANDON", Agent=self.id, Where=-1)
+                    log.emit("ABANDON", Id=self.job, Agent=self.id, Where=-1)
                     self.job = None
         elif self.rng.random() < 0.6:
             guard.release(log, self.id)
@@ -243,7 +243,7 @@ class Robot:
             self.denials += 1
             if self.denials >= 3:
                 where = self.path[self.pos] if self.pos >= 0 else -1
-                log.emit("ABANDON", Agent=self.id, Where=where)
+                log.emit("ABANDON", Id=self.job, Agent=self.id, Where=where)
                 if self.pos >= 0:
                     guards[self.path[self.pos]].release(log, self.id)
                 self.job, self.pos = None, -1
@@ -297,7 +297,7 @@ def check(log, scenario):
     committed_ver, committed_closed = 0, set()
     resolved, open_due = set(), {}
     now, adapt_start, adapt_ver = 0, None, None
-    blocked = set()
+    abandoned = set()           # obligation ids abandoned after repeated denials
     for ev, f in log.events:
         if ev == "CONFIG":
             for pair in f["Capacity"].split(";"):
@@ -346,10 +346,11 @@ def check(log, scenario):
                 fail("NoDoubleOutcome", f"obligation {f['Id']} resolved twice")
             resolved.add(f["Id"])
             open_due.pop(f["Id"], None)
-            if ev == "SANCTION" and scenario == "fleet" and f["Agent"] in blocked:
-                fail("SanctionsReflectMisconduct", f"robot {f['Agent']} sanctioned after being blocked")
+            if ev == "SANCTION" and scenario == "fleet" and f["Id"] in abandoned:
+                fail("SanctionsReflectMisconduct",
+                     f"obligation {f['Id']} of robot {f['Agent']} sanctioned after it was abandoned (tick {now})")
         elif ev == "ABANDON":
-            blocked.add(f["Agent"])
+            abandoned.add(f["Id"])
 
     monitors = ["RegimentationSafety", "NoStaleAdmission", "NoDoubleOutcome",
                 "ObligationDeadlineRespected", "AdaptationBoundedTime", "LockoutBeforeEntry"]
