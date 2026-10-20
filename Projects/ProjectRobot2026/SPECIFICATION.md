@@ -120,7 +120,7 @@ In CArtAgO the environment is built from **artifacts**: objects that agents use,
 - **observable properties**: state that agents perceive as beliefs
 - **signals**: one-off events
 
-An operation can refuse to execute. That makes artifacts the natural place for *regimentation*: a prohibited action simply fails.
+An operation can refuse to execute. That makes artifacts the natural place for *regimentation*: a prohibited action fails.
 
 ```java
 // A zone controller as a CArtAgO artifact (sketch)
@@ -254,7 +254,7 @@ For this reason normative MAS usually treat norms *operationally*, as objects wi
 
 #### Deontic logic seen from temporal logic
 
-If you know LTL and CTL, you already know the shape of deontic logic. All three are *normal modal logics*: a box operator, its dual diamond, and a Kripke structure that gives them meaning. The box distributes over implication (axiom K) and every theorem can be boxed (necessitation). What changes is what the accessibility relation means (Figure 3). In temporal logic it links a point of a run to the later points; in deontic logic it links a world to its *ideal alternatives*, the worlds in which every norm is respected.
+For those who already know temporal logic, such as CTL and LTL, the intuition behind deontic logic is similar. All three are *normal modal logics*: a box operator, its dual diamond, and a Kripke structure that gives them meaning. The box distributes over implication (axiom K) and every theorem can be boxed (necessitation). What changes is what the accessibility relation means (Figure 3). In temporal logic it links a point of a run to the later points; in deontic logic it links a world to its *ideal alternatives*, the worlds in which every norm is respected.
 
 ![Figure 3 · the box of temporal logic and the box of deontic logic](figures/figure3.png)
 
@@ -271,7 +271,7 @@ If you know LTL and CTL, you already know the shape of deontic logic. All three 
 
 A warning on notation: F means *eventually* in temporal logic and *forbidden* in deontic logic. This document writes Forb for the deontic operator.
 
-The last two rows carry the essential difference. G is reflexive: if φ must always hold, it holds now, so a single state with ¬φ refutes G φ. O is *not* reflexive: the ideal worlds need not include the actual one, so "the parcel ought to be delivered" and "the parcel was not delivered" can both be true. This is exactly what a normative system needs. A violation is not a contradiction and not a bug; it is a state the system must be able to represent and react to. Axiom D only asks that every world have at least one ideal alternative, which rules out conflicting obligations (O φ ∧ O ¬φ) and nothing else. Conflicting obligations are a real risk in a fleet: a delivery deadline that can only be met through a zone that has just been closed.
+The last two rows carry the essential difference. G is reflexive: if φ must always hold, it holds now, so a single state with ¬φ refutes G φ. O is *not* reflexive: the ideal worlds need not include the actual one, so "the parcel ought to be delivered" and "the parcel was not delivered" can both be true. This is what a normative system needs. A violation is not a contradiction and not a bug; it is a state the system must be able to represent and react to. Axiom D only asks that every world have at least one ideal alternative, which rules out conflicting obligations (O φ ∧ O ¬φ) and nothing else. Conflicting obligations are a real risk in a fleet: a delivery deadline that can only be met through a zone that has just been closed.
 
 #### From "ought" to "happens": the Andersonian reduction
 
@@ -312,17 +312,17 @@ Once violations are events, each kind of norm has a recognisable temporal patter
 | Contrary-to-duty obligation | if a robot is in a zone with the picker, it must stop | the prohibition above is violated | G(V → X protective stop): a property of the *reaction* |
 | Permission | a robot may enter an open, free zone | never: a permission cannot be violated | AG(request ∧ open ∧ free → EF granted): branching, not a trace property |
 
-Two rows deserve a comment.
+Two rows need further explanation.
 
-- **Contrary-to-duty norms become easy.** Chisholm's paradox arises in SDL, which has neither time nor an explicit violation. With V as an event, the secondary obligation is simply triggered by it. Temporal deontic logics with deadlines avoid the paradox in the same way.
-- **Permission is not a trace property.** "A robot *may* enter" says that some allowed continuation lets it enter. One run in which it did not enter proves nothing, because another robot may have taken the zone first. In CTL this is an EF property over all possible futures. Neither a single-trace monitor nor PObserve can check it. The P checker can approximate it as liveness under fairness: every request to an open zone is eventually granted. The corridor deadlock shows that this approximation can fail even when no norm forbids entry, which links permissions to section 6. Deciding which of the fleet's norms become safety, liveness or branching properties is a good exercise for the report.
+- **Contrary-to-duty norms become straightforward to express.** Chisholm's paradox arises in SDL, which has neither time nor an explicit violation. With V as an event, the secondary obligation is triggered by it. Temporal deontic logics with deadlines avoid the paradox in the same way.
+- **Permission is not a trace property.** "A robot *may* enter" says that some allowed continuation lets it enter. One run in which it did not enter proves nothing, because another robot may have taken the zone first. In CTL this is an EF property over all possible futures. Neither a single-trace monitor nor PObserve can check it. The P checker can approximate it as liveness under fairness: every request to an open zone is eventually granted. The corridor deadlock shows that this approximation can fail even when no norm forbids entry, which links permissions to section 6. The report should state which of the fleet's norms become safety, liveness or branching properties.
 
-#### Two more paradoxes worth knowing
+#### Two further paradoxes
 
 - **Ross's paradox.** From O(deliver the parcel) SDL derives O(deliver the parcel ∨ drop it in the corridor), because the box is closed under logical consequence. In LTL the same step, G φ → G(φ ∨ ψ), is harmless; for obligations it reads absurdly, since dropping the parcel seems to discharge the duty.
-- **Free-choice permission.** "You may take corridor A or corridor B" should imply "you may take corridor A", but P(φ ∨ ψ) → P φ is not valid in SDL.
+- **Free-choice permission.** "A robot may take corridor A or corridor B" should imply "a robot may take corridor A", but P(φ ∨ ψ) → P φ is not valid in SDL.
 
-These paradoxes are why this project specifies norms *operationally*, as machines that create, fulfil and violate norm instances, and verifies them with temporal monitors instead of reasoning in SDL. The [Stanford Encyclopedia entry on deontic logic](https://plato.stanford.edu/entries/logic-deontic/) is a good next read.
+These paradoxes are why this project specifies norms *operationally*, as machines that create, fulfil and violate norm instances, and verifies them with temporal monitors instead of reasoning in SDL. The [Stanford Encyclopedia entry on deontic logic](https://plato.stanford.edu/entries/logic-deontic/) gives a broader survey.
 
 ### 3.3 Lifecycle of a norm instance
 
@@ -407,7 +407,7 @@ The right mechanism for a norm depends on two questions: how much one violation 
 - **Low cost, not blockable: sanction.** A late delivery costs throughput, not safety. The robots' autonomy to reroute or reorder tasks is worth more than strict control.
 - **Low cost, blockable: a design choice.** Parking after three denials could be forced by the zone controller, or left to the robot and sanctioned if ignored.
 
-The figure also shows where verification matters most. A regimented norm must hold in every interleaving, which is exactly what the P checker explores. A sanctioned norm only needs to be resolved, fulfilled or sanctioned, which is a liveness question, and, in the fleet, a fairness question too.
+The figure also shows where verification matters most. A regimented norm must hold in every interleaving, which the P checker explores. A sanctioned norm only needs to be resolved, fulfilled or sanctioned, which is a liveness question, and, in the fleet, a fairness question too.
 
 ### 3.9 When is a sanction fair?
 
