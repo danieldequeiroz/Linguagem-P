@@ -434,7 +434,7 @@ Each capability addresses a specific design question, and two designs may realiz
 | Enforce | What happens to a violation? | regimentation (it cannot happen) or sanctioning (it is detected and punished) | regimented capacity and lock-out; sanctioned deadlines |
 | Adapt | How do the norms change at run time, and who may change them? | detect, design and execute steps, each run by an agent, an artifact or the organization | the technician detects; the coordinator designs and executes; the cell controller installs |
 
-**Observability.** A norm can be monitored only if its content is observable. The norm *"no agent in the envelope together with a person"* requires observation of both envelope occupancy and human presence. If the light curtain fails, the regulation can no longer detect the technician and ceases to protect them without any indication of failure. Run-time monitoring with PObserve evaluates what the logs record and therefore inherits the same blind spots.
+**Observability.** A norm can be monitored only if its content is observable. The norm *"no agent in the envelope together with a person"* requires observation of both envelope occupancy and human presence. If the light curtain fails, the regulation can no longer detect the technician and ceases to protect them without any indication of failure. Run-time monitoring with PObserve evaluates what the logs record and therefore is subject to the same observability limitations.
 
 ### 4.2 The MAOP views, with examples
 
@@ -444,7 +444,7 @@ The unified view locates regulation along the four MAOP dimensions. The examples
 | --- | --- | --- | --- | --- |
 | Agent-centric | the agents themselves | norm-aware BDI agents that reason about obligations and choose to comply | full autonomy; no central component | relies on agents being honest and correct |
 | Environment-centric | artifacts in the environment | CArtAgO artifacts or PLC interlocks that refuse forbidden actions | strong guarantees (regimentation) | only for actions that pass through an artifact |
-| Interaction-centric | the protocols agents use to communicate | electronic institutions whose governors filter messages; commitment protocols | catches violations in communication | blind to physical actions |
+| Interaction-centric | the protocols agents use to communicate | electronic institutions whose governors filter messages; commitment protocols | detects violations in communication | blind to physical actions |
 | Organization-centric | an organizational infrastructure | Moise roles and missions with an NPL engine | explicit, inspectable norms | needs reliable reports from agents and environment |
 | Hybrid | several of the above together | e.g. organization for obligations + environment for safety | each norm enforced where it is cheapest and strongest | the parts must stay consistent with each other |
 
@@ -455,7 +455,7 @@ The cell combines two views: safety norms reside in the environment (the cell co
 | Style | Structure | Advantages | Risks |
 | --- | --- | --- | --- |
 | Centralized | one regulator for the whole system | one consistent view; simple to verify | bottleneck and single point of failure; does not scale to large plants |
-| Hierarchical | regulators per area under a supervisor | local decisions with global oversight | the supervisor still sees changes late |
+| Hierarchical | regulators per area under a supervisor | local decisions with global oversight | the supervisor still observes changes with a delay |
 | Distributed | several peer regulators, each owning part of the system | scales; local, fast decisions; no single point of failure | regulators can disagree during a change; needs a coordination protocol |
 
 A single cell is naturally centralized, since one controller governs the envelope. Nevertheless, the regulator is divided into two components, the coordinator (organization) and the controller (environment), and the messages exchanged between them reproduce, on a small scale, the consistency problem of distributed systems.
@@ -568,8 +568,8 @@ PObserve reports assertion failures but not hot states that remain open at the e
 *Figure 10 · what the checker and PObserve can each establish*
 
 - **The checker** explores many schedules, but only of the model. A violation it reports is genuine only to the extent that the model is faithful; a violation in the "model only" region results from an abstraction, such as agents that release the envelope instantaneously. The absence of violations constitutes evidence about the design, bounded by the number of schedules explored.
-- **PObserve** examines few executions, but real ones. A violation it reports actually occurred, to the extent that the log is accurate. It provides no information about executions that were not logged, nor about faults that the log cannot represent, such as a sensor that failed to detect a person.
-- **The overlap** is where the two techniques meet: the same monitor, written once, evaluates both the design and the running system. A finding obtained with one technique should be reproduced with the other: a counterexample from the checker becomes a test log, and a PObserve violation becomes a new test case for the model.
+- **PObserve** examines few executions, but executions of the deployed system. A violation it reports actually occurred, to the extent that the log is accurate. It provides no information about executions that were not logged, nor about faults that the log cannot represent, such as a sensor that failed to detect a person.
+- **The overlap** is where the two techniques overlap: the same monitor, written once, evaluates both the design and the running system. A finding obtained with one technique should be reproduced with the other: a counterexample from the checker becomes a test log, and a PObserve violation becomes a new test case for the model.
 
 The region outside both sets motivates a safety layer below the MAS: no software check covers a failure that can be expressed neither in the model nor in the log.
 
@@ -637,9 +637,9 @@ The search finds bugs but does not prove their absence. Models should therefore 
 
 **Why interleavings matter.** Concurrent systems fail because of particular orderings of events rather than because of individual events. Consider three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). Since the technician waits for the commit, H always follows C, which leaves three possible orders (Figure 11).
 
-![Figure 11 · the orders of three lock-out events, and the one that breaks S1](figures/figure11.png)
+![Figure 11 · the orders of three lock-out events, and the one that violates S1](figures/figure11.png)
 
-*Figure 11 · the orders of three lock-out events, and the one that breaks S1*
+*Figure 11 · the orders of three lock-out events, and the one that violates S1*
 
 Two of these orders are safe. The third, C followed by H and then L, places the technician in the envelope together with the arm. Testing would reveal this order only if the scheduler happened to deliver the messages in that sequence, which may be rare on a lightly loaded controller. The checker, in contrast, enumerates the orders systematically, so that a race involving three events is found within seconds.
 
@@ -743,7 +743,7 @@ The naive policy corresponds to a typical first implementation. Demonstrating *w
 - **Acknowledge.** When the last agent leaves, the guard sends `eNormPrepareAck` and waits. It continues to deny requests, because it does not yet know whether the commit has taken place.
 - **Commit.** Only after receiving all acknowledgements does the coordinator announce `eNormCommitted`, which the monitors observe and which authorizes the technician to enter. It then sends `eNormCommit` so that each guard installs the new version.
 
-The highlighted states carry the safety argument. Between `Preparing` and the commit, the closed resource is empty and inaccessible, so there is no instant at which a guard admits an agent under the previous rules while the technician acts under the new ones. The naive design omits both highlighted states. The cost of the protocol is equally apparent: if an occupant never leaves, the coordinator remains in `Preparing` indefinitely. For this reason, L2 (`AdaptationCompletes`) is a liveness property that must be checked, and the experiments deliberately remove releases.
+The safety argument rests on the highlighted states. Between `Preparing` and the commit, the closed resource is empty and inaccessible, so there is no instant at which a guard admits an agent under the previous rules while the technician acts under the new ones. The naive design omits both highlighted states. The cost of the protocol is equally apparent: if an occupant never leaves, the coordinator remains in `Preparing` indefinitely. For this reason, L2 (`AdaptationCompletes`) is a liveness property that must be checked, and the experiments deliberately remove releases.
 
 ## 7. Technical specification
 
@@ -848,7 +848,7 @@ The `p-regulation` archive is given. This project uses `Common/`, `Manufacturing
 | Path | Content | Status |
 | --- | --- | --- |
 | `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
-| `ManufacturingCell/PSrc`, `PTst` | cell agents, wiring, test cases | draft, not yet compiled |
+| `ManufacturingCell/PSrc`, `PTst` | cell agents, system configuration, test cases | draft, not yet compiled |
 | `ManufacturingCell/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser compiled and run on the sample logs; JUnit not yet run |
 | `ManufacturingCell/INSTRUCTIONS.md` | step-by-step commands for both parts | ready |
 | `tools/simulate_logs.py` | generates two-phase / naive logs and previews monitor results | tested |

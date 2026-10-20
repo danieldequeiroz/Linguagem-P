@@ -392,7 +392,7 @@ Sanctions may be of the following types:
 - **reputational**: a reduction of a trust score;
 - **access-based**: a lower priority in task allocation or zone reservation.
 
-Sanctions may be applied by the organization, by peers or by the environment. Sanction policies should be *proportional* and *fair*, i.e., they should penalize only behavior that the agent could have avoided (section 3, fairness of sanctions). In a fleet, access-based sanctions feed back into traffic: a robot whose priority has been lowered waits longer and is therefore more likely to miss its next deadline, so that an unfair sanction can induce further sanctions.
+Sanctions may be applied by the organization, by peers or by the environment. Sanction policies should be *proportional* and *fair*, i.e., they should penalize only behavior that the agent could have avoided (section 3, fairness of sanctions). In a fleet, access-based sanctions in turn affect traffic: a robot whose priority has been lowered waits longer and is therefore more likely to miss its next deadline, so that an unfair sanction can induce further sanctions.
 
 ### 3.8 Choosing an enforcement mechanism
 
@@ -468,7 +468,7 @@ Each capability corresponds to a design question, and different designs may real
 | Enforce | What happens to a violation? | regimentation (it cannot happen) or sanctioning (it is detected and punished) | regimented zone capacity and closures; sanctioned deadlines |
 | Adapt | How do the norms change at run time, and who may change them? | detect, design and execute steps, each run by an agent, an artifact or the organization | the picker detects; the coordinator designs and executes; the zone controllers install |
 
-**Observability.** A norm can be monitored only if its content is observable. The norm *"no robot in a zone with a person"* requires both robot positions and person detection. If the light curtain of zone 1 fails, the regulation cannot detect the person and ceases to protect them without any indication. Run-time monitoring with PObserve evaluates what the logs record and therefore inherits the same blind spots.
+**Observability.** A norm can be monitored only if its content is observable. The norm *"no robot in a zone with a person"* requires both robot positions and person detection. If the light curtain of zone 1 fails, the regulation cannot detect the person and ceases to protect them without any indication. Run-time monitoring with PObserve evaluates what the logs record and therefore is subject to the same observability limitations.
 
 ### 4.2 The MAOP views, with examples
 
@@ -478,7 +478,7 @@ The unified view locates regulation along the four MAOP dimensions. The examples
 | --- | --- | --- | --- | --- |
 | Agent-centric | the agents themselves | norm-aware BDI agents that reason about obligations and choose to comply | full autonomy; no central component | relies on agents being honest and correct |
 | Environment-centric | artifacts in the environment | CArtAgO artifacts or smart controllers that refuse forbidden actions | strong guarantees (regimentation) | only for actions that pass through an artifact |
-| Interaction-centric | the protocols agents use to communicate | electronic institutions whose governors filter messages; commitment protocols | catches violations in communication | blind to physical actions |
+| Interaction-centric | the protocols agents use to communicate | electronic institutions whose governors filter messages; commitment protocols | detects violations in communication | blind to physical actions |
 | Organization-centric | an organizational infrastructure | Moise roles and missions with an NPL engine | explicit, inspectable norms | needs reliable reports from agents and environment |
 | Hybrid | several of the above together | e.g. organization for obligations + environment for safety | each norm enforced where it is cheapest and strongest | the parts must stay consistent with each other |
 
@@ -489,7 +489,7 @@ The fleet follows the hybrid view. Safety norms reside in the environment (zone 
 | Style | Structure | Advantages | Risks |
 | --- | --- | --- | --- |
 | Centralized | one regulator for the whole system | one consistent view; simple to verify | bottleneck and single point of failure; does not scale to large sites |
-| Hierarchical | regulators per area under a supervisor | local decisions with global oversight | the supervisor still sees changes late |
+| Hierarchical | regulators per area under a supervisor | local decisions with global oversight | the supervisor still observes changes with a delay |
 | Distributed | several peer regulators, each owning part of the system | scales; local, fast decisions; no single point of failure | regulators can disagree during a change; needs a coordination protocol |
 
 Warehouses with hundreds of robots typically require the distributed style. This project studies its smallest non-trivial instance: three zone controllers.
@@ -595,8 +595,8 @@ PObserve reports assertion failures but does not report hot states that remain o
 *Figure 11 · what the checker and PObserve can each establish*
 
 - **The checker** explores many schedules, but only schedules of the model. A violation that it reports reflects the real system only to the extent that the model is faithful; a violation in the "model only" region is an artifact of abstraction, for example of robots moving between zones instantaneously. The absence of violations constitutes evidence about the design, bounded by the number of schedules explored.
-- **PObserve** examines few executions, but real ones. A violation that it reports did occur, insofar as the log is accurate. It provides no information about executions that were not logged, nor about faults that the log cannot reflect, such as a localization error that places a robot in the wrong zone.
-- **The intersection** is where the two methods meet: the same monitor, written once, evaluates both the design and the running fleet. A counterexample from the checker can serve as a test log, and a violation reported by PObserve can serve as a new test case for the model.
+- **PObserve** examines few executions, but executions of the deployed system. A violation that it reports did occur, insofar as the log is accurate. It provides no information about executions that were not logged, nor about faults that the log cannot reflect, such as a localization error that places a robot in the wrong zone.
+- **The intersection** is where the two methods overlap: the same monitor, written once, evaluates both the design and the running fleet. A counterexample from the checker can serve as a test log, and a violation reported by PObserve can serve as a new test case for the model.
 
 The region outside both sets motivates a safety layer below the MAS: no software check covers a failure that can be expressed neither in the model nor in the log.
 
@@ -772,13 +772,13 @@ The two central results expected from the project are a demonstration that the n
 - **Acknowledge.** When zone 1 is empty, its controller sends `eNormPrepareAck` and continues to deny requests, because it cannot yet determine whether the commit has occurred.
 - **Commit.** Once all acknowledgements have been received, the coordinator announces `eNormCommitted`, which the monitors observe and which permits the picker to enter. It then sends `eNormCommit`, upon which each controller installs the new version.
 
-The highlighted states carry the safety argument. The figure also reveals the cost of the protocol: the coordinator remains in `Preparing` until zone 1 is empty, and in the corridor, emptying a zone is not always possible.
+The safety argument rests on the highlighted states. The figure also reveals the cost of the protocol: the coordinator remains in `Preparing` until zone 1 is empty, and in the corridor, emptying a zone is not always possible.
 
 **Deadlock in the corridor.** A robot retains its zone until the next zone is granted. Consequently, two robots moving head-on may each hold the zone that the other requires (Figure 17). This configuration is an instance of the hold-and-wait cycle known from operating systems.
 
-![Figure 17 · head-on robots form a wait-for cycle, and three ways to break it](figures/figure17.png)
+![Figure 17 · head-on robots form a wait-for cycle, and three ways to resolve it](figures/figure17.png)
 
-*Figure 17 · head-on robots form a wait-for cycle, and three ways to break it*
+*Figure 17 · head-on robots form a wait-for cycle, and three ways to resolve it*
 
 The cycle is relevant to regulation in two respects. First, it can block the closure: if robot 1 occupies zone 1 while waiting for zone 2, zone 1 is never drained and the adaptation never commits. Property L2 (`AdaptationCompletes`) detects this situation when parking is removed. Second, every resolution of the cycle has a normative cost:
 
@@ -898,7 +898,7 @@ The `p-regulation` archive is given. This project uses `Common/`, `MobileRobots/
 | Path | Content | Status |
 | --- | --- | --- |
 | `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
-| `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, wiring, fairness monitor, test cases | draft, not yet compiled |
+| `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, system configuration, fairness monitor, test cases | draft, not yet compiled |
 | `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser compiled and run on the sample logs; JUnit not yet run |
 | `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | ready |
 | `tools/simulate_logs.py` | generates two-phase / naive fleet logs and previews monitor results | tested |
