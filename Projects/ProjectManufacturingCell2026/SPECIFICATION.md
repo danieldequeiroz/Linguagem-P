@@ -13,7 +13,7 @@ All material is in the GitHub repository [perkusic/P-Language](https://github.co
 
 ## 1. Summary
 
-The student builds and verifies the regulation layer of a manufacturing cell, in two steps:
+The objective of this project is to build and verify the regulation layer of a manufacturing cell, in two steps:
 
 1. Model the layer in the P language and model-check it.
 2. Check logs from a running (or simulated) cell against the same P monitors with PObserve.
@@ -618,7 +618,7 @@ The deliverable is a P project with three parts:
 - a catalogue of monitors checked against that model
 - a PObserve package that checks the same monitors against logs
 
-A starter kit with draft versions of all three is provided (section 9). The student must make it compile, correct it, justify every modelling choice, and extend it.
+A starter kit with draft versions of all three is provided (section 9). The project consists of making it compile, correcting it, justifying every modelling choice, and extending it.
 
 ### 7.1 Model components
 
