@@ -13,7 +13,7 @@ All material is in the GitHub repository [perkusic/P-Language](https://github.co
 
 ## 1. Summary
 
-The student builds and verifies the regulation layer of a small fleet of mobile robots that share a narrow corridor with people, in two steps:
+The objective of this project is to build and verify the regulation layer of a small fleet of mobile robots that share a narrow corridor with people, in two steps:
 
 1. Model the layer in the P language and model-check it.
 2. Check fleet logs (simulated, or from a ROS 2 system) against the same P monitors with PObserve.
@@ -456,7 +456,7 @@ spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
 
 **Checking.** `p compile` builds the project. `p check -tc <test> -s 10000` runs 10,000 schedules of that test case. A failed assertion yields a trace under `PCheckerOutput/BugFinding/`, replayable with its seed. The checker is a bug finder: it explores many schedules but does not prove correctness for every fleet size.
 
-**Modules and refinement.** [Desai's ModP work](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2020/EECS-2020-3.pdf) adds a module system for compositional, assume-guarantee reasoning. With it one can show that a composition of modules refines an abstract specification. That is the basis of research question 3. The student must check which of these features the current P release supports before relying on them.
+**Modules and refinement.** [Desai's ModP work](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2020/EECS-2020-3.pdf) adds a module system for compositional, assume-guarantee reasoning. With it one can show that a composition of modules refines an abstract specification. That is the basis of research question 3. Before relying on these features, the project must check which of them the current P release supports.
 
 **PObserve: the same monitors at run time.** PObserve checks logs of a real system against P specs.
 
@@ -633,7 +633,7 @@ The deliverable is a P project with three parts:
 - a catalogue of monitors checked against that model
 - a PObserve package that checks the same monitors against logs
 
-A starter kit with draft versions of all three is provided (section 9). The student must make it compile, correct it, justify every modelling choice, and extend it.
+A starter kit with draft versions of all three is provided (section 9). The project consists of making it compile, correcting it, justifying every modelling choice, and extending it.
 
 ### 7.1 Model components
 
