@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compiles ONLY the monitor vocabulary and the monitors (no model machines)
+     into Java for PObserve (p compile, mode pobserve, run from this folder). -->
+<Project>
+  <ProjectName>FleetRegulation</ProjectName>
+  <InputFiles>
+    <PFile>../../../../Common/MonitorEvents.p</PFile>
+    <PFile>../../../../Common/Specs.p</PFile>
+    <PFile>../../../../Common/RuntimeSpecs.p</PFile>
+    <PFile>../../../PSpec/FleetSpecs.p</PFile>
+  </InputFiles>
+  <OutputDir>java/regulation/fleet/spec</OutputDir>
+  <pobserve-package>regulation.fleet.spec</pobserve-package>
+</Project>

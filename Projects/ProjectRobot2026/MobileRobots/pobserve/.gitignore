@@ -1,0 +1,5 @@
+build/
+.gradle/
+src/main/java/regulation/*/spec/
+PObserve-*/
+pobserve-out/
