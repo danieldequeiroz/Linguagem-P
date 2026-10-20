@@ -7,8 +7,8 @@ Work with the [P language](https://p-org.github.io/P/) — modeling and formal v
 | Folder | Description |
 | --- | --- |
 | [`P-Tutorial/`](P-Tutorial/) | A tutorial from zero: installation, a first program (client-server), specs, and running the checker. |
-| [`Projects/ProjectManufacturingCell2026/`](Projects/ProjectManufacturingCell2026/) | Graduate project: verified regulation management for a manufacturing cell (P model + PObserve). |
-| [`Projects/ProjectRobot2026/`](Projects/ProjectRobot2026/) | Graduate project: verified regulation management for a mobile robot fleet (P model + PObserve). |
+| [`Projects/ProjectManufacturingCell2026/`](Projects/ProjectManufacturingCell2026/) | Graduate project: verified regulation management for a manufacturing cell (P model + PObserve). [Assignment](Projects/ProjectManufacturingCell2026/ASSIGNMENT.md). |
+| [`Projects/ProjectRobot2026/`](Projects/ProjectRobot2026/) | Graduate project: verified regulation management for a mobile robot fleet (P model + PObserve). [Assignment](Projects/ProjectRobot2026/ASSIGNMENT.md). |
 
 ## Prerequisites
 

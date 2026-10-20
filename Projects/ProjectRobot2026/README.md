@@ -2,6 +2,7 @@
 
 Starter kit for the graduate project. Two robots cross a three-zone corridor head-on, and a human picker needs zone 1 closed. Admission is **distributed** (one controller per zone, deciding locally); adaptation and sanctioning are **centralized** (one coordinator, one obligation manager). See the architecture table in the guide.
 
+**The assignment** (goals, six-week schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md).
 ## Specification
 
 The full project specification (background on P, multi-agent systems, norms and regulation management; system description; experiments; work plan) is in [`SPECIFICATION.md`](SPECIFICATION.md). Open [`SPECIFICATION.html`](SPECIFICATION.html) in a browser for a formatted version with figures.
