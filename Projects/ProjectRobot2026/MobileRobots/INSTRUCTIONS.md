@@ -129,7 +129,7 @@ So a violation is a *candidate* unfair sanction. To attribute it, log the denial
 | Block **all** zone controllers during prepare (drop the "unaffected guard acks at once" branch) | `Common/ResourceGuard.p`, `Open.eNormPrepare` | Drain now depends on parking. A robot in zone 1 cannot advance to a blocked zone 2. Remove parking as well and `AdaptationCompletes` should fail |
 | Remove parking (retry forever) | `PSrc/Robot.p`, `eAccessDenied` | Head-on hold-and-wait: robots in zones 1 and 2 wait for each other forever. Expect `AdaptationCompletes` to fail when zone 1 must drain |
 | Add a traffic norm: one direction per corridor (e.g. a `DirectionGuard` granting the corridor to one direction at a time) | new machine | If head-on denials disappear, any remaining `SanctionsReflectMisconduct` failure must follow a closure. Check this in the trace; the monitor itself still does not record the cause |
-| Suspend deadlines while the regulation blocks an agent | `ObligationManager` | `SanctionsReflectMisconduct` should hold: the remedy is verified |
+| Suspend deadlines while the regulation blocks an agent | `ObligationManager` | `SanctionsReflectMisconduct` is expected to hold if the remedy is effective; to be confirmed with `p check` |
 
 ---
 

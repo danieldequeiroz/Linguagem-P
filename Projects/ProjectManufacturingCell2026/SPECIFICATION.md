@@ -849,7 +849,7 @@ The `p-regulation` archive is given. This project uses `Common/`, `Manufacturing
 | --- | --- | --- |
 | `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
 | `ManufacturingCell/PSrc`, `PTst` | cell agents, system configuration, test cases | draft, not yet compiled |
-| `ManufacturingCell/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser compiled and run on the sample logs; JUnit not yet run |
+| `ManufacturingCell/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API and exercised only with stand-ins for the generated classes; not yet built with p compile --mode pobserve; JUnit not yet run |
 | `ManufacturingCell/INSTRUCTIONS.md` | step-by-step commands for both parts | ready |
 | `tools/simulate_logs.py` | generates two-phase / naive logs and previews monitor results | tested |
 | `tools/instrumentation/RegulationLog.java` | logging helper for JaCaMo | compiles |
