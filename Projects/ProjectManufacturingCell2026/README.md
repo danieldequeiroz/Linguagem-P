@@ -2,6 +2,8 @@
 
 Starter kit for the graduate project. A robot arm and an AGV share one work envelope, and a technician needs a lock-out before entering. Regulation is **centralized**: one cell controller and one organizational engine.
 
+**The assignment** (goals, six-week schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md).
+
 ## Layout
 
 ```

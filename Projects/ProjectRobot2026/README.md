@@ -2,6 +2,8 @@
 
 Starter kit for the graduate project. Two robots cross a three-zone corridor head-on, and a human picker needs zone 1 closed. Admission is **distributed** (one controller per zone, deciding locally); adaptation and sanctioning are **centralized** (one coordinator, one obligation manager). See the architecture table in the guide.
 
+**The assignment** (goals, six-week schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md).
+
 ## Layout
 
 ```
