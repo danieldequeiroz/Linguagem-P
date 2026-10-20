@@ -1,0 +1,215 @@
+2026-10-19 08:00:00.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=CONFIG, Capacity=0:1;1:1;2:1
+2026-10-19 08:00:01.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=1
+2026-10-19 08:00:01.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=0, Agent=2, Task=20, Due=7
+2026-10-19 08:00:01.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=1, Agent=1, Task=11, Due=7
+2026-10-19 08:00:02.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=2
+2026-10-19 08:00:02.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=0
+2026-10-19 08:00:02.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=0
+2026-10-19 08:00:03.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=3
+2026-10-19 08:00:03.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=1
+2026-10-19 08:00:03.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=1, Closed=1
+2026-10-19 08:00:03.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_ENTER, Res=1
+2026-10-19 08:00:03.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=0
+2026-10-19 08:00:03.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:04.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=4
+2026-10-19 08:00:05.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=5
+2026-10-19 08:00:05.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ABANDON, Agent=2, Where=2
+2026-10-19 08:00:05.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:06.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=6
+2026-10-19 08:00:06.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=2, Ver=1
+2026-10-19 08:00:06.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=1
+2026-10-19 08:00:06.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_LEAVE, Res=1
+2026-10-19 08:00:06.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=2
+2026-10-19 08:00:06.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=2, Closed=-
+2026-10-19 08:00:07.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=7
+2026-10-19 08:00:07.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=2, Agent=2, Task=22, Due=13
+2026-10-19 08:00:07.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=2
+2026-10-19 08:00:07.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=1, Agent=1
+2026-10-19 08:00:08.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=8
+2026-10-19 08:00:08.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=0, Agent=2
+2026-10-19 08:00:08.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=2
+2026-10-19 08:00:09.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=9
+2026-10-19 08:00:09.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=1, Ver=2
+2026-10-19 08:00:09.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:10.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=10
+2026-10-19 08:00:10.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=0, Ver=2
+2026-10-19 08:00:10.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=1
+2026-10-19 08:00:10.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=3
+2026-10-19 08:00:10.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=3, Closed=1
+2026-10-19 08:00:10.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_ENTER, Res=1
+2026-10-19 08:00:10.007000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=3, Agent=1, Task=13, Due=16
+2026-10-19 08:00:11.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=11
+2026-10-19 08:00:11.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=0
+2026-10-19 08:00:11.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_LEAVE, Res=1
+2026-10-19 08:00:11.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=4
+2026-10-19 08:00:11.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=4, Closed=-
+2026-10-19 08:00:12.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=12
+2026-10-19 08:00:12.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=3
+2026-10-19 08:00:13.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=13
+2026-10-19 08:00:13.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=4
+2026-10-19 08:00:13.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:14.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=14
+2026-10-19 08:00:14.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=2, Agent=2
+2026-10-19 08:00:14.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=2, Ver=4
+2026-10-19 08:00:14.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=1
+2026-10-19 08:00:15.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=15
+2026-10-19 08:00:15.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=2
+2026-10-19 08:00:15.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=3, Agent=1
+2026-10-19 08:00:15.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=4, Agent=2, Task=24, Due=21
+2026-10-19 08:00:16.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=16
+2026-10-19 08:00:16.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=4
+2026-10-19 08:00:17.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=17
+2026-10-19 08:00:17.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=1, Ver=4
+2026-10-19 08:00:17.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:18.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=18
+2026-10-19 08:00:18.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=0, Ver=4
+2026-10-19 08:00:18.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=1
+2026-10-19 08:00:19.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=19
+2026-10-19 08:00:19.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=5, Agent=1, Task=15, Due=25
+2026-10-19 08:00:19.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=0
+2026-10-19 08:00:19.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=4, Agent=2
+2026-10-19 08:00:20.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=20
+2026-10-19 08:00:20.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=4
+2026-10-19 08:00:21.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=21
+2026-10-19 08:00:21.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=4
+2026-10-19 08:00:21.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:22.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=22
+2026-10-19 08:00:22.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=2, Ver=4
+2026-10-19 08:00:22.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=1
+2026-10-19 08:00:22.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=5
+2026-10-19 08:00:22.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=5, Closed=1
+2026-10-19 08:00:22.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_ENTER, Res=1
+2026-10-19 08:00:23.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=23
+2026-10-19 08:00:23.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=2
+2026-10-19 08:00:23.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=5, Agent=1
+2026-10-19 08:00:23.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=6, Agent=2, Task=26, Due=29
+2026-10-19 08:00:24.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=24
+2026-10-19 08:00:24.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=5
+2026-10-19 08:00:25.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=25
+2026-10-19 08:00:25.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_LEAVE, Res=1
+2026-10-19 08:00:25.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=6
+2026-10-19 08:00:25.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=6, Closed=-
+2026-10-19 08:00:26.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=26
+2026-10-19 08:00:26.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=7, Agent=1, Task=17, Due=32
+2026-10-19 08:00:27.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=27
+2026-10-19 08:00:27.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=1, Ver=6
+2026-10-19 08:00:27.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:27.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=6
+2026-10-19 08:00:28.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=28
+2026-10-19 08:00:29.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=29
+2026-10-19 08:00:30.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=30
+2026-10-19 08:00:30.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=6, Agent=2
+2026-10-19 08:00:30.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ABANDON, Agent=2, Where=1
+2026-10-19 08:00:30.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=1
+2026-10-19 08:00:30.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=6
+2026-10-19 08:00:30.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:31.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=31
+2026-10-19 08:00:31.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=2, Ver=6
+2026-10-19 08:00:31.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=1
+2026-10-19 08:00:32.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=32
+2026-10-19 08:00:32.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=7
+2026-10-19 08:00:32.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=7, Closed=1
+2026-10-19 08:00:32.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_ENTER, Res=1
+2026-10-19 08:00:32.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=8, Agent=2, Task=28, Due=38
+2026-10-19 08:00:32.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=2
+2026-10-19 08:00:32.007000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=7, Agent=1
+2026-10-19 08:00:33.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=33
+2026-10-19 08:00:33.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=7
+2026-10-19 08:00:33.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=9, Agent=1, Task=19, Due=39
+2026-10-19 08:00:34.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=34
+2026-10-19 08:00:34.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_LEAVE, Res=1
+2026-10-19 08:00:34.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=8
+2026-10-19 08:00:34.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=8, Closed=-
+2026-10-19 08:00:34.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=7
+2026-10-19 08:00:35.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=35
+2026-10-19 08:00:35.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=1, Ver=8
+2026-10-19 08:00:35.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:36.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=36
+2026-10-19 08:00:37.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=37
+2026-10-19 08:00:37.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ABANDON, Agent=1, Where=0
+2026-10-19 08:00:37.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:38.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=38
+2026-10-19 08:00:38.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=0, Ver=8
+2026-10-19 08:00:38.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=1
+2026-10-19 08:00:39.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=39
+2026-10-19 08:00:39.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=8, Agent=2
+2026-10-19 08:00:39.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=0
+2026-10-19 08:00:39.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=10, Agent=1, Task=20, Due=45
+2026-10-19 08:00:40.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=40
+2026-10-19 08:00:40.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=9, Agent=1
+2026-10-19 08:00:40.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=11, Agent=2, Task=31, Due=46
+2026-10-19 08:00:40.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=8
+2026-10-19 08:00:41.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=41
+2026-10-19 08:00:41.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=8
+2026-10-19 08:00:41.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:41.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=8
+2026-10-19 08:00:42.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=42
+2026-10-19 08:00:43.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=43
+2026-10-19 08:00:43.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=9
+2026-10-19 08:00:43.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=9, Closed=1
+2026-10-19 08:00:43.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_ENTER, Res=1
+2026-10-19 08:00:44.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=44
+2026-10-19 08:00:44.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ABANDON, Agent=2, Where=2
+2026-10-19 08:00:44.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:44.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=2, Ver=8
+2026-10-19 08:00:44.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=1
+2026-10-19 08:00:45.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=45
+2026-10-19 08:00:45.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=2
+2026-10-19 08:00:45.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=10, Agent=1
+2026-10-19 08:00:46.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=46
+2026-10-19 08:00:46.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=12, Agent=2, Task=32, Due=52
+2026-10-19 08:00:46.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_LEAVE, Res=1
+2026-10-19 08:00:46.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=10
+2026-10-19 08:00:46.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=10, Closed=-
+2026-10-19 08:00:46.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=13, Agent=1, Task=23, Due=52
+2026-10-19 08:00:47.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=47
+2026-10-19 08:00:47.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=11, Agent=2
+2026-10-19 08:00:47.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=10
+2026-10-19 08:00:47.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=10
+2026-10-19 08:00:48.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=48
+2026-10-19 08:00:48.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=10
+2026-10-19 08:00:48.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:49.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=49
+2026-10-19 08:00:50.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=50
+2026-10-19 08:00:50.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ABANDON, Agent=2, Where=2
+2026-10-19 08:00:50.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:50.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=2, Ver=10
+2026-10-19 08:00:50.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=1
+2026-10-19 08:00:51.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=51
+2026-10-19 08:00:51.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=2
+2026-10-19 08:00:51.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=13, Agent=1
+2026-10-19 08:00:52.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=52
+2026-10-19 08:00:52.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=14, Agent=2, Task=34, Due=58
+2026-10-19 08:00:52.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=15, Agent=1, Task=25, Due=58
+2026-10-19 08:00:53.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=53
+2026-10-19 08:00:53.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=12, Agent=2
+2026-10-19 08:00:53.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=10
+2026-10-19 08:00:53.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=10
+2026-10-19 08:00:54.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=54
+2026-10-19 08:00:54.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=1, Ver=10
+2026-10-19 08:00:54.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=2
+2026-10-19 08:00:55.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=55
+2026-10-19 08:00:56.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=56
+2026-10-19 08:00:56.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=11
+2026-10-19 08:00:56.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=11, Closed=1
+2026-10-19 08:00:56.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_ENTER, Res=1
+2026-10-19 08:00:56.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ABANDON, Agent=1, Where=0
+2026-10-19 08:00:56.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
+2026-10-19 08:00:57.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=57
+2026-10-19 08:00:57.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=16, Agent=1, Task=26, Due=63
+2026-10-19 08:00:57.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=0, Ver=11
+2026-10-19 08:00:57.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=1
+2026-10-19 08:00:58.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=58
+2026-10-19 08:00:58.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=2, Res=0
+2026-10-19 08:00:58.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=FULFILLED, Id=14, Agent=2
+2026-10-19 08:00:59.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=59
+2026-10-19 08:00:59.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=SANCTION, Id=15, Agent=1
+2026-10-19 08:00:59.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=OBLIGATION, Id=17, Agent=2, Task=37, Due=65
+2026-10-19 08:00:59.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=HUMAN_LEAVE, Res=1
+2026-10-19 08:00:59.005000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ADAPT_START, Ver=12
+2026-10-19 08:00:59.006000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=COMMIT, Ver=12, Closed=-
+2026-10-19 08:00:59.007000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=0, Ver=11
+2026-10-19 08:01:00.001000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=TICK, Now=60
+2026-10-19 08:01:00.002000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=2, Res=2, Ver=12
+2026-10-19 08:01:00.003000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=12
+2026-10-19 08:01:00.004000 [fleet-A] INFO Regulation - : Site=fleet-A, Event=LEAVE, Agent=1, Res=0
