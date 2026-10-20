@@ -252,13 +252,85 @@ SDL has well-known limits. The best known is **contrary-to-duty** reasoning: wha
 
 For this reason normative MAS usually treat norms *operationally*, as objects with a lifecycle (section 3.3), checked against what happens in the system. This is also how P models them.
 
+#### Deontic logic seen from temporal logic
+
+If you know LTL and CTL, you already know the shape of deontic logic. All three are *normal modal logics*: a box operator, its dual diamond, and a Kripke structure that gives them meaning. The box distributes over implication (axiom K) and every theorem can be boxed (necessitation). What changes is what the accessibility relation means (Figure 3). In temporal logic it links a point of a run to the later points; in deontic logic it links a world to its *ideal alternatives*, the worlds in which every norm is respected.
+
+![Figure 3 · the box of temporal logic and the box of deontic logic](figures/figure3.png)
+
+*Figure 3 · the box of temporal logic and the box of deontic logic*
+
+|  | Temporal logic (LTL / CTL) | Deontic logic (SDL) |
+| --- | --- | --- |
+| Box | G φ: φ at every future point (AG: on every run) | O φ: φ in every ideal world |
+| Diamond | F φ = ¬G¬φ: φ at some future point | P φ = ¬O¬φ: φ in some ideal world |
+| Box of a negation | G ¬φ: φ never happens | Forb φ = O ¬φ: φ is forbidden |
+| Accessibility | "later than", along a run | "ideal alternative of" |
+| Characteristic axiom | T (reflexivity): G φ → φ | D (seriality): O φ → P φ |
+| What ¬φ in the current state means | G φ is false: a counterexample | nothing wrong with the logic: O φ ∧ ¬φ is consistent |
+
+A warning on notation: F means *eventually* in temporal logic and *forbidden* in deontic logic. This document writes Forb for the deontic operator.
+
+The last two rows carry the essential difference. G is reflexive: if φ must always hold, it holds now, so a single state with ¬φ refutes G φ. O is *not* reflexive: the ideal worlds need not include the actual one, so "the parcel ought to be delivered" and "the parcel was not delivered" can both be true. This is exactly what a normative system needs. A violation is not a contradiction and not a bug; it is a state the system must be able to represent and react to. Axiom D only asks that every world have at least one ideal alternative, which rules out conflicting obligations (O φ ∧ O ¬φ) and nothing else. Conflicting obligations are a real risk in a fleet: a delivery deadline that can only be met through a zone that has just been closed.
+
+#### From "ought" to "happens": the Andersonian reduction
+
+[Anderson (1958)](https://doi.org/10.1093/mind/LXVII.265.100) showed that deontic logic can be reduced to an ordinary (alethic) modal logic plus one propositional constant V, read "a violation has occurred":
+
+```latex
+O\varphi \equiv \Box(\neg\varphi \rightarrow V) \qquad
+P\varphi \equiv \Diamond(\varphi \wedge \neg V) \qquad
+\mathit{Forb}\,\varphi \equiv \Box(\varphi \rightarrow V)
+```
+
+[Meyer (1988)](https://doi.org/10.1305/ndjfl/1093637776) applied the same idea to actions, in the style of dynamic logic: an action α is forbidden when every way of doing it ends in a violation, \[α\]V, and permitted when some way of doing it does not, ⟨α⟩¬V. Entering a closed zone is a forbidden action in exactly this sense.
+
+This reduction is the bridge the project relies on. Make the violation an observable event and read the box temporally, and every norm turns into an ordinary temporal property *about violations*. That is how the monitors of section 3.4 are written: none of them uses a deontic operator, and all of them mention fulfilment, violation or sanction events.
+
+#### One trace, two readings
+
+The reduction also makes clear *whose* behaviour is being specified (Figure 4).
+
+![Figure 4 · one trace read deontically (robots) and temporally (regulator)](figures/figure4.png)
+
+*Figure 4 · one trace read deontically (robots) and temporally (regulator)*
+
+- **For the robots, norms are deontic.** A robot may miss a deadline. The specification must not reject that trace; it must say what follows. Writing G ¬V as a requirement would be a mistake: it would turn every norm into a regimented constraint and remove the robots' autonomy, which is the point of an open MAS.
+- **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit a robot to a zone the norm set closes, and must finish every adaptation. These are G and F properties that have to hold on every run, and a run that breaks them is a bug.
+
+This is why the P monitors never assert that robots behave well. They assert that the *regulation* behaves well, whatever the robots do: S1 to S3 and R3 for regimented norms, where the regulator can block, L1 and R1 for sanctioned norms, where the regulator must react, and F1 for whether its reactions are fair.
+
+#### Kinds of norms as temporal patterns
+
+Once violations are events, each kind of norm has a recognisable temporal pattern. The table uses the fleet's norms.
+
+| Kind of norm | Example in the fleet | Violation V occurs when | What the regulator must guarantee |
+| --- | --- | --- | --- |
+| Achievement obligation with a deadline | deliver the parcel by tick d | tick d passes without delivery | G(created → F(fulfilled ∨ sanctioned)), L1; bounded at run time, R1 |
+| Maintenance obligation | keep zone 1 free of robots while it is closed | a robot is admitted while it is closed | regimented: G(closed → ¬admitted), S2 |
+| Prohibition | no robot in a zone with the picker | both are in the zone | regimented: G ¬(robot in zone ∧ picker in zone), S1 |
+| Contrary-to-duty obligation | if a robot is in a zone with the picker, it must stop | the prohibition above is violated | G(V → X protective stop): a property of the *reaction* |
+| Permission | a robot may enter an open, free zone | never: a permission cannot be violated | AG(request ∧ open ∧ free → EF granted): branching, not a trace property |
+
+Two rows deserve a comment.
+
+- **Contrary-to-duty norms become easy.** Chisholm's paradox arises in SDL, which has neither time nor an explicit violation. With V as an event, the secondary obligation is simply triggered by it. Temporal deontic logics with deadlines avoid the paradox in the same way.
+- **Permission is not a trace property.** "A robot *may* enter" says that some allowed continuation lets it enter. One run in which it did not enter proves nothing, because another robot may have taken the zone first. In CTL this is an EF property over all possible futures. Neither a single-trace monitor nor PObserve can check it. The P checker can approximate it as liveness under fairness: every request to an open zone is eventually granted. The corridor deadlock shows that this approximation can fail even when no norm forbids entry, which links permissions to section 6. Deciding which of the fleet's norms become safety, liveness or branching properties is a good exercise for the report.
+
+#### Two more paradoxes worth knowing
+
+- **Ross's paradox.** From O(deliver the parcel) SDL derives O(deliver the parcel ∨ drop it in the corridor), because the box is closed under logical consequence. In LTL the same step, G φ → G(φ ∨ ψ), is harmless; for obligations it reads absurdly, since dropping the parcel seems to discharge the duty.
+- **Free-choice permission.** "You may take corridor A or corridor B" should imply "you may take corridor A", but P(φ ∨ ψ) → P φ is not valid in SDL.
+
+These paradoxes are why this project specifies norms *operationally*, as machines that create, fulfil and violate norm instances, and verifies them with temporal monitors instead of reasoning in SDL. The [Stanford Encyclopedia entry on deontic logic](https://plato.stanford.edu/entries/logic-deontic/) is a good next read.
+
 ### 3.3 Lifecycle of a norm instance
 
 Each norm instance moves through a small state machine. The monitors of section 7 watch these transitions through the P events shown under each state.
 
-![Figure 3 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure3.png)
+![Figure 5 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure5.png)
 
-*Figure 3 · lifecycle of an obligation instance, with the P events that mark each state*
+*Figure 5 · lifecycle of an obligation instance, with the P events that mark each state*
 
 An instance left in **Active** forever is the failure that liveness property L1 catches. A move from **Violated** to **Sanctioned** for a robot that could not have complied is what the fairness property F1 catches.
 
@@ -324,11 +396,11 @@ They can be applied by the organization, by peers or by the environment. Good sa
 
 ### 3.8 Choosing an enforcement mechanism
 
-The right mechanism for a norm depends on two questions: how much one violation costs, and whether the environment can physically block the forbidden action. Figure 4 places the norms of the fleet on these two axes.
+The right mechanism for a norm depends on two questions: how much one violation costs, and whether the environment can physically block the forbidden action. Figure 6 places the norms of the fleet on these two axes.
 
-![Figure 4 · the norms of the fleet placed by cost and controllability](figures/figure4.png)
+![Figure 6 · the norms of the fleet placed by cost and controllability](figures/figure6.png)
 
-*Figure 4 · the norms of the fleet placed by cost and controllability*
+*Figure 6 · the norms of the fleet placed by cost and controllability*
 
 - **High cost, blockable: regiment.** A zone controller can refuse a robot, and a collision or a robot meeting the picker is unacceptable. Zone capacity and closed zones are therefore regimented.
 - **High cost, not blockable: monitor, and add a safety layer.** The MAS cannot stop a person walking into a zone. "The picker enters only a closed zone" can only be monitored (property R3), so the real guarantee must come from a layer below the MAS: a badge gate, a light curtain, or the robots' own safety-rated speed and separation monitoring.
@@ -341,11 +413,11 @@ The figure also shows where verification matters most. A regimented norm must ho
 
 A sanction is meant to change behaviour: it tells the agent that its choice was wrong. That only works if the agent could have chosen otherwise. A robot that missed its deadline because the regulator closed its route, or because another robot held the next zone, did nothing wrong. Sanctioning it punishes the regulation's own side effects, and a learning robot may draw the wrong lesson, for example avoiding tasks that cross zone 1 altogether.
 
-![Figure 5 · when a missed deadline deserves a sanction](figures/figure5.png)
+![Figure 7 · when a missed deadline deserves a sanction](figures/figure7.png)
 
-*Figure 5 · when a missed deadline deserves a sanction*
+*Figure 7 · when a missed deadline deserves a sanction*
 
-Figure 5 turns this into a rule. Before sanctioning, the organization asks whether the delay was caused by a regulator or by traffic. Only when both answers are no is the delay the robot's own doing.
+Figure 7 turns this into a rule. Before sanctioning, the organization asks whether the delay was caused by a regulator or by traffic. Only when both answers are no is the delay the robot's own doing.
 
 Two points make this more than a policy detail:
 
@@ -362,9 +434,9 @@ Regulation management balances the agents' autonomy with control of the whole sy
 | MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | **hybrid**: environment (zone controllers) + organization (fleet manager, closures) + agent (robots decide to park and give up) |
 | Architectural style | centralized vs. decentralized / distributed regulators | **distributed**: one controller per zone, coordinated only by messages |
 
-![Figure 6 · the fleet placed in the unified-view grid](figures/figure6.png)
+![Figure 8 · the fleet placed in the unified-view grid](figures/figure8.png)
 
-*Figure 6 · the fleet placed in the unified-view grid*
+*Figure 8 · the fleet placed in the unified-view grid*
 
 The COINE 2025 paper is not openly deposited. In the first week the student checks the paper's exact list of capabilities and adjusts the mapping in section 7.
 
@@ -447,11 +519,11 @@ The remedy borrowed from distributed databases is **two-phase commit**. It guara
 
 ### 4.6 The inconsistency window
 
-With one controller per zone, there is no single moment at which "the rules change". Each controller learns about the new norm set when its message arrives. Figure 7 draws the versions held by each controller over time.
+With one controller per zone, there is no single moment at which "the rules change". Each controller learns about the new norm set when its message arrives. Figure 9 draws the versions held by each controller over time.
 
-![Figure 7 · versions of the norm set in each zone controller over time](figures/figure7.png)
+![Figure 9 · versions of the norm set in each zone controller over time](figures/figure9.png)
 
-*Figure 7 · versions of the norm set in each zone controller over time*
+*Figure 9 · versions of the norm set in each zone controller over time*
 
 - **Naive (top).** The coordinator commits v1 and tells the picker the zone is closed. Zones 0 and 2 install v1 quickly; zone 1's message is late. During the shaded window, zone 1 still runs v0 and admits robot 1, while the picker already acts under v1. Both S1 and S2 can fail.
 - **Two-phase (bottom).** Zone 1 stops admitting robots at *prepare* and drains. The commit comes only after it is empty. Zones still install v1 at slightly different times, so a window still exists, but in it nothing depends on the difference: zone 1 is already closed to robots under both versions.
@@ -508,19 +580,19 @@ spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
 3. The PObserve CLI (`java -jar PObserve-1.0.0.jar --jars <package> --spec <Monitor> -l <log>`) or the JUnit integration replays the events through the monitor.
 4. It reports the first violation with a replay of the events that led to it.
 
-![Figure 8 · design-time and run-time checking share one set of monitors](figures/figure8.png)
+![Figure 10 · design-time and run-time checking share one set of monitors](figures/figure10.png)
 
-*Figure 8 · design-time and run-time checking share one set of monitors*
+*Figure 10 · design-time and run-time checking share one set of monitors*
 
 The design-time and run-time checks therefore share one definition of "correct". PObserve orders events by timestamp within a key, so logs from several fleet nodes need synchronized clocks (NTP or PTP).
 
 PObserve reports assertion failures; it does not report hot states still open at the end of a finite log. Liveness properties are therefore restated as **bounded response** for run time.
 
-**What each check can establish.** The checker and PObserve answer different questions, and neither replaces the other (Figure 9).
+**What each check can establish.** The checker and PObserve answer different questions, and neither replaces the other (Figure 11).
 
-![Figure 9 · what the checker and PObserve can each establish](figures/figure9.png)
+![Figure 11 · what the checker and PObserve can each establish](figures/figure11.png)
 
-*Figure 9 · what the checker and PObserve can each establish*
+*Figure 11 · what the checker and PObserve can each establish*
 
 - **The checker** explores many schedules, but only of the model. A violation it finds is real only if the model is faithful. A violation in the "model only" region comes from an abstraction, for example robots that move between zones instantly. Absence of violations is evidence about the design, bounded by the number of schedules explored.
 - **PObserve** sees few executions, but real ones. A violation it reports happened, as far as the log is accurate. It says nothing about executions that were never logged, and nothing about faults the log cannot show, such as a localization error that put a robot in the wrong zone.
@@ -590,11 +662,11 @@ One run up to a step bound is a **schedule**, and `-s 10000` asks for 10,000 of 
 
 The search finds bugs; it does not prove their absence. Keep models small (2 robots, 3 zones, a bounded clock) and grow them only when the small model passes.
 
-**Why interleavings matter.** A concurrent system fails in orders of events, not in single events. Take three events of a naive closure of zone 1: robot 1 is admitted to zone 1 (A), the coordinator commits v1 (C), and zone 1's controller installs v1 (I). In the naive protocol, I always follows C, which leaves three possible orders (Figure 10).
+**Why interleavings matter.** A concurrent system fails in orders of events, not in single events. Take three events of a naive closure of zone 1: robot 1 is admitted to zone 1 (A), the coordinator commits v1 (C), and zone 1's controller installs v1 (I). In the naive protocol, I always follows C, which leaves three possible orders (Figure 12).
 
-![Figure 10 · the orders of three closure events under the naive protocol](figures/figure10.png)
+![Figure 12 · the orders of three closure events under the naive protocol](figures/figure12.png)
 
-*Figure 10 · the orders of three closure events under the naive protocol*
+*Figure 12 · the orders of three closure events under the naive protocol*
 
 Only one of them is safe. If the robot is admitted before the commit, nobody drains it, and the picker walks in on it. If it is admitted between the commit and the install, zone 1 uses a rule that no longer exists. Neither failure depends on a bug in any single component: each controller behaves exactly as written. Testing would see them only if message delays happened to line up, which is rare in a lab and common in a busy warehouse network.
 
@@ -640,13 +712,13 @@ The checker enumerates the orders systematically. The two-phase protocol does no
 
 Two mobile robots deliver goods through a one-lane corridor of three zones (0, 1, 2), each with capacity 1 and its own zone controller. Robot 1 travels 0 → 1 → 2 and robot 2 travels 2 → 1 → 0, so they meet head-on. A fleet manager assigns deliveries with deadlines. At unpredictable times a human picker needs zone 1, which first requires a **zone closure**: a regulation adaptation that closes zone 1 to robots.
 
-![Figure 11 · the corridor seen from above (illustrative)](figures/figure11.png)
+![Figure 13 · the corridor seen from above (illustrative)](figures/figure13.png)
 
-*Figure 11 · the corridor seen from above (illustrative)*
+*Figure 13 · the corridor seen from above (illustrative)*
 
-![Figure 12 · fleet architecture, components by MAOP dimension](figures/figure12.png)
+![Figure 14 · fleet architecture, components by MAOP dimension](figures/figure14.png)
 
-*Figure 12 · fleet architecture, components by MAOP dimension*
+*Figure 14 · fleet architecture, components by MAOP dimension*
 
 Each zone controller decides alone, so a closure is safe only if all three switch norm sets before the picker enters. The coordinator's protocol, and the robots' ability to drain zone 1, are what the project verifies.
 
@@ -682,19 +754,19 @@ Each zone controller decides alone, so a closure is safe only if all three switc
 - **Naive.** The coordinator declares the new norm set at once and each zone controller installs it whenever its message arrives.
 - **Two-phase.** The coordinator sends *prepare*. Controllers whose zone does not change acknowledge at once and keep serving. The controller of the affected zone stops admitting and waits until the zone is empty, then acknowledges. Only when all have acknowledged does the coordinator *commit*.
 
-![Figure 13 · naive vs. two-phase zone closure, as message sequences](figures/figure13.png)
+![Figure 15 · naive vs. two-phase zone closure, as message sequences](figures/figure15.png)
 
-*Figure 13 · naive vs. two-phase zone closure, as message sequences*
+*Figure 15 · naive vs. two-phase zone closure, as message sequences*
 
 In the naive sequence the zone 1 controller still holds norm set v0 when the robot asks to enter, because v1 is still in transit. The two-phase sequence cannot reach that state: the picker is told to enter only after zone 1 has drained and its controller has acknowledged.
 
 Showing why the naive policy is unsafe, and why even the safe one is unfair to robots, are the two core results of the project.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is split between two P machines (Figure 14): the `AdaptationCoordinator` and one `ResourceGuard` per zone.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is split between two P machines (Figure 16): the `AdaptationCoordinator` and one `ResourceGuard` per zone.
 
-![Figure 14 · the two-phase protocol as two communicating state machines](figures/figure14.png)
+![Figure 16 · the two-phase protocol as two communicating state machines](figures/figure16.png)
 
-*Figure 14 · the two-phase protocol as two communicating state machines*
+*Figure 16 · the two-phase protocol as two communicating state machines*
 
 - **Prepare.** The coordinator sends `eNormPrepare` to every zone controller. Zone 1, which the new norm set closes, moves to `Draining`: it denies new robots but lets the current one leave. Zones 0 and 2 are unaffected and acknowledge at once, so they keep serving robots throughout.
 - **Acknowledge.** When zone 1 is empty, its controller sends `eNormPrepareAck` and keeps denying, because it does not yet know whether the commit has happened.
@@ -702,11 +774,11 @@ Showing why the naive policy is unsafe, and why even the safe one is unfair to r
 
 The highlighted states carry the safety argument. The cost is visible too: the coordinator waits in `Preparing` until zone 1 is empty, and in the corridor, emptying a zone is not always possible.
 
-**Deadlock in the corridor.** A robot keeps its zone until the next one is granted. Two robots moving head-on can therefore end up each holding the zone the other needs (Figure 15). This is the classic hold-and-wait cycle from operating systems, played out on the warehouse floor.
+**Deadlock in the corridor.** A robot keeps its zone until the next one is granted. Two robots moving head-on can therefore end up each holding the zone the other needs (Figure 17). This is the classic hold-and-wait cycle from operating systems, played out on the warehouse floor.
 
-![Figure 15 · head-on robots form a wait-for cycle, and three ways to break it](figures/figure15.png)
+![Figure 17 · head-on robots form a wait-for cycle, and three ways to break it](figures/figure17.png)
 
-*Figure 15 · head-on robots form a wait-for cycle, and three ways to break it*
+*Figure 17 · head-on robots form a wait-for cycle, and three ways to break it*
 
 The cycle matters for regulation in two ways. First, it can block the closure: if robot 1 sits in zone 1 waiting for zone 2, zone 1 never drains, and the adaptation never commits. Property L2 (`AdaptationCompletes`) catches this when parking is removed. Second, every way out has a normative price:
 
@@ -803,9 +875,9 @@ The line is prefixed by a UTC timestamp with microseconds. `Site` is the partiti
 
 The project runs in five phases over 45 calendar days, counted from the start date. Each phase is 7 to 11 days long. Each phase ends with a short checkpoint meeting and a tagged commit.
 
-![Figure 16 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure16.png)
+![Figure 18 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure18.png)
 
-*Figure 16 · work plan: 5 phases, 45 days, 5 deliverables*
+*Figure 18 · work plan: 5 phases, 45 days, 5 deliverables*
 
 The verification phase is the core of the project: if the model slips, cut the optional ROS 2 instrumentation and the refinement stretch, not experiments E1–E3.
 
@@ -877,6 +949,12 @@ Norms and verification:
 - M. Dastani, S. Sardina, V. Yazdanpanah. *Norm Enforcement as Supervisory Control.* PRIMA 2017. [record](https://research.utwente.nl/en/publications/norm-enforcement-as-supervisory-control/)
 - D. Dell'Anna, M. Dastani, F. Dalpiaz. *Runtime Revision of Sanctions in Normative MAS.* JAAMAS 34(2), 2020. [PDF](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf)
 - *Norm specification and verification in multi-agent systems* (survey). IfCoLoG J. Logics and their Applications 5(2), 2018. [record](https://research.ou.nl/en/publications/norm-specification-and-verification-in-multi-agent-systems/)
+
+Deontic and temporal logic:
+
+- A. R. Anderson. [A reduction of deontic logic to alethic modal logic](https://doi.org/10.1093/mind/LXVII.265.100). *Mind* 67(265):100–103, 1958.
+- J.-J. Ch. Meyer. [A different approach to deontic logic: deontic logic viewed as a variant of dynamic logic](https://doi.org/10.1305/ndjfl/1093637776). *Notre Dame Journal of Formal Logic* 29(1):109–136, 1988.
+- P. McNamara and F. Van De Putte. [Deontic logic](https://plato.stanford.edu/entries/logic-deontic/). *Stanford Encyclopedia of Philosophy*.
 
 Textbooks and background (from the field's standard literature; locate the current editions):
 

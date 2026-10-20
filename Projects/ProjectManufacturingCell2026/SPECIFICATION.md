@@ -240,13 +240,85 @@ SDL has well-known limits. The best known is **contrary-to-duty** reasoning: wha
 
 For this reason normative MAS usually treat norms *operationally*, as objects with a lifecycle (section 3.3), checked against what happens in the system. This is also how P models them.
 
+#### Deontic logic seen from temporal logic
+
+If you know LTL and CTL, you already know the shape of deontic logic. All three are *normal modal logics*: a box operator, its dual diamond, and a Kripke structure that gives them meaning. The box distributes over implication (axiom K) and every theorem can be boxed (necessitation). What changes is what the accessibility relation means (Figure 3). In temporal logic it links a point of a run to the later points; in deontic logic it links a world to its *ideal alternatives*, the worlds in which every norm is respected.
+
+![Figure 3 · the box of temporal logic and the box of deontic logic](figures/figure3.png)
+
+*Figure 3 · the box of temporal logic and the box of deontic logic*
+
+|  | Temporal logic (LTL / CTL) | Deontic logic (SDL) |
+| --- | --- | --- |
+| Box | G φ: φ at every future point (AG: on every run) | O φ: φ in every ideal world |
+| Diamond | F φ = ¬G¬φ: φ at some future point | P φ = ¬O¬φ: φ in some ideal world |
+| Box of a negation | G ¬φ: φ never happens | Forb φ = O ¬φ: φ is forbidden |
+| Accessibility | "later than", along a run | "ideal alternative of" |
+| Characteristic axiom | T (reflexivity): G φ → φ | D (seriality): O φ → P φ |
+| What ¬φ in the current state means | G φ is false: a counterexample | nothing wrong with the logic: O φ ∧ ¬φ is consistent |
+
+A warning on notation: F means *eventually* in temporal logic and *forbidden* in deontic logic. This document writes Forb for the deontic operator.
+
+The last two rows carry the essential difference. G is reflexive: if φ must always hold, it holds now, so a single state with ¬φ refutes G φ. O is *not* reflexive: the ideal worlds need not include the actual one, so "the job ought to be reported" and "the job was not reported" can both be true. This is exactly what a normative system needs. A violation is not a contradiction and not a bug; it is a state the system must be able to represent and react to. Axiom D only asks that every world have at least one ideal alternative, which rules out conflicting obligations (O φ ∧ O ¬φ) and nothing else.
+
+#### From "ought" to "happens": the Andersonian reduction
+
+[Anderson (1958)](https://doi.org/10.1093/mind/LXVII.265.100) showed that deontic logic can be reduced to an ordinary (alethic) modal logic plus one propositional constant V, read "a violation has occurred":
+
+```latex
+O\varphi \equiv \Box(\neg\varphi \rightarrow V) \qquad
+P\varphi \equiv \Diamond(\varphi \wedge \neg V) \qquad
+\mathit{Forb}\,\varphi \equiv \Box(\varphi \rightarrow V)
+```
+
+[Meyer (1988)](https://doi.org/10.1305/ndjfl/1093637776) applied the same idea to actions, in the style of dynamic logic: an action α is forbidden when every way of doing it ends in a violation, \[α\]V, and permitted when some way of doing it does not, ⟨α⟩¬V.
+
+This reduction is the bridge the project relies on. Make the violation an observable event and read the box temporally, and every norm turns into an ordinary temporal property *about violations*. That is how the monitors of section 3.4 are written: none of them uses a deontic operator, and all of them mention fulfilment, violation or sanction events.
+
+#### One trace, two readings
+
+The reduction also makes clear *whose* behaviour is being specified (Figure 4).
+
+![Figure 4 · one trace read deontically (agents) and temporally (regulator)](figures/figure4.png)
+
+*Figure 4 · one trace read deontically (agents) and temporally (regulator)*
+
+- **For the agents, norms are deontic.** An agent may miss a deadline. The specification must not reject that trace; it must say what follows. Writing G ¬V as a requirement would be a mistake: it would turn every norm into a regimented constraint and remove the agents' autonomy, which is the point of an open MAS.
+- **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit an agent the norm set forbids, and must finish every adaptation. These are G and F properties that have to hold on every run, and a run that breaks them is a bug.
+
+This is why the P monitors never assert that agents behave well. They assert that the *regulation* behaves well, whatever the agents do: S1 to S3 and R3 for regimented norms, where the regulator can block, and L1 and R1 for sanctioned norms, where the regulator must react.
+
+#### Kinds of norms as temporal patterns
+
+Once violations are events, each kind of norm has a recognisable temporal pattern. The table uses the cell's norms.
+
+| Kind of norm | Example in the cell | Violation V occurs when | What the regulator must guarantee |
+| --- | --- | --- | --- |
+| Achievement obligation with a deadline | report the job by tick d | tick d passes without a report | G(created → F(fulfilled ∨ sanctioned)), L1; bounded at run time, R1 |
+| Maintenance obligation | keep the envelope empty while it is locked out | an agent is admitted while it is closed | regimented: G(closed → ¬admitted), S2 |
+| Prohibition | no agent in the envelope with a person | both are inside | regimented: G ¬(agent inside ∧ person inside), S1 |
+| Contrary-to-duty obligation | if an agent is inside during lock-out, trigger the e-stop | the prohibition above is violated | G(V → X e-stop): a property of the *reaction* |
+| Permission | an agent may enter an open, empty envelope | never: a permission cannot be violated | AG(request ∧ open → EF granted): branching, not a trace property |
+
+Two rows deserve a comment.
+
+- **Contrary-to-duty norms become easy.** Chisholm's paradox arises in SDL, which has neither time nor an explicit violation. With V as an event, the secondary obligation is simply triggered by it. Temporal deontic logics with deadlines avoid the paradox in the same way.
+- **Permission is not a trace property.** "An agent *may* enter" says that some allowed continuation lets it enter. One run in which it did not enter proves nothing, because it may have chosen not to. In CTL this is an EF property over all possible futures. Neither a single-trace monitor nor PObserve can check it. The P checker can approximate it as liveness under fairness: every request to an open resource is eventually granted. Deciding which of the cell's norms become safety, liveness or branching properties is a good exercise for the report.
+
+#### Two more paradoxes worth knowing
+
+- **Ross's paradox.** From O(report the job) SDL derives O(report the job ∨ delete the log), because the box is closed under logical consequence. In LTL the same step, G φ → G(φ ∨ ψ), is harmless; for obligations it reads absurdly, since deleting the log seems to discharge the duty.
+- **Free-choice permission.** "You may use cell A or cell B" should imply "you may use cell A", but P(φ ∨ ψ) → P φ is not valid in SDL.
+
+These paradoxes are why this project specifies norms *operationally*, as machines that create, fulfil and violate norm instances, and verifies them with temporal monitors instead of reasoning in SDL. The [Stanford Encyclopedia entry on deontic logic](https://plato.stanford.edu/entries/logic-deontic/) is a good next read.
+
 ### 3.3 Lifecycle of a norm instance
 
 Each norm instance moves through a small state machine. The monitors of section 7 watch these transitions through the P events shown under each state.
 
-![Figure 3 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure3.png)
+![Figure 5 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure5.png)
 
-*Figure 3 · lifecycle of an obligation instance, with the P events that mark each state*
+*Figure 5 · lifecycle of an obligation instance, with the P events that mark each state*
 
 An instance left in **Active** forever is the failure that liveness property L1 catches. Reaching both **Fulfilled** and **Sanctioned** for the same instance is what safety property S3 rules out.
 
@@ -312,11 +384,11 @@ They can be applied by the organization, by peers or by the environment. Good sa
 
 ### 3.8 Choosing an enforcement mechanism
 
-The right mechanism for a norm depends on two questions: how much one violation costs, and whether the environment can physically block the forbidden action. Figure 4 places the norms of the cell on these two axes.
+The right mechanism for a norm depends on two questions: how much one violation costs, and whether the environment can physically block the forbidden action. Figure 6 places the norms of the cell on these two axes.
 
-![Figure 4 · the norms of the cell placed by cost and controllability](figures/figure4.png)
+![Figure 6 · the norms of the cell placed by cost and controllability](figures/figure6.png)
 
-*Figure 4 · the norms of the cell placed by cost and controllability*
+*Figure 6 · the norms of the cell placed by cost and controllability*
 
 - **High cost, blockable: regiment.** The cell controller can refuse entry, and a single collision or injury is unacceptable. Capacity and "no agent with a person" are therefore regimented.
 - **High cost, not blockable: monitor, and add a safety layer.** The multi-agent system cannot stop a person from opening the door. The lock-out procedure can only be monitored (property R3), so the real guarantee must come from a layer below the MAS, such as a door interlock or an e-stop.
@@ -335,9 +407,9 @@ Regulation management balances the agents' autonomy with control of the whole sy
 | MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | organization-centric (obligations, adaptation) + environment-centric (the cell controller) |
 | Architectural style | centralized vs. decentralized / distributed regulators | **centralized**: one cell controller, one organizational engine |
 
-![Figure 5 · the cell placed in the unified-view grid](figures/figure5.png)
+![Figure 7 · the cell placed in the unified-view grid](figures/figure7.png)
 
-*Figure 5 · the cell placed in the unified-view grid*
+*Figure 7 · the cell placed in the unified-view grid*
 
 The COINE 2025 paper is not openly deposited. In the first week the student checks the paper's exact list of capabilities and adjusts the mapping in section 7.
 
@@ -413,11 +485,11 @@ The remedy borrowed from distributed databases is **two-phase commit**, here wit
 
 ### 4.6 Lock-out/tag-out as regulation adaptation
 
-The cell's lock-out is not an invented example. Industrial safety rules already prescribe a lock-out/tag-out (LOTO) procedure, and each of its steps has a counterpart in the adaptation model (Figure 6).
+The cell's lock-out is not an invented example. Industrial safety rules already prescribe a lock-out/tag-out (LOTO) procedure, and each of its steps has a counterpart in the adaptation model (Figure 8).
 
-![Figure 6 · lock-out/tag-out steps and their counterparts in the model](figures/figure6.png)
+![Figure 8 · lock-out/tag-out steps and their counterparts in the model](figures/figure8.png)
 
-*Figure 6 · lock-out/tag-out steps and their counterparts in the model*
+*Figure 8 · lock-out/tag-out steps and their counterparts in the model*
 
 The correspondence shows what the model adds and what it leaves out:
 
@@ -481,19 +553,19 @@ spec RegimentationSafety observes eResourceEntered, eHumanEntered /* … */ {
 3. The PObserve CLI (`java -jar PObserve-1.0.0.jar --jars <package> --spec <Monitor> -l <log>`) or the JUnit integration replays the events through the monitor.
 4. It reports the first violation with a replay of the events that led to it.
 
-![Figure 7 · design-time and run-time checking share one set of monitors](figures/figure7.png)
+![Figure 9 · design-time and run-time checking share one set of monitors](figures/figure9.png)
 
-*Figure 7 · design-time and run-time checking share one set of monitors*
+*Figure 9 · design-time and run-time checking share one set of monitors*
 
 The design-time and run-time checks therefore share one definition of "correct".
 
 PObserve reports assertion failures; it does not report hot states still open at the end of a finite log. Liveness properties are therefore restated as **bounded response** for run time, e.g. *"resolved within 1 tick of the deadline"*.
 
-**What each check can establish.** The checker and PObserve answer different questions, and neither replaces the other (Figure 8).
+**What each check can establish.** The checker and PObserve answer different questions, and neither replaces the other (Figure 10).
 
-![Figure 8 · what the checker and PObserve can each establish](figures/figure8.png)
+![Figure 10 · what the checker and PObserve can each establish](figures/figure10.png)
 
-*Figure 8 · what the checker and PObserve can each establish*
+*Figure 10 · what the checker and PObserve can each establish*
 
 - **The checker** explores many schedules, but only of the model. A violation it finds is real only if the model is faithful. A violation in the "model only" region comes from an abstraction, for example agents that release the envelope instantly. Absence of violations is evidence about the design, bounded by the number of schedules explored.
 - **PObserve** sees few executions, but real ones. A violation it reports happened, as far as the log is accurate. It says nothing about executions that were never logged, and nothing about faults the log cannot show, such as a sensor that missed a person.
@@ -563,11 +635,11 @@ One run up to a step bound is a **schedule**, and `-s 10000` asks for 10,000 of 
 
 The search finds bugs; it does not prove their absence. Keep models small (2 agents, 1 technician, a bounded clock) and grow them only when the small model passes.
 
-**Why interleavings matter.** A concurrent system fails in orders of events, not in single events. Take three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). The technician waits for the commit, so H always comes after C. That leaves three possible orders (Figure 9).
+**Why interleavings matter.** A concurrent system fails in orders of events, not in single events. Take three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). The technician waits for the commit, so H always comes after C. That leaves three possible orders (Figure 11).
 
-![Figure 9 · the orders of three lock-out events, and the one that breaks S1](figures/figure9.png)
+![Figure 11 · the orders of three lock-out events, and the one that breaks S1](figures/figure11.png)
 
-*Figure 9 · the orders of three lock-out events, and the one that breaks S1*
+*Figure 11 · the orders of three lock-out events, and the one that breaks S1*
 
 Two of them are safe. The third, C then H then L, puts the technician in the envelope with the arm. Testing would see it only if the scheduler happened to deliver the messages in that order, which might be rare on a lightly loaded controller. The checker does not wait for luck: it enumerates the orders systematically, so a three-event race is found in seconds.
 
@@ -613,13 +685,13 @@ The figure also shows what a design fix does. The two-phase protocol does not ma
 
 A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope. An organizational engine assigns jobs with deadlines. At unpredictable times a maintenance technician must enter the cell, which first requires a **lock-out**: a regulation adaptation that closes the envelope to agents.
 
-![Figure 10 · the cell seen from above (illustrative)](figures/figure10.png)
+![Figure 12 · the cell seen from above (illustrative)](figures/figure12.png)
 
-*Figure 10 · the cell seen from above (illustrative)*
+*Figure 12 · the cell seen from above (illustrative)*
 
-![Figure 11 · cell architecture, components by MAOP dimension](figures/figure11.png)
+![Figure 13 · cell architecture, components by MAOP dimension](figures/figure13.png)
 
-*Figure 11 · cell architecture, components by MAOP dimension*
+*Figure 13 · cell architecture, components by MAOP dimension*
 
 The cell controller is the only path into the envelope, so regimented norms hold as long as its norm set is current. Keeping it current during a lock-out is the coordinator's job, and the job the project verifies.
 
@@ -653,19 +725,19 @@ The cell controller is the only path into the envelope, so regimented norms hold
 - **Naive.** The coordinator declares the new norm set at once and the controller installs it whenever its message arrives.
 - **Two-phase.** The coordinator sends *prepare*. The controller stops admitting, waits until the envelope is empty (drain), then acknowledges. Only then does the coordinator *commit*.
 
-![Figure 12 · naive vs. two-phase lock-out, as message sequences](figures/figure12.png)
+![Figure 14 · naive vs. two-phase lock-out, as message sequences](figures/figure14.png)
 
-*Figure 12 · naive vs. two-phase lock-out, as message sequences*
+*Figure 14 · naive vs. two-phase lock-out, as message sequences*
 
 In the naive sequence the controller still holds norm set v0 when the arm asks to enter, because v1 is still in transit. The two-phase sequence cannot reach that state: the technician is told to enter only after the controller has drained the envelope and acknowledged.
 
 The naive policy is what a first implementation usually does. Showing *why* it is unsafe is the core result of the project.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is split between two P machines (Figure 13): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is split between two P machines (Figure 15): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
 
-![Figure 13 · the two-phase protocol as two communicating state machines](figures/figure13.png)
+![Figure 15 · the two-phase protocol as two communicating state machines](figures/figure15.png)
 
-*Figure 13 · the two-phase protocol as two communicating state machines*
+*Figure 15 · the two-phase protocol as two communicating state machines*
 
 - **Prepare.** The coordinator sends `eNormPrepare` to every guard. A guard whose resource the new norm set closes moves to `Draining`: it denies every new request but lets current occupants finish. An empty or unaffected guard acknowledges at once and goes straight to `AwaitCommit`.
 - **Acknowledge.** When the last agent leaves, the guard sends `eNormPrepareAck` and waits. It still denies requests, because it does not yet know whether the commit has happened.
@@ -753,9 +825,9 @@ The line is prefixed by a UTC timestamp with microseconds. `Site` is the partiti
 
 The project runs in five phases over 45 calendar days, counted from the start date. Each phase is 7 to 11 days long. Each phase ends with a short checkpoint meeting and a tagged commit.
 
-![Figure 14 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure14.png)
+![Figure 16 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure16.png)
 
-*Figure 14 · work plan: 5 phases, 45 days, 5 deliverables*
+*Figure 16 · work plan: 5 phases, 45 days, 5 deliverables*
 
 The verification phase is the core of the project: if the model slips, cut the optional JaCaMo instrumentation from the run-time phase, not experiments E1 and E2.
 
@@ -820,6 +892,12 @@ Norms and verification:
 - D. Dell'Anna, M. Dastani, F. Dalpiaz. *Runtime Revision of Sanctions in Normative MAS.* JAAMAS 34(2), 2020. [PDF](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf)
 - *Norm specification and verification in multi-agent systems* (survey). IfCoLoG J. Logics and their Applications 5(2), 2018. [record](https://research.ou.nl/en/publications/norm-specification-and-verification-in-multi-agent-systems/)
 - O. Boissier, B. Gâteau. *Normative Multi-Agent Organizations: Modeling, Support and Control.* Dagstuhl 2007. [DROPS](https://drops.dagstuhl.de/entities/document/10.4230/DagSemProc.07122.18)
+
+Deontic and temporal logic:
+
+- A. R. Anderson. [A reduction of deontic logic to alethic modal logic](https://doi.org/10.1093/mind/LXVII.265.100). *Mind* 67(265):100–103, 1958.
+- J.-J. Ch. Meyer. [A different approach to deontic logic: deontic logic viewed as a variant of dynamic logic](https://doi.org/10.1305/ndjfl/1093637776). *Notre Dame Journal of Formal Logic* 29(1):109–136, 1988.
+- P. McNamara and F. Van De Putte. [Deontic logic](https://plato.stanford.edu/entries/logic-deontic/). *Stanford Encyclopedia of Philosophy*.
 
 Textbooks and background (from the field's standard literature; locate the current editions):
 
