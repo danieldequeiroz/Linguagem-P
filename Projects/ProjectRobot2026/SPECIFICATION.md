@@ -848,7 +848,7 @@ The expected outcomes are **hypotheses** derived from the design. They are consi
 
 - `Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=0`;
 - in addition, `CONFIG` (all zones: `Capacity=0:1;1:1;2:1`), `TICK`, `OBLIGATION`, `FULFILLED`, `SANCTION`, `LEAVE`, `ADAPT_START`, `COMMIT`, `HUMAN_ENTER` and `HUMAN_LEAVE`;
-- `ABANDON` (`Id, `Agent, Where``), emitted by a robot when it abandons its task.
+- `ABANDON` (`Id, Agent, Where`), emitted by a robot when it abandons its task.
 
 Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serves as the partition key.
 
