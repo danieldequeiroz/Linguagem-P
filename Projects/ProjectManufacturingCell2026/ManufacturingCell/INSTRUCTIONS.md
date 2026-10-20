@@ -2,12 +2,20 @@
 
 A robot arm and an AGV share one work envelope (resource `0`, capacity 1). A single cell controller regiments access to it, and one organizational engine manages job obligations. A maintenance technician triggers a **lock-out adaptation** before entering the cell.
 
-Grid cell (Yan et al., COINE 2025): **organization-centric + environment-centric, centralized**.
+> **Verification status.** Nothing in this guide has been confirmed by running P or PObserve yet. The P files have not been compiled, and the Java parser has not been built (it depends on classes that `p compile --mode pobserve` generates). Every "expected" result below is a hypothesis. The only results actually produced so far come from the Python mirror of the monitors (`tools/simulate_logs.py --check`), recorded in section 5. Fill in the validation record there as you confirm each step.
 
-You will do two things with the **same P monitors**:
+Grid cell (Yan et al., COINE 2025): **organization-centric + environment-centric, centralized**. One `ResourceGuard` (the cell controller) admits agents, one `AdaptationCoordinator` changes the norm set, and one `ObligationManager` handles jobs and sanctions. With a single guard, the two-phase adaptation reduces to "block, drain, commit" at one place.
+
+You will do two things. They share most monitors but not all:
+
+| Monitor | Design time (`p check`) | Run time (PObserve) |
+|---|---|---|
+| `RegimentationSafety`, `NoStaleAdmission`, `NoDoubleOutcome`, `LockoutBeforeEntry` | yes | yes, the same P code |
+| `EveryObligationResolved`, `AdaptationCompletes` (liveness, hot states) | yes | no: a finite log cannot show that something *never* happens |
+| `ObligationDeadlineRespected`, `AdaptationBoundedTime` (bounded response, section 3.9) | no: they read `eTick`, which the model announces before the obligation manager acts on it, so they would raise false alarms | yes, replacing the two liveness monitors |
 
 1. **Design time.** Model-check the regulation design with the P checker (part 2).
-2. **Run time.** Check logs from a running cell against those monitors with PObserve (part 3).
+2. **Run time.** Check logs from a running cell with PObserve (part 3).
 
 ```
 ManufacturingCell/
@@ -47,7 +55,27 @@ Alternatively, P publishes a Docker image with .NET, JDK, Maven and the `p` CLI.
 docker run --rm -it -v "$PWD":/workspace ghcr.io/p-org/p:latest bash
 ```
 
+In PowerShell, write the mount as `-v "${PWD}:/workspace"`.
+
 Check the installation: `p --version`, `java -version`, `gradle --version`.
+
+### 1.1 Pin versions
+
+The guide has not been validated against a specific toolchain. When you validate it, install pinned versions and record them in section 5:
+
+| Component | Pin to | How to check |
+|---|---|---|
+| P | the version you validate with; the latest release tag at the time of writing is `p-3.1.0` | `p --version`; install a given version with `dotnet tool install --global P --version <x>` |
+| PObserve CLI | a commit of `p-org/P`; `260da92` (master, 2026-08-03) builds `PObserve-1.0.0.jar` | `git -C P rev-parse --short HEAD` |
+| `pobserve-commons`, `pobserve-java-unit-test` | `1.0.0` (set in `pobserve/build.gradle.kts`) | — |
+| Java, Gradle, Python | Java 17, Gradle 8.10.2, Python 3.10+ | `java -version`, `gradle --version`, `python3 --version` |
+
+### 1.2 Windows
+
+- `p compile` and `p check` run in PowerShell.
+- `run_pobserve.sh` is a Bash script. Run it from **Git Bash** or **WSL**, or call the raw `java -jar ...` command from section 3.5 once per monitor in PowerShell.
+- Use `.\gradlew.bat` instead of `./gradlew` in PowerShell. `gradle wrapper` needs Gradle installed once.
+- Use `python` or `py` if `python3` is not on your `PATH`.
 
 ---
 
@@ -73,6 +101,8 @@ p check -tc tcCellNaive    -s 10000     # naive adaptation (commit first, instal
 
 ### 2.3 Read the results
 
+Expected results (hypotheses, not yet run):
+
 | Test | Expected | Meaning |
 |---|---|---|
 | `tcCellTwoPhase` | no bug found | The regulation design is safe under every explored interleaving |
@@ -83,19 +113,36 @@ When a bug is found, the checker writes a trace under `PCheckerOutput/BugFinding
 2. Read it bottom-up. Find the `eNormCommitted` announcement, then the `eHumanEntered`, then the agent's `eResourceEntered`/`eResourceLeft`. The interleaving between them is the counterexample.
 3. Re-run with `--seed <n>` (printed in the log) to reproduce the same schedule while you fix the model.
 
+"No bug found" means only that the explored schedules (`-s`) showed none. Record the count you used.
+
 ### 2.4 Experiments worth running
 
 | Change | Where | What to look for |
 |---|---|---|
 | Agents never release the envelope (remove the `send guard, eRelease` in `Working`) | `PSrc/CellAgent.p` | `AdaptationCompletes` fails: the lock-out can never drain. This argues for a physical e-stop below the MAS |
 | Shorter deadlines (`due = 2`) | `ManufacturingSystem` | More sanctions; `EveryObligationResolved` must still hold |
-| Two technicians | add a second `HumanRequester` | Overlapping adaptations are serialized by `defer` in the coordinator |
+| Two technicians (a challenge, not a check of existing behavior) | add a second `HumanRequester` | See 2.5 |
+
+### 2.5 Challenge: two technicians
+
+The coordinator defers a new trigger while an adaptation is in progress, so adaptations run one at a time. That alone does not make two technicians safe. Expected trace (not yet run):
+
+1. Technician A requests a lock-out. v1 closes resource 0; A enters.
+2. Technician B requests a lock-out. v2 closes resource 0 again (no change); B enters.
+3. A leaves and requests reopening. v3 opens resource 0, although B is still inside.
+4. The controller admits the arm: `RegimentationSafety` should fail.
+
+Serialization orders the norm-set changes, but nothing tracks who is still inside. To fix it:
+- **Track human presence.** The coordinator keeps the set of technicians who hold a lock-out on each resource, and reopens only when the last one leaves.
+- **Verify it.** Add a monitor such as "no committed norm set opens a resource while a human is inside" (observe `eHumanEntered`, `eHumanLeft`, `eNormCommitted`), and check that it fails before your fix and holds after.
 
 ---
 
 ## 3. Run time: PObserve
 
-PObserve replays structured logs of a running system through the same P monitors. The monitors are compiled to Java (`p compile --mode pobserve`), and a log parser turns each log line into a P event.
+The commands in this part have not been run against this package yet (see the status note at the top).
+
+PObserve replays structured logs of a running system through the shared P monitors, plus the bounded-response ones in `RuntimeSpecs.p`. The monitors are compiled to Java (`p compile --mode pobserve`), and a log parser turns each log line into a P event.
 
 ### 3.1 The log contract
 
@@ -186,7 +233,7 @@ java -jar "$POBSERVE_JAR" --jars build/libs/CellRegulation-1.0.0-uber.jar \
      --spec NoStaleAdmission -l src/test/resources/cell_naive.log -o pobserve-out/NoStaleAdmission
 ```
 
-### 3.6 Expected run-time results on the sample logs
+### 3.6 Expected run-time results on the sample logs (Python mirror, not PObserve)
 
 | Monitor | `cell_twophase.log` | `cell_naive.log` |
 |---|---|---|
@@ -197,7 +244,7 @@ java -jar "$POBSERVE_JAR" --jars build/libs/CellRegulation-1.0.0-uber.jar \
 | AdaptationBoundedTime | ok | ok |
 | LockoutBeforeEntry | ok | ok |
 
-These come from the Python mirror of the monitors (`python3 ../tools/simulate_logs.py ... --check`), not from a PObserve run. PObserve stops at the first violation per spec and key.
+These come from the Python mirror of the monitors (commands in section 5), not from a PObserve run. PObserve is expected to report the same first violations, stopping at the first violation per spec and key; confirm and record it.
 
 ### 3.7 More logs
 
@@ -218,6 +265,34 @@ python3 ../../tools/simulate_logs.py --scenario cell --policy naive --seed 7 --t
 - **PLC / OPC UA.** Emit the same lines from the gateway that logs door switches and envelope occupancy.
 - Log `CONFIG` once at start-up. `RegimentationSafety` starts by reading the capacities.
 
+### 3.9 Log assumptions and limitations
+
+The run-time results are only as good as the log. The monitors assume:
+
+**A tick is one step of the organization's logical clock**, logged as a `TICK` by the obligation engine before it checks deadlines. Deadlines (`Due`) are in ticks. The simulator maps one tick to one second of log time; on a real cell, choose the tick period (e.g. 1 s) and log it consistently.
+
+**The two bounds:**
+- `ObligationDeadlineRespected` uses a grace of **1 tick**. The obligation engine sanctions at the first tick where `now > Due`, and logs the `SANCTION` *after* that `TICK` line. So an obligation due at tick *d* is resolved by tick *d+1* at the latest, and the monitor complains at tick *d+2*. One tick is the smallest grace that does not raise false alarms; in 500 simulated runs every sanction came exactly one tick after its due time. Raise it if your engine checks deadlines less often than every tick.
+- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining the envelope takes as long as the agent inside stays there. **The simulator already exceeds it**: in 500 simulated two-phase cell runs, 9 of 5,180 adaptations took 6 to 8 ticks, so longer two-phase logs can fail this monitor although the design is safe. Set the bound from your cell (maximum job time in the envelope plus the controller's reaction time) and record why.
+
+**Bounded monitors need later ticks.** Both bounded monitors check only when a `TICK` arrives. If the log ends before tick *d+2* (or 5 ticks after `ADAPT_START`), an unresolved obligation or adaptation is simply not reported. A clean result on a log that stops early does not show that work completed.
+
+**Restarts.** `CONFIG` must come first for each site. `RegimentationSafety` handles `CONFIG` only in its initial state, so a second `CONFIG` after a restart is an event the monitor does not handle. P treats that as an error. Monitor state (occupancy, committed norm set, open obligations) is also not reset. Split logs at restarts and check each segment separately.
+
+**Missing and duplicate events** produce false results, in both directions:
+
+| Problem | Effect |
+|---|---|
+| missing `LEAVE` | occupancy never drops: a later `ENTER` is reported as a capacity violation, a later `HUMAN_ENTER` as an unsafe entry |
+| missing `ENTER` (e.g. the log starts while the arm is in the envelope) | occupancy goes negative and hides real capacity violations |
+| missing `COMMIT` | the next `COMMIT` fails the version-order check; `LockoutBeforeEntry` may report a bypass that did not happen |
+| missing `TICK` | bounded monitors cannot fire for that period |
+| duplicate `ENTER` | false capacity violation |
+| duplicate `FULFILLED` / `SANCTION` | false `NoDoubleOutcome` violation |
+| duplicate `COMMIT` | false version-order violation |
+
+**Equal timestamps.** PObserve orders events by timestamp within a site. These guides do not establish how it orders events with equal timestamps, so do not rely on it: make timestamps strictly increasing within a site (the simulator adds 1 ms per event).
+
 ---
 
 ## 4. What the two layers give you
@@ -225,6 +300,48 @@ python3 ../../tools/simulate_logs.py --scenario cell --policy naive --seed 7 --t
 | | P checker (design time) | PObserve (run time) |
 |---|---|---|
 | Input | the P model | logs of the real cell |
-| Coverage | many interleavings of the model | the executions that actually happened |
-| Liveness | hot-state monitors (`EveryObligationResolved`, `AdaptationCompletes`) | restated as bounded response (`ObligationDeadlineRespected`, `AdaptationBoundedTime`) |
+| Coverage | the schedules explored (`-s`), not all interleavings | the executions that actually happened, as far as they were logged |
+| Liveness | hot-state monitors (`EveryObligationResolved`, `AdaptationCompletes`) | restated as bounded response (`ObligationDeadlineRespected`, 1-tick grace; `AdaptationBoundedTime`, 5 ticks; see 3.9) |
 | Typical finding | a design flaw (naive adaptation) | an implementation that deviates from the verified design, or a procedure bypass (`LockoutBeforeEntry`) |
+
+---
+
+## 5. Validation record
+
+Fill this in as you confirm each step. Until a row has a command, versions and actual output, treat its result as expected, not verified.
+
+**Done so far: Python mirror only** (Python 3.13, 2026-10-20). Run from `ManufacturingCell/pobserve`:
+
+```text
+$ python3 ../../tools/simulate_logs.py --scenario cell --policy twophase --seed 1 --ticks 60 --out src/test/resources/cell_twophase.log --check
+wrote 180 lines to src/test/resources/cell_twophase.log
+  ok    RegimentationSafety
+  ok    NoStaleAdmission
+  ok    NoDoubleOutcome
+  ok    ObligationDeadlineRespected
+  ok    AdaptationBoundedTime
+  ok    LockoutBeforeEntry
+
+$ python3 ../../tools/simulate_logs.py --scenario cell --policy naive --seed 2 --ticks 60 --out src/test/resources/cell_naive.log --check
+wrote 200 lines to src/test/resources/cell_naive.log
+  FAIL  RegimentationSafety: human entered resource 0 while agents were inside (tick 3)
+  FAIL  NoStaleAdmission: agent 2 admitted to resource 0 closed by v1, guard on v0 (tick 3)
+  ok    NoDoubleOutcome
+  ok    ObligationDeadlineRespected
+  ok    AdaptationBoundedTime
+  ok    LockoutBeforeEntry
+```
+
+The simulator is deterministic for a given seed, so these commands reproduce the committed sample logs byte for byte.
+
+**Still to do:**
+
+| Step | Command | Tool versions | Seed / schedules | Actual result |
+|---|---|---|---|---|
+| Compile the model | `p compile` | | — | |
+| Two-phase design | `p check -tc tcCellTwoPhase -s 10000` | | | |
+| Naive design | `p check -tc tcCellNaive -s 10000` | | | |
+| PObserve package build and JUnit | `./gradlew build` | | — | |
+| PObserve CLI on both sample logs | `./run_pobserve.sh <log>` | | — | |
+
+For each failing check, keep the trace (`.txt` and `.schedule`) from `PCheckerOutput/BugFinding/` and note the seed that reproduces it.

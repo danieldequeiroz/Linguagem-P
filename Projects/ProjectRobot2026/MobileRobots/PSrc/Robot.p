@@ -66,9 +66,9 @@ machine Robot {
       } else {
         // where = zone the robot was blocked in, or -1 if blocked at the entrance
         if (pos >= 0) {
-          announce eTaskAbandoned, (agent = id, where = path[pos]);
+          announce eTaskAbandoned, (id = job.id, agent = id, where = path[pos]);
         } else {
-          announce eTaskAbandoned, (agent = id, where = -1);
+          announce eTaskAbandoned, (id = job.id, agent = id, where = -1);
         }
         ReleaseCurrent();      // park in a side bay, abandon the task
         goto Idle;
@@ -85,9 +85,11 @@ machine Robot {
   }
 }
 
-// Distributed architectural style: one controller per zone, coordinated
-// only through the adaptation protocol. Grid cell: hybrid
-// (environment + organization + agent), distributed.
+// Architecture: admission (regimentation) is distributed, with one
+// controller per zone deciding locally. Adaptation (one AdaptationCoordinator)
+// and obligations/sanctions (one ObligationManager) are centralized.
+// Grid cell: hybrid (environment + organization + agent), with distributed
+// regimentation and centralized adaptation and sanctioning.
 machine FleetSystem {
   start state Init {
     entry (twoPhase: bool) {

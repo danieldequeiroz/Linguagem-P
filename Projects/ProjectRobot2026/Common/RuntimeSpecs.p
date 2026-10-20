@@ -6,9 +6,14 @@
 // SAFETY properties over logged time. They observe eTick, i.e. the
 // organization engine must log its clock.
 //
-// They are NOT used in the checker tests: there eTick is observed when the
-// Clock sends it, before the ObligationManager processes it, so these
-// monitors would raise false alarms on the model.
+// R1 and R2 are NOT used in the checker tests: there eTick is observed when
+// the Clock sends it, before the ObligationManager processes it, so they
+// would raise false alarms on the model. R3 does not read eTick and is
+// checked at design time too.
+//
+// Bounds: GRACE = 1 tick (the engine sanctions at the first tick past Due
+// and logs the sanction after that tick) and MAX = 5 ticks (a design choice;
+// set it from the domain). See INSTRUCTIONS.md, "Log assumptions and limitations".
 // =====================================================================
 
 // R1 Every obligation is fulfilled or sanctioned within GRACE ticks of its due time.

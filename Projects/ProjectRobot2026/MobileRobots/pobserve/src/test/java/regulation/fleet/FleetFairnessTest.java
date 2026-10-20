@@ -15,9 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Runs the sanction-fairness monitor (FleetSpecs.p) over the fleet logs.
- * Even the SAFE two-phase log is expected to violate it: robots blocked by a
- * zone closure or a head-on conflict are later sanctioned for missing their
- * delivery deadline. This is the design gap the monitor exists to expose.
+ * Even the SAFE two-phase log is expected to violate it: a robot abandons a
+ * delivery after repeated access denials (zone closure or head-on conflict;
+ * the log does not say which) and that same obligation is later sanctioned.
+ * Expectation from the Python mirror (tools/simulate_logs.py --check); not yet
+ * confirmed by a PObserve run.
  */
 @PObserveJUnitSpecConfig(
         parser = FleetRegulationParser.class,
@@ -31,7 +33,7 @@ public class FleetFairnessTest extends PObserveLogFileBaseTest {
     public void blockedRobotsAreSanctionedEvenUnderSafeAdaptation() {
         Exception e = assertThrows(PAssertionFailureException.class,
                 () -> runPObserveOnLogFile(log("fleet_twophase.log")));
-        assertTrue(e.getMessage().contains("blocked by regulation or traffic"), e.getMessage());
+        assertTrue(e.getMessage().contains("following repeated access denials"), e.getMessage());
     }
 
     private InputStream log(String name) {

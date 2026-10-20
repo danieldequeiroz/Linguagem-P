@@ -102,7 +102,7 @@
 2026-10-19 08:00:31.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=FULFILLED, Id=11, Agent=1
 2026-10-19 08:00:32.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=32
 2026-10-19 08:00:33.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=33
-2026-10-19 08:00:33.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ABANDON, Agent=2, Where=-1
+2026-10-19 08:00:33.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ABANDON, Id=12, Agent=2, Where=-1
 2026-10-19 08:00:33.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=HUMAN_LEAVE, Res=0
 2026-10-19 08:00:33.004000 [cell-A] INFO Regulation - : Site=cell-A, Event=ADAPT_START, Ver=8
 2026-10-19 08:00:33.005000 [cell-A] INFO Regulation - : Site=cell-A, Event=COMMIT, Ver=8, Closed=-
@@ -150,7 +150,7 @@
 2026-10-19 08:00:45.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=LEAVE, Agent=1, Res=0
 2026-10-19 08:00:45.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=FULFILLED, Id=17, Agent=1
 2026-10-19 08:00:46.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=46
-2026-10-19 08:00:46.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ABANDON, Agent=2, Where=-1
+2026-10-19 08:00:46.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ABANDON, Id=18, Agent=2, Where=-1
 2026-10-19 08:00:46.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=OBLIGATION, Id=19, Agent=1, Task=119, Due=50
 2026-10-19 08:00:47.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=47
 2026-10-19 08:00:47.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=OBLIGATION, Id=20, Agent=2, Task=220, Due=51

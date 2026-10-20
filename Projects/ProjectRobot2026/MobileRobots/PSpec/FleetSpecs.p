@@ -1,32 +1,44 @@
 // Fleet-specific monitor vocabulary and property.
 // Compiled both with the model (checker) and alone for PObserve.
-//   tAbandon (agent, where) -> PTypes.PTuple_agent_where
+//   tAbandon (id, agent, where) -> PTypes.PTuple_id_agent_where
+//   (class name assumed from the naming rule in MonitorEvents.p; confirm it
+//    in the generated PTypes.java after the first `p compile --mode pobserve`)
 
-// A robot announces when the environment, not its own choice, stops it.
-// where = zone it was blocked in, or -1 if blocked at the corridor entrance.
-type tAbandon = (agent: int, where: int);
+// A robot announces that it gave up the task of obligation `id` after
+// repeated access denials, and parked.
+// where = zone it was in when it gave up, or -1 if it was still at the corridor entrance.
+type tAbandon = (id: int, agent: int, where: int);
 event eTaskAbandoned: tAbandon;
 
-// F1 SanctionsReflectMisconduct: an agent is sanctioned only for its own
-//    non-compliance (finished but did not report), never because regulation
-//    or traffic blocked it.
+// F1 SanctionsReflectMisconduct: no obligation is sanctioned after the robot
+//    abandoned that same obligation's task because zone controllers kept
+//    denying it access.
 //
-//    We EXPECT this to fail in the checker, and the counterexample is the
-//    point. It shows a robot sanctioned after (a) a head-on conflict in the
-//    corridor or (b) being denied a zone closed for a human. Both are
-//    organizational design gaps. Remedies to evaluate next:
+//    What this monitor does and does not establish:
+//      - It correlates by obligation id: a sanction is flagged only if it is
+//        for the task the robot abandoned. Sanctions on the robot's later
+//        obligations are judged on their own.
+//      - It does NOT establish why access was denied. A denial can come from
+//        a zone closed for a human (regulation) or from a zone occupied by
+//        the other robot (traffic); eTaskAbandoned does not distinguish them.
+//      - It does NOT establish that the denials alone caused the missed
+//        deadline. Giving up after 3 denials is the robot's own policy.
+//    So a violation means "an obligation was sanctioned after access was
+//    repeatedly denied", which is a candidate unfair sanction, not a proven one.
+//
+//    We EXPECT this to fail in the checker (not yet run). Remedies to evaluate:
 //      - a regimented traffic norm ("one direction per corridor")
 //      - an adaptation rule that suspends or extends the obligation's deadline
 //        when the regulation itself blocks the agent
-//    At runtime (PObserve) this monitor flags every such case in the logs.
 spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
-  var blocked: set[int];
+  var abandoned: set[int];     // obligation ids whose task was abandoned after denials
 
   start state Watching {
-    on eTaskAbandoned do (a: tAbandon) { blocked += (a.agent); }
+    on eTaskAbandoned do (a: tAbandon) { abandoned += (a.id); }
     on eSanctionApplied do (o: tOutcome) {
-      assert !(o.agent in blocked),
-        format("robot {0} sanctioned although it was blocked by regulation or traffic, not by its own choice", o.agent);
+      assert !(o.id in abandoned),
+        format("obligation {0} of robot {1} sanctioned after the robot abandoned it following repeated access denials",
+               o.id, o.agent);
     }
   }
 }

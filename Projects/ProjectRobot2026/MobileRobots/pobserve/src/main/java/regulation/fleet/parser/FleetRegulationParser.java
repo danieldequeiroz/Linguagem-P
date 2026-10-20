@@ -85,7 +85,8 @@ public class FleetRegulationParser implements Parser<PEvent<?>> {
             case "HUMAN_LEAVE":
                 return new PEvents.eHumanLeft(num(f, "Res"));
             case "ABANDON":
-                return new PEvents.eTaskAbandoned(new PTypes.PTuple_agent_where(num(f, "Agent"), num(f, "Where")));
+                return new PEvents.eTaskAbandoned(new PTypes.PTuple_id_agent_where(
+                        num(f, "Id"), num(f, "Agent"), num(f, "Where")));
             default:
                 return null;   // unknown or irrelevant record
         }
