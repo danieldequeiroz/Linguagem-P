@@ -213,7 +213,7 @@ Safety-critical norms (people and robots in the same zone) should be regimented,
 
 **Fairness of sanctions.** A sanction is justified only if the agent could have complied. In a fleet, regimentation itself can render compliance impossible: a robot denied entry to a closed zone, or obstructed by another robot in a one-lane corridor, misses its deadline through no fault of its own. Sanctioning such a robot penalizes side effects of the regulation itself and distorts any reputation or incentive scheme built on sanctions.
 
-This project formulates fairness as a verifiable property: *an agent is sanctioned only for its own non-compliance, never for being blocked*. [Dell'Anna, Dastani and Dalpiaz](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf) study the run-time revision of sanctions that prove ineffective. The present project addresses a different question: the detection of unfairness that is inherent in the design.
+This project formulates fairness as a verifiable property: *an agent is sanctioned only for its own non-compliance, never for being blocked*. [Dell'Anna, Dastani and Dalpiaz](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf) study the run-time revision of sanctions that prove ineffective. The present project addresses a different question: the detection of unfairness that is inherent in the design. The monitor F1 approximates this property conservatively: it flags a sanction on an obligation whose task the robot abandoned after repeated access denials, but it establishes neither the cause of the denials (regulation or traffic) nor that the denials caused the missed deadline. A violation of F1 therefore identifies a candidate unfair sanction rather than a proven one.
 
 **Norms in JaCaMo.** Moise organizations are compiled into programs of the Normative Programming Language (NPL). An NPL engine creates obligations when agents adopt roles and commit to missions, tracks their deadlines and reports violations to the organization.
 
@@ -332,7 +332,7 @@ Each norm instance evolves according to a small state machine. The monitors of s
 
 *Figure 5 · lifecycle of an obligation instance, with the P events that mark each state*
 
-An instance that remains **Active** indefinitely constitutes the failure detected by the liveness property L1. A transition from **Violated** to **Sanctioned** for a robot that could not have complied constitutes the failure detected by the fairness property F1.
+An instance that remains **Active** indefinitely constitutes the failure detected by the liveness property L1. A transition from **Violated** to **Sanctioned** on an obligation whose task the robot abandoned after repeated access denials is the event flagged by the fairness monitor F1; it indicates a potentially unfair sanction, since F1 does not establish that the robot could not have complied.
 
 ### 3.4 Norms as temporal properties
 
@@ -422,7 +422,7 @@ Figure 7 formalizes this principle as a decision rule. Before applying a sanctio
 Two observations indicate that this is more than a matter of policy detail:
 
 - **The required information resides in another dimension.** Denials are known to the zone controllers (environment), whereas deadlines and sanctions belong to the organization. A fair sanction requires both kinds of information; fairness is therefore a cross-dimension property, of the kind that the unified view classifies but does not verify.
-- **Safety and fairness are independent.** The two-phase protocol renders the closure safe, yet the starter kit still sanctions blocked robots. Property F1 is therefore expected to fail under both protocols. The remedy lies within the organization: deadlines are suspended while the regulation blocks an agent, after which F1 is checked again.
+- **Safety and fairness are independent.** The two-phase protocol renders the closure safe, yet the starter kit is expected to sanction robots that abandon their tasks after repeated denials. Property F1 is therefore expected to fail under both protocols. The remedy lies within the organization: deadlines are suspended while the regulation blocks an agent, after which F1 is checked again.
 
 ## 4. Background: regulation management in MAS
 
@@ -547,23 +547,25 @@ P has also been applied in robotics. SOTER ([Desai et al.](https://arxiv.org/pdf
 | Defer / ignore | `defer eX;` / `ignore eX;` | keep the event for later / drop it in this state |
 | Nondeterminism | `if ($) { … }` | the checker tries both branches: models robots that may not report |
 | Monitor (spec) | `spec S observes eA, eB { … }` | a global observer that asserts properties |
-| Announce | `announce eTaskAbandoned, (agent = id, where = z);` | notify monitors without sending to any machine |
+| Announce | `announce eTaskAbandoned, (id = job.id, agent = id, where = z);` | notify monitors without sending to any machine |
 | Hot / cold state | `hot state InProgress { … }` | liveness: an execution must not stay in a hot state forever |
 | Test case | `test tc [main=Test]: assert S in { … };` | a closed system plus the monitors to check |
 
 The fairness monitor of this project illustrates how a normative property is expressed as a P specification:
 
 ```
-type tAbandon = (agent: int, where: int);
+// id = the obligation whose task was abandoned
+type tAbandon = (id: int, agent: int, where: int);
 event eTaskAbandoned: tAbandon;
 
 spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
-  var blocked: set[int];
+  var abandoned: set[int];     // obligation ids abandoned after denials
   start state Watching {
-    on eTaskAbandoned do (a: tAbandon) { blocked += (a.agent); }
+    on eTaskAbandoned do (a: tAbandon) { abandoned += (a.id); }
     on eSanctionApplied do (o: tOutcome) {
-      assert !(o.agent in blocked),
-        format("robot {0} sanctioned although it was blocked", o.agent);
+      assert !(o.id in abandoned),
+        format("obligation {0} of robot {1} sanctioned after the robot abandoned it following repeated access denials",
+               o.id, o.agent);
     }
   }
 }
@@ -782,7 +784,7 @@ The safety argument rests on the highlighted states. The figure also reveals the
 
 The cycle is relevant to regulation in two respects. First, it can block the closure: if robot 1 occupies zone 1 while waiting for zone 2, zone 1 is never drained and the adaptation never commits. Property L2 (`AdaptationCompletes`) detects this situation when parking is removed. Second, every resolution of the cycle has a normative cost:
 
-- **Breaking hold-and-wait.** The robots of the starter kit abandon the task after three denials and park. This resolves the deadlock but leaves the task incomplete, and the robot is subsequently sanctioned for a delay that it did not cause (F1).
+- **Breaking hold-and-wait.** The robots of the starter kit abandon the task after three denials and park. This resolves the deadlock but leaves the task incomplete, and the robot is subsequently sanctioned for that obligation, which F1 flags as a potentially unfair sanction.
 - **Preventing the cycle.** A traffic norm that admits only one direction of travel at a time renders the cycle impossible. It constitutes an additional regimented norm and reduces throughput.
 - **Detection and recovery.** A supervisor detects the cycle and backs one robot out. This approach requires a free bay and introduces an additional component that must itself be verified.
 
@@ -821,7 +823,7 @@ A starter kit containing draft versions of all three parts is provided (section 
 | R1 | `ObligationDeadlineRespected`: resolved within 1 tick of the deadline | bounded response | PObserve | holds / holds |
 | R2 | `AdaptationBoundedTime`: commits within 5 ticks | bounded response | PObserve | holds / holds |
 | R3 | `LockoutBeforeEntry`: a person enters only a closed zone | safety (procedure) | checker + PObserve | holds / holds |
-| F1 | `SanctionsReflectMisconduct`: no sanction for a robot that was blocked | fairness | checker + PObserve | **violated** / **violated** |
+| F1 | `SanctionsReflectMisconduct`: no obligation is sanctioned after the robot abandoned it following repeated access denials | fairness | checker + PObserve | **violated** / **violated** |
 
 The expected outcomes are **hypotheses** derived from the design. They are consistent with the output of a sample-log simulator but have not yet been confirmed with `p check`; confirming or refuting them is part of the project. F1 is *expected* to fail, and its counterexample would constitute a finding about the norms rather than a defect of the monitor.
 
@@ -846,7 +848,7 @@ The expected outcomes are **hypotheses** derived from the design. They are consi
 
 - `Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=0`;
 - in addition, `CONFIG` (all zones: `Capacity=0:1;1:1;2:1`), `TICK`, `OBLIGATION`, `FULFILLED`, `SANCTION`, `LEAVE`, `ADAPT_START`, `COMMIT`, `HUMAN_ENTER` and `HUMAN_LEAVE`;
-- `ABANDON` (`Agent, Where`), emitted by a robot when it abandons its task.
+- `ABANDON` (`Id, `Agent, Where``), emitted by a robot when it abandons its task.
 
 Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serves as the partition key.
 
@@ -899,7 +901,7 @@ The `p-regulation` archive is given. This project uses `Common/`, `MobileRobots/
 | --- | --- | --- |
 | `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
 | `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, system configuration, fairness monitor, test cases | draft, not yet compiled |
-| `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser compiled and run on the sample logs; JUnit not yet run |
+| `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API and exercised only with stand-ins for the generated classes; not yet built with p compile --mode pobserve; JUnit not yet run |
 | `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | ready |
 | `tools/simulate_logs.py` | generates two-phase / naive fleet logs and previews monitor results | tested |
 | `tools/instrumentation/regulation_log.py` | logging helper for ROS 2 / Python | tested |
