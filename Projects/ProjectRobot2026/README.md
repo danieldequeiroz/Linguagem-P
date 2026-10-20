@@ -1,8 +1,9 @@
 # Verified Regulation Management for a Mobile Robot Fleet (P + PObserve)
 
-Starter kit for the graduate project. Two robots cross a three-zone corridor head-on, and a human picker needs zone 1 closed. Admission is **distributed** (one controller per zone, deciding locally); adaptation and sanctioning are **centralized** (one coordinator, one obligation manager). See the architecture table in the guide.
+Starter kit for the graduate project. Two robots cross a three-zone corridor head-on, and a human picker needs zone 1 closed. The architecture combines **distributed regimentation** (one controller per zone admits or denies access locally) with **centralized adaptation and sanctioning** (one coordinator, one obligation manager). See section 4 of the specification.
 
-**The assignment** (goals, 45-day schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md).
+**The assignment** (goals, experiments E0–E9, 45-day schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md); section 8 of the specification is authoritative.
+
 ## Specification
 
 The full project specification (background on P, multi-agent systems, norms and regulation management; system description; experiments; work plan) is in [`SPECIFICATION.md`](SPECIFICATION.md). Open [`SPECIFICATION.html`](SPECIFICATION.html) in a browser for a formatted version with figures.
@@ -28,6 +29,7 @@ ProjectRobot2026/
 ```bash
 cd MobileRobots
 p compile
+p check -tc tcFleetTwoPhase -s 100000
 p check -tc tcFleetNaive -s 10000
 p check -tc tcFleetSanctionFairness -s 10000
 
@@ -37,7 +39,7 @@ python3 ../tools/simulate_logs.py --scenario fleet --policy naive --seed 2 --out
 
 ## Status
 
-Nothing here has been run with P or PObserve yet. Treat every "expected" result in the guide as a hypothesis until it is recorded in the validation record (`MobileRobots/INSTRUCTIONS.md`, section 5).
+Nothing here has been run with P or PObserve yet: the guide and the specification are written but not yet validated with either tool. Treat every "expected" result and every prediction in experiments E0–E9 as a hypothesis until it is recorded in the validation record (`MobileRobots/INSTRUCTIONS.md`, section 5).
 
 | Part | Status |
 |---|---|

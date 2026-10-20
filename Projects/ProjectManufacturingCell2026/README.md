@@ -2,7 +2,7 @@
 
 Starter kit for the graduate project. A robot arm and an AGV share one work envelope, and a technician needs a lock-out before entering. Regulation is **centralized**: one cell controller and one organizational engine.
 
-**The assignment** (goals, 45-day schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md).
+**The assignment** (goals, 45-day schedule, deliverables, grading) is in [`ASSIGNMENT.md`](ASSIGNMENT.md). It summarizes section 8 of the specification, which is authoritative where the two differ. The two-technician property that teams add is named S4 in both documents.
 ## Specification
 
 The full project specification (background on P, multi-agent systems, norms and regulation management; system description; experiments; work plan) is in [`SPECIFICATION.md`](SPECIFICATION.md). Open [`SPECIFICATION.html`](SPECIFICATION.html) in a browser for a formatted version with figures.
