@@ -1,0 +1,33 @@
+== e4_two_technicians.log
+  RegimentationSafety          FAIL  agent 1 admitted to resource 0 while a human is inside (tick 4)
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (cold at end)
+  AdaptationCompletes          ok (cold at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   ok
+== abort_retry.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (cold at end)
+  AdaptationCompletes          FAIL  adaptation started before the previous adaptation was committed
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   ok
+== abort_noretry.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (cold at end)
+  AdaptationCompletes          ok (hot at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   ok
