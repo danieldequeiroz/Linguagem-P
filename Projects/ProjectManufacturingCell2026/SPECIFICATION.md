@@ -33,7 +33,7 @@ The project operationalizes one cell of the conceptual grid proposed by [Yan, Na
 - argue which properties are amenable to design-time verification and which require run-time monitoring (LO5);
 - state the modeling assumptions on which each verification result depends, and the resulting threats to validity (LO6).
 
-Section 8 relates each learning outcome to the activities and deliverables through which it is assessed.
+[Section 8](#8-work-plan-and-deliverables) relates each learning outcome to the activities and deliverables through which it is assessed.
 
 ## 2. Background: multi-agent systems
 
@@ -48,7 +48,7 @@ A multi-agent system (MAS) is a set of autonomous agents that share an environme
 
 Most MAS platforms adopt the belief–desire–intention (BDI) model, in which agents reason over *beliefs*, *desires* (goals) and *intentions* (plans to which they have committed). Jason, an interpreter for the AgentSpeak language, is a representative example.
 
-**Multi-Agent Oriented Programming (MAOP).** [Boissier et al.](#references) decompose a MAS into four programming dimensions, each with its own first-class abstractions. The JaCaMo platform combines one technology per dimension.
+**Multi-Agent Oriented Programming (MAOP).** [Boissier et al.](#references) decompose a MAS into four programming dimensions, each with its own first-class abstractions. The JaCaMo platform combines one technology per dimension ([Figure 1](#figure-1)).
 
 | Dimension | First-class abstractions | JaCaMo technology | Role in this project |
 | --- | --- | --- | --- |
@@ -57,13 +57,15 @@ Most MAS platforms adopt the belief–desire–intention (BDI) model, in which a
 | Interaction | protocols, messages | Jason speech acts | access request / grant / deny protocol |
 | Organization | roles, groups, missions, norms | Moise + NPL | job obligations, deadlines, sanctions, lock-out procedure |
 
+<a id="figure-1"></a>
+
 ![Figure 1 · MAOP dimensions and JaCaMo technologies, with the cell's components](figures/figure1.png)
 
 *Figure 1 · MAOP dimensions and JaCaMo technologies, with the cell's components*
 
 The physical layer lies outside the MAS; the environment dimension is the interface through which the MAS acts upon it. For this reason, regimented safety norms are placed in the environment.
 
-**Open systems.** In an open MAS the designer does not control the internal code of the agents, which may be supplied by different vendors or include learning components. Correctness therefore cannot depend on agent compliance: the regulation layer should preserve its guarantees under every behavior that agents can exhibit through the regulation interface (requests, releases and reports), whether or not they comply with the norms. Section 7 approximates this requirement by modeling agents nondeterministically within the interaction protocol; the behaviors that the model excludes, such as entering the envelope without a grant, are listed in section 7.7.
+**Open systems.** In an open MAS the designer does not control the internal code of the agents, which may be supplied by different vendors or include learning components. Correctness therefore cannot depend on agent compliance: the regulation layer should preserve its guarantees under every behavior that agents can exhibit through the regulation interface (requests, releases and reports), whether or not they comply with the norms. [Section 7](#7-technical-specification) approximates this requirement by modeling agents nondeterministically within the interaction protocol; the behaviors that the model excludes, such as entering the envelope without a grant, are listed in [Section 7.7](#77-modeling-assumptions-and-threats-to-validity).
 
 **MAS in industrial cyber-physical systems.** In Industry 4.0 architectures, machines, robots and transport units are encapsulated as agents that negotiate tasks and resources. A manufacturing cell thus becomes a small MAS whose shared physical resources (a work envelope, a buffer, a tool) must be regulated. Because some of its rules protect human operators, they must be enforced *physically*, not only at the logical level.
 
@@ -77,12 +79,14 @@ Agent architectures are commonly classified into three families:
 
 Industrial agents are typically hybrid: a deliberative agent operates on top of a programmable logic controller (PLC) or robot controller that is responsible for real-time control. JaCaMo agents are deliberative at the task level.
 
-A BDI agent executes the following **reasoning cycle** repeatedly:
+A BDI agent executes the following **reasoning cycle** repeatedly ([Figure 2](#figure-2)):
 
 1. **Perception.** Percepts (sensor readings, artifact properties) and incoming messages are read, and the *belief base* is updated accordingly.
 2. **Deliberation.** The agent selects the goals it will pursue; the selected goals become *intentions*.
 3. **Plan selection.** A plan is chosen from the plan library whose triggering event matches the goal and whose context condition holds in the current beliefs.
 4. **Action.** One step of one intention is executed (an action, a message or a subgoal), after which the cycle restarts at step 1.
+
+<a id="figure-2"></a>
 
 ![Figure 2 · the BDI reasoning cycle](figures/figure2.png)
 
@@ -144,13 +148,13 @@ public class CellController extends Artifact {
 }
 ```
 
-In a physical cell, the artifact wraps the PLC, typically through OPC UA, and the PLC actuates the interlocks. The `ResourceGuard` machine described in section 7 is the P model of this artifact.
+In a physical cell, the artifact wraps the PLC, typically through OPC UA, and the PLC actuates the interlocks. The `ResourceGuard` machine described in [Section 7](#7-technical-specification) is the P model of this artifact.
 
 ### 2.3 Interaction
 
 Agents communicate through an agent communication language such as KQML or FIPA ACL. Each message carries a **performative** that states its communicative intent, for instance *inform*, *request*, *propose*, *accept* or *refuse*. In Jason, `.send(org, tell, done(j7))` informs the recipient of a fact, whereas `.send(agv, achieve, unload)` delegates a goal.
 
-Recurring patterns of message exchange are fixed as **protocols**. The **Contract Net** protocol is the classical mechanism for task allocation: the organization announces a job, the arm and the AGV submit bids (e.g., based on availability), and the job is awarded to one bidder. Approaches based on social commitments (Singh) assign a normative meaning to protocol steps (*"having accepted the job, the agent is committed to completing it"*), thereby linking interaction to the norms discussed in section 3.
+Recurring patterns of message exchange are fixed as **protocols**. The **Contract Net** protocol is the classical mechanism for task allocation: the organization announces a job, the arm and the AGV submit bids (e.g., based on availability), and the job is awarded to one bidder. Approaches based on social commitments (Singh) assign a normative meaning to protocol steps (*"having accepted the job, the agent is committed to completing it"*), thereby linking interaction to the norms discussed in [Section 3](#3-background-norms-and-normative-mas).
 
 ### 2.4 Organization: Moise
 
@@ -171,9 +175,9 @@ A simplified normative specification is shown below:
 </normative-specification>
 ```
 
-Moise and NPL express deadlines in physical time (here, 4 minutes). The P model and the logs of this project express them in logical ticks of the organization's clock, where one tick corresponds to a configurable period; section 3.4 defines the convention.
+Moise and NPL express deadlines in physical time (here, 4 minutes). The P model and the logs of this project express them in logical ticks of the organization's clock, where one tick corresponds to a configurable period; [Section 3.4](#34-norms-as-temporal-properties) defines the convention.
 
-At run time, the organization is itself represented as an artifact. Agents adopt roles and commit to missions, and the organization's normative engine (NPL, section 3) creates and tracks the resulting obligations.
+At run time, the organization is itself represented as an artifact. Agents adopt roles and commit to missions, and the organization's normative engine (NPL, [Section 3](#3-background-norms-and-normative-mas)) creates and tracks the resulting obligations.
 
 ### 2.5 Agents in manufacturing
 
@@ -197,7 +201,7 @@ Norms allow a MAS to regulate the behavior of autonomous agents without programm
 
 Norms are usually *conditional*: they comprise an activation condition, a deontic content, a deadline or expiry condition, and a sanction. Their lifecycle proceeds from inactive to active, and from active either to fulfilled or to violated and subsequently sanctioned.
 
-**Regulative and constitutive norms.** Regulative norms constrain behavior ("must", "must not"). Constitutive norms define what things *count as* within the institution; e.g., *"a badge swipe at door D counts as the technician entering the cell."* The adaptation model adopted in this project relies on both kinds (section 4).
+**Regulative and constitutive norms.** Regulative norms constrain behavior ("must", "must not"). Constitutive norms define what things *count as* within the institution; e.g., *"a badge swipe at door D counts as the technician entering the cell."* The adaptation model adopted in this project relies on both kinds ([Section 4](#4-background-regulation-management-in-mas)).
 
 **Enforcement mechanisms.** A norm can be enforced in two ways:
 
@@ -231,7 +235,7 @@ A conditional norm can be represented as a tuple of six components. The job obli
 | Deadline | when the content must hold | 4 ticks after assignment in the simulated logs; an absolute tick (4 for the arm, 6 for the AGV) in the starter model |
 | Sanction | what follows a violation (or reward for compliance) | lower priority in the next job allocation |
 
-The norm is a template: each job assignment creates a new **norm instance** with its own deadline. The `ObligationManager` described in section 7 maintains one record per instance.
+The norm is a template: each job assignment creates a new **norm instance** with its own deadline. The `ObligationManager` described in [Section 7](#7-technical-specification) maintains one record per instance.
 
 ### 3.2 Deontic logic in brief
 
@@ -243,11 +247,13 @@ P(\varphi) \equiv \neg O(\neg\varphi) \qquad F(\varphi) \equiv O(\neg\varphi) \q
 
 SDL has well-known limitations. The most prominent concerns **contrary-to-duty** reasoning, i.e., what is obligatory *after* a violation has occurred; e.g., *"no agent may move in the envelope during a lock-out; if one does, the cell must trigger the e-stop."* Chisholm's paradox demonstrates that SDL cannot represent such norms adequately.
 
-For this reason, normative MAS commonly treat norms *operationally*, as objects with a lifecycle (section 3.3) that are evaluated against the observed behavior of the system. P models norms in the same manner.
+For this reason, normative MAS commonly treat norms *operationally*, as objects with a lifecycle ([Section 3.3](#33-lifecycle-of-a-norm-instance)) that are evaluated against the observed behavior of the system. P models norms in the same manner.
 
 #### Deontic logic seen from temporal logic
 
-For those who already know temporal logic, such as CTL and LTL, the intuition behind deontic logic is similar. All three are *normal modal logics*: each has a box operator, its dual diamond operator, and a semantics given by Kripke structures. In each, the box distributes over implication (axiom K), and every theorem may be prefixed with a box (necessitation rule). The logics differ in the interpretation of the accessibility relation (Figure 3). In temporal logic, the relation connects a point of a run to its successors; in deontic logic, it connects a world to its *ideal alternatives*, i.e., the worlds in which every norm is respected.
+For those who already know temporal logic, such as CTL and LTL, the intuition behind deontic logic is similar. All three are *normal modal logics*: each has a box operator, its dual diamond operator, and a semantics given by Kripke structures. In each, the box distributes over implication (axiom K), and every theorem may be prefixed with a box (necessitation rule). The logics differ in the interpretation of the accessibility relation ([Figure 3](#figure-3)). In temporal logic, the relation connects a point of a run to its successors; in deontic logic, it connects a world to its *ideal alternatives*, i.e., the worlds in which every norm is respected.
+
+<a id="figure-3"></a>
 
 ![Figure 3 · the box of temporal logic and the box of deontic logic](figures/figure3.png)
 
@@ -266,7 +272,7 @@ A note on notation: F denotes *eventually* in temporal logic and *forbidden* in 
 
 The last two rows capture the essential difference. G is reflexive: if φ holds at every point, it holds at the present one, so a single state satisfying ¬φ refutes G φ. O is *not* reflexive: the ideal worlds need not include the actual world, so "the job ought to be reported" and "the job was not reported" may both be true. This is the property a normative system requires: a violation is neither a contradiction nor a defect of the specification, but a state that the system must be able to represent and to which it must react. Axiom D requires only that every world have at least one ideal alternative; it thereby excludes jointly unsatisfiable obligations, such as O φ ∧ O ¬φ or O ⊥. It does not exclude obligations that are logically consistent but cannot be discharged in practice.
 
-**Ought implies can.** Axiom D concerns *logical* possibility. A different principle, traditionally attributed to Kant and summarized as *ought implies can*, concerns *practical* possibility: an agent should be obliged only to what it is able to do. Standard deontic logic has no notion of ability and therefore cannot express this principle. The distinction is relevant to the cell: an agent that is denied access to the envelope during a lock-out may be unable to complete its job before the deadline, although its obligation is logically consistent. Sanctioning such an agent satisfies every axiom of SDL but contradicts the requirement that sanctions penalize only avoidable conduct (section 3.7). Checking the principle requires information about ability, in this case about the denials issued by the regulation, which experiment E7 adds to the model.
+**Ought implies can.** Axiom D concerns *logical* possibility. A different principle, traditionally attributed to Kant and summarized as *ought implies can*, concerns *practical* possibility: an agent should be obliged only to what it is able to do. Standard deontic logic has no notion of ability and therefore cannot express this principle. The distinction is relevant to the cell: an agent that is denied access to the envelope during a lock-out may be unable to complete its job before the deadline, although its obligation is logically consistent. Sanctioning such an agent satisfies every axiom of SDL but contradicts the requirement that sanctions penalize only avoidable conduct ([Section 3.7](#37-sanctions)). Checking the principle requires information about ability, in this case about the denials issued by the regulation, which experiment E7 adds to the model.
 
 #### From "ought" to "happens": the Andersonian reduction
 
@@ -280,11 +286,13 @@ P\varphi \equiv \Diamond(\varphi \wedge \neg V) \qquad
 
 [Meyer (1988)](https://doi.org/10.1305/ndjfl/1093637776) applied the same idea to actions in the framework of dynamic logic: an action α is forbidden if every execution of α leads to a violation, \[α\]V, and permitted if some execution of α does not, ⟨α⟩¬V.
 
-This reduction provides the conceptual basis for the approach adopted in this project. If violations are treated as observable events and the box is interpreted temporally, each norm becomes an ordinary temporal property *about violations*. The monitors of section 7.2, whose temporal forms are given in section 3.4, are constructed in this way: none of them employs a deontic operator, and each refers to fulfillment, violation or sanction events.
+This reduction provides the conceptual basis for the approach adopted in this project. If violations are treated as observable events and the box is interpreted temporally, each norm becomes an ordinary temporal property *about violations*. The monitors of [Section 7.2](#72-property-catalogue), whose temporal forms are given in [Section 3.4](#34-norms-as-temporal-properties), are constructed in this way: none of them employs a deontic operator, and each refers to fulfillment, violation or sanction events.
 
 #### One trace, two readings
 
-The reduction also clarifies *whose* behavior is being specified (Figure 4).
+The reduction also clarifies *whose* behavior is being specified ([Figure 4](#figure-4)).
+
+<a id="figure-4"></a>
 
 ![Figure 4 · one trace read deontically (agents) and temporally (regulator)](figures/figure4.png)
 
@@ -293,7 +301,7 @@ The reduction also clarifies *whose* behavior is being specified (Figure 4).
 - **For the agents, norms are deontic.** An agent may miss a deadline; the specification must therefore not reject such a trace, but must determine its consequences. Requiring G ¬V would be a modeling error: it would convert every norm into a regimented constraint and thereby eliminate the autonomy that characterizes an open MAS.
 - **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit an agent that the norm set prohibits, and must complete every adaptation. These are G and F properties that must hold on every run; a run that violates them exposes a defect in the regulator.
 
-Consequently, the P monitors never assert that agents behave correctly. They assert that the *regulation* behaves correctly irrespective of agent behavior: S1 and S2 for regimented norms, where the regulator is able to block actions; R3 for the lock-out procedure, which can only be monitored; S3 for the integrity of the organization's records; L1 and R1 for sanctioned norms, where the regulator must react to violations; and L2 and R2 for the adaptation itself. Section 7.6 gives the complete classification.
+Consequently, the P monitors never assert that agents behave correctly. They assert that the *regulation* behaves correctly irrespective of agent behavior: S1 and S2 for regimented norms, where the regulator is able to block actions; R3 for the lock-out procedure, which can only be monitored; S3 for the integrity of the organization's records; L1 and R1 for sanctioned norms, where the regulator must react to violations; and L2 and R2 for the adaptation itself. [Section 7.6](#76-traceability) gives the complete classification.
 
 #### Kinds of norms as temporal patterns
 
@@ -321,7 +329,9 @@ These paradoxes motivate the decision to specify norms *operationally*, as machi
 
 ### 3.3 Lifecycle of a norm instance
 
-Each norm instance evolves according to a small state machine. The monitors defined in section 7 observe its transitions through the P events indicated beneath each state.
+Each norm instance evolves according to a small state machine. The monitors defined in [Section 7](#7-technical-specification) observe its transitions through the P events indicated beneath each state ([Figure 5](#figure-5)).
+
+<a id="figure-5"></a>
 
 ![Figure 5 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure5.png)
 
@@ -340,7 +350,7 @@ To verify norms with a model checker, each kind of norm is expressed as a tempor
 | Prohibition: *never an agent and a person in the envelope* | G ¬(agentIn ∧ personIn) | safety | `assert` in a spec | yes (PObserve) |
 | Obligation without deadline: *every job is eventually resolved* | G(assigned → F resolved) | liveness | `hot` state in a spec | no: no finite log can refute it; a clean log is inconclusive |
 | Obligation with deadline d (in ticks) | G(assigned(d) → resolved no later than tick d + 1) | bounded response (a safety property over time) | `assert` when tick d + 2 arrives | yes (PObserve) |
-| Permission: *an agent may enter an open, empty envelope* | AG(request ∧ open ∧ empty → EF granted) | branching (CTL), not a trace property | no direct construct; only the stronger liveness approximation of section 3.2 | no |
+| Permission: *an agent may enter an open, empty envelope* | AG(request ∧ open ∧ empty → EF granted) | branching (CTL), not a trace property | no direct construct; only the stronger liveness approximation of [Section 3.2](#32-deontic-logic-in-brief) | no |
 
 In an open system, the regulation cannot guarantee that every obligation is *fulfilled*; it can guarantee only that every obligation is *resolved*, either by fulfillment or by sanction. The property to be checked is therefore:
 
@@ -358,8 +368,10 @@ The construction of L1 illustrates how a norm becomes a P monitor in four steps.
 
 1. **Norm.** *Every job assigned to an agent ends either with a report or with a sanction.*
 2. **Temporal property.** G(created(o) → F resolved(o)) for every obligation identifier o, where resolved(o) ≡ fulfilled(o) ∨ sanctioned(o). Because the property is parameterized by o, the monitor maintains the set of pending identifiers rather than a single proposition.
-3. **Automaton.** The property corresponds to the two-state automaton of Figure 6. The cold state `NoneOpen` means that no obligation is pending; the hot state `SomeOpen` means that at least one obligation still awaits an outcome.
-4. **P monitor.** The automaton is written as a `spec` machine whose cold and hot states mirror Figure 6 (file `Common/Specs.p`).
+3. **Automaton.** The property corresponds to the two-state automaton of [Figure 6](#figure-6). The cold state `NoneOpen` means that no obligation is pending; the hot state `SomeOpen` means that at least one obligation still awaits an outcome.
+4. **P monitor.** The automaton is written as a `spec` machine whose cold and hot states mirror [Figure 6](#figure-6) (file `Common/Specs.p`).
+
+<a id="figure-6"></a>
 
 ![Figure 6 · monitor automaton for the liveness property L1, with its cold and hot states](figures/figure6.png)
 
@@ -384,7 +396,7 @@ spec EveryObligationResolved observes eObligationCreated, eObligationFulfilled, 
 }
 ```
 
-Not every temporal formula maps as directly. Safety formulas such as G p or G(p → q), evaluated over the variables of the monitor, map to `assert` statements; response formulas G(p → F q) map to a hot state that is entered on p and left on q; formulas with nested temporal operators require auxiliary monitor variables or additional states; and branching formulas such as EF have no counterpart. P monitors are, moreover, *event-based*: a proposition such as agentIn is not observed directly but is reconstructed by the monitor from entry and exit events, which is itself a modeling decision (section 3.6).
+Not every temporal formula maps as directly. Safety formulas such as G p or G(p → q), evaluated over the variables of the monitor, map to `assert` statements; response formulas G(p → F q) map to a hot state that is entered on p and left on q; formulas with nested temporal operators require auxiliary monitor variables or additional states; and branching formulas such as EF have no counterpart. P monitors are, moreover, *event-based*: a proposition such as agentIn is not observed directly but is reconstructed by the monitor from entry and exit events, which is itself a modeling decision ([Section 3.6](#36-constitutive-rules-situated-artificial-institutions)).
 
 ### 3.5 Normative programming in JaCaMo: NPL
 
@@ -403,7 +415,7 @@ The NPL engine maintains each obligation instance in one of four states:
 - **unfulfilled**: the deadline elapsed without fulfillment, i.e., the obligation was violated;
 - **inactive**: the activation condition ceased to hold.
 
-The organization typically reacts to unfulfilled obligations by applying a sanction. [Yan et al.](https://hal-lara.archives-ouvertes.fr/ISCOD-ENSMSE/hal-05350751v1) extend NPL(s) and the SAI engine to support regulation adaptation (section 4).
+The organization typically reacts to unfulfilled obligations by applying a sanction. [Yan et al.](https://hal-lara.archives-ouvertes.fr/ISCOD-ENSMSE/hal-05350751v1) extend NPL(s) and the SAI engine to support regulation adaptation ([Section 4](#4-background-regulation-management-in-mas)).
 
 ### 3.6 Constitutive rules: Situated Artificial Institutions
 
@@ -427,11 +439,13 @@ Sanctions may take several forms:
 - **reputational**: a reduction of a trust score;
 - **access-based**: a lower priority in job allocation, or a mandatory health check before the next job.
 
-Sanctions may be applied by the organization, by peers or by the environment. Sanction policies should be *proportional* and *fair*, penalizing only conduct that the agent could have avoided. In the cell, an agent denied access during a lock-out may miss its deadline through no fault of its own; whether such an agent should be sanctioned is a design decision that the report must discuss. The question is an instance of the principle "ought implies can" (section 3.2); experiment E7 provides evidence for it.
+Sanctions may be applied by the organization, by peers or by the environment. Sanction policies should be *proportional* and *fair*, penalizing only conduct that the agent could have avoided. In the cell, an agent denied access during a lock-out may miss its deadline through no fault of its own; whether such an agent should be sanctioned is a design decision that the report must discuss. The question is an instance of the principle "ought implies can" ([Section 3.2](#32-deontic-logic-in-brief)); experiment E7 provides evidence for it.
 
 ### 3.8 Choosing an enforcement mechanism
 
-The appropriate enforcement mechanism for a norm depends on two factors: the cost of a single violation, and whether the environment can physically block the forbidden action. Figure 7 positions the norms of the cell along these two dimensions.
+The appropriate enforcement mechanism for a norm depends on two factors: the cost of a single violation, and whether the environment can physically block the forbidden action. [Figure 7](#figure-7) positions the norms of the cell along these two dimensions.
+
+<a id="figure-7"></a>
 
 ![Figure 7 · the norms of the cell placed by cost and controllability](figures/figure7.png)
 
@@ -446,7 +460,7 @@ The figure also indicates where verification is most critical. A regimented norm
 
 ## 4. Background: regulation management in MAS
 
-Regulation management concerns the balance between agent autonomy and system-level control. It comprises the representation, monitoring, enforcement and run-time modification of regulations. [Yan, Nardin, Boissier and Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) propose a **unified view** that positions any design along three perspectives, and they use the resulting grid to classify existing MAS frameworks.
+Regulation management concerns the balance between agent autonomy and system-level control. It comprises the representation, monitoring, enforcement and run-time modification of regulations. [Yan, Nardin, Boissier and Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) propose a **unified view** that positions any design along three perspectives, and they use the resulting grid to classify existing MAS frameworks. [Figure 8](#figure-8) places the cell in this grid.
 
 | Perspective | Options | This project (cell) |
 | --- | --- | --- |
@@ -454,11 +468,13 @@ Regulation management concerns the balance between agent autonomy and system-lev
 | MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | organization-centric (obligations, adaptation) + environment-centric (the cell controller) |
 | Architectural style | centralized vs. decentralized / distributed regulators | **centralized**: one cell controller, one organizational engine |
 
+<a id="figure-8"></a>
+
 ![Figure 8 · the cell placed in the unified-view grid](figures/figure8.png)
 
 *Figure 8 · the cell placed in the unified-view grid*
 
-The COINE 2025 paper is not openly deposited. During the first week, the exact list of capabilities given in the paper is to be verified and the mapping in section 7 adjusted accordingly.
+The COINE 2025 paper is not openly deposited. During the first week, the exact list of capabilities given in the paper is to be verified and the mapping in [Section 7](#7-technical-specification) adjusted accordingly.
 
 **Regulation adaptation.** Regulations change at run time, for instance when a technician requires access to the cell, when a shift changes, or when a sensor fails. [Yan et al. (ECAI 2025)](https://hal-lara.archives-ouvertes.fr/ISCOD-ENSMSE/hal-05350751v1) propose a general adaptation model comprising three capabilities, each of which produces a fact:
 
@@ -468,7 +484,7 @@ The COINE 2025 paper is not openly deposited. During the first week, the exact l
 
 Constitutive and regulative norms determine who may perform each step and under which conditions. The authors implement the model by extending the SAI and NPL(s) normative engines within JaCaMo. A companion paper ([WESAAC 2025](https://sol.sbc.org.br/index.php/wesaac/article/view/37527)) discusses, by means of a manufacturing case study, where adaptation can be located along the MAOP dimensions.
 
-**Research gap addressed by this project.** The unified view is a *classification*: it indicates where regulation is located, not whether a given design is correct. Two components that are individually correct may nevertheless interact incorrectly. For example, an adaptation coordinator and a cell controller exchange messages asynchronously, so that during a transient interval they may disagree on which norms are in force. In the cell, this interval corresponds to the period during which a person and a robot may share the envelope. Detecting such intervals requires a tool that explores message interleavings, as discussed in section 5.
+**Research gap addressed by this project.** The unified view is a *classification*: it indicates where regulation is located, not whether a given design is correct. Two components that are individually correct may nevertheless interact incorrectly. For example, an adaptation coordinator and a cell controller exchange messages asynchronously, so that during a transient interval they may disagree on which norms are in force. In the cell, this interval corresponds to the period during which a person and a robot may share the envelope. Detecting such intervals requires a tool that explores message interleavings, as discussed in [Section 5](#5-background-the-p-language-and-pobserve).
 
 ### 4.1 The capabilities in detail
 
@@ -526,7 +542,9 @@ The **transition window** is the interval between the decision to change the nor
 
 1. **Stale admission.** The controller, still operating on the previous norm set, admits an agent after the lock-out has been declared (property S2).
 2. **Premature entry.** The technician enters before the envelope has been emptied (properties S1 and R3).
-3. **Lost, reordered or conflicting update.** Two adaptations overlap; e.g., a second technician requests a lock-out while the first lock-out is in force. The coordinator serializes adaptations and numbers the norm sets, so updates are installed one at a time and in version order (property S2). Serialization does not, however, record *who* holds a lock-out. When the first technician leaves and requests reopening, the next norm set reopens the envelope although the second technician is still inside (Figure 9). Preventing this hazard requires additional state, the set of lock-out holders per resource, and an additional property, S4: no committed norm set reopens a resource while a person is inside. Experiment E4 reproduces the hazard.
+3. **Lost, reordered or conflicting update.** Two adaptations overlap; e.g., a second technician requests a lock-out while the first lock-out is in force. The coordinator serializes adaptations and numbers the norm sets, so updates are installed one at a time and in version order (property S2). Serialization does not, however, record *who* holds a lock-out. When the first technician leaves and requests reopening, the next norm set reopens the envelope although the second technician is still inside ([Figure 9](#figure-9)). Preventing this hazard requires additional state, the set of lock-out holders per resource, and an additional property, S4: no committed norm set reopens a resource while a person is inside. Experiment E4 reproduces the hazard.
+
+<a id="figure-9"></a>
 
 ![Figure 9 · two technicians: serialized adaptations reopen an occupied envelope](figures/figure9.png)
 
@@ -536,7 +554,9 @@ The remedy adopted here is a **prepare–drain–commit** protocol. It borrows t
 
 ### 4.6 Lock-out/tag-out as regulation adaptation
 
-The lock-out of the cell is not a hypothetical construct: industrial safety regulations prescribe a lock-out/tag-out (LOTO) procedure, each step of which has a counterpart in the adaptation model (Figure 10).
+The lock-out of the cell is not a hypothetical construct: industrial safety regulations prescribe a lock-out/tag-out (LOTO) procedure, each step of which has a counterpart in the adaptation model ([Figure 10](#figure-10)).
+
+<a id="figure-10"></a>
 
 ![Figure 10 · lock-out/tag-out steps and their counterparts in the model](figures/figure10.png)
 
@@ -595,26 +615,30 @@ spec RegimentationSafety observes eResourceEntered, eHumanEntered /* … */ {
 }
 ```
 
-**Checking.** `p compile` builds the project, and `p check -tc <test> -s 10000` executes 10,000 schedules of the given test case. A failed assertion produces a trace under `PCheckerOutput/BugFinding/`, which can be replayed using its seed. The checker is a bug-finding tool: it explores a large number of schedules but proves nothing, not even for the fixed configuration of the model; section 5.9 explains what a given number of schedules does establish.
+**Checking.** `p compile` builds the project, and `p check -tc <test> -s 10000` executes 10,000 schedules of the given test case. A failed assertion produces a trace under `PCheckerOutput/BugFinding/`, which can be replayed using its seed. The checker is a bug-finding tool: it explores a large number of schedules but proves nothing, not even for the fixed configuration of the model; [Section 5.9](#59-what-a-number-of-schedules-guarantees) explains what a given number of schedules does establish.
 
-**PObserve: the same monitors at run time.** PObserve checks logs of a deployed system against P specifications in four steps:
+**PObserve: the same monitors at run time.** PObserve checks logs of a deployed system against P specifications in four steps ([Figure 11](#figure-11)):
 
 1. `p compile --mode pobserve` compiles the monitors (without the model machines) into the Java classes `PEvents`, `PTypes` and `PMachines`.
 2. A Java **log parser** maps each log line to a P event and a partition key (in this project, the site).
 3. The PObserve CLI (`java -jar PObserve-1.0.0.jar --jars <package> --spec <Monitor> -l <log>`) or the JUnit integration replays the events through the monitor.
 4. PObserve reports the first violation together with a replay of the events that led to it.
 
+<a id="figure-11"></a>
+
 ![Figure 11 · design-time and run-time checking share one set of monitors](figures/figure11.png)
 
 *Figure 11 · design-time and run-time checking share one set of monitors*
 
-Design-time and run-time checking therefore share most of their definition of correctness, but not all of it. L1 and L2 are checked only by the checker, and R1 and R2 only by PObserve (section 5.6). The run-time monitors are an adequate substitute for the liveness monitors only if this is argued, in one of two ways: by showing that R1 implies L1 under the stated latency of the obligation manager (an obligation due at tick d is resolved by tick d + 1), and that R2 implies L2 under a stated maximum drain time; or by adding an announcement emitted *after* the obligation manager has processed a tick (for instance `eTickProcessed`), so that R1 and R2 can also be checked against the model.
+Design-time and run-time checking therefore share most of their definition of correctness, but not all of it. L1 and L2 are checked only by the checker, and R1 and R2 only by PObserve ([Section 5.6](#56-common-pitfalls)). The run-time monitors are an adequate substitute for the liveness monitors only if this is argued, in one of two ways: by showing that R1 implies L1 under the stated latency of the obligation manager (an obligation due at tick d is resolved by tick d + 1), and that R2 implies L2 under a stated maximum drain time; or by adding an announcement emitted *after* the obligation manager has processed a tick (for instance `eTickProcessed`), so that R1 and R2 can also be checked against the model.
 
 PObserve reports assertion failures but not hot states that remain open at the end of a finite log. Liveness properties are therefore reformulated as **bounded-response** properties for run-time checking; e.g., *"resolved within 1 tick of the deadline"*.
 
-On a finite log, the absence of a reported violation is a verdict of *inconclusive* rather than *holds* for every property that a longer log could still violate (section 3.4).
+On a finite log, the absence of a reported violation is a verdict of *inconclusive* rather than *holds* for every property that a longer log could still violate ([Section 3.4](#34-norms-as-temporal-properties)).
 
-**Scope of each check.** The checker and PObserve answer different questions, and neither can replace the other (Figure 12).
+**Scope of each check.** The checker and PObserve answer different questions, and neither can replace the other ([Figure 12](#figure-12)).
+
+<a id="figure-12"></a>
 
 ![Figure 12 · what the checker and PObserve can each establish](figures/figure12.png)
 
@@ -677,7 +701,7 @@ A `spec` machine is a global observer with the following characteristics:
 
 - It declares the events it `observes` and executes synchronously whenever one of them is sent or announced.
 - It cannot send events; it can only update its own variables and evaluate `assert` statements.
-- An execution may terminate in a **cold** state, whereas a **hot** state must eventually be left. If a run terminates in a hot state, or remains in a hot state for longer than the checker's liveness threshold, the checker reports a liveness violation (section 5.10).
+- An execution may terminate in a **cold** state, whereas a **hot** state must eventually be left. If a run terminates in a hot state, or remains in a hot state for longer than the checker's liveness threshold, the checker reports a liveness violation ([Section 5.10](#510-what-a-hot-state-violation-means)).
 - `announce e, payload;` delivers an event to monitors only. Machines use it to publish institutional facts (an entry, a commit, a sanction) without sending them to another machine.
 
 ### 5.5 How the checker explores
@@ -688,13 +712,15 @@ A run up to a bound on the number of steps is called a **schedule**, and `-s 100
 
 The search finds bugs but does not prove their absence. Models should therefore be kept small (two agents, one technician, a bounded clock) and enlarged only after the small model passes.
 
-**Why interleavings matter.** Concurrent systems fail because of particular orderings of events rather than because of individual events. Consider three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). Since the technician waits for the commit, H always follows C, which leaves three possible orders (Figure 13).
+**Why interleavings matter.** Concurrent systems fail because of particular orderings of events rather than because of individual events. Consider three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). Since the technician waits for the commit, H always follows C, which leaves three possible orders ([Figure 13](#figure-13)).
+
+<a id="figure-13"></a>
 
 ![Figure 13 · the orders of three lock-out events, and the one that violates S1](figures/figure13.png)
 
 *Figure 13 · the orders of three lock-out events, and the one that violates S1*
 
-Two of these orders are safe. The third, C followed by H and then L, places the technician in the envelope together with the arm. Testing would reveal this order only if the scheduler happened to deliver the messages in that sequence, which may be rare on a lightly loaded controller. The checker, in contrast, controls the scheduler and samples schedules with randomized strategies biased toward short races, so that a race involving three events is typically found within seconds; section 5.9 quantifies this.
+Two of these orders are safe. The third, C followed by H and then L, places the technician in the envelope together with the arm. Testing would reveal this order only if the scheduler happened to deliver the messages in that sequence, which may be rare on a lightly loaded controller. The checker, in contrast, controls the scheduler and samples schedules with randomized strategies biased toward short races, so that a race involving three events is typically found within seconds; [Section 5.9](#59-what-a-number-of-schedules-guarantees) quantifies this.
 
 The figure also illustrates the effect of a design correction. The two-phase protocol does not reduce the probability of the unsafe order; it eliminates that order, because the coordinator commits only after every guard has reported that its resource is empty. A correction that merely makes a race less frequent, such as a delay before the commit, leaves the branch in the tree, and the checker will continue to find it.
 
@@ -702,7 +728,7 @@ The figure also illustrates the effect of a design correction. The two-phase pro
 
 - **Over-deterministic test drivers.** If the test always starts the technician after the agents, many bugs cannot manifest. Nondeterministic choices (`$`) and multiple drivers should be used to widen the set of orderings.
 - **Monitor timing.** A monitor observes an event when it is *sent*, before the receiver processes it; a clock tick is therefore visible to a monitor before the organization has applied it. For this reason, the run-time deadline monitors (R1, R2) are not used in the checker.
-- **Liveness and fairness.** Hot-state checks depend on fairness assumptions (section 5.10). A reported violation caused solely by never scheduling an enabled machine does not correspond to a real defect, whereas a violation caused by a nondeterministic choice of an agent does.
+- **Liveness and fairness.** Hot-state checks depend on fairness assumptions ([Section 5.10](#510-what-a-hot-state-violation-means)). A reported violation caused solely by never scheduling an enabled machine does not correspond to a real defect, whereas a violation caused by a nondeterministic choice of an agent does.
 - **Unbounded models.** An unbounded clock or retry loop produces unbounded schedules. Such loops must be bounded (`maxTicks`, a retry limit), and the bounds must be stated in the report.
 
 ### 5.7 Mapping normative concepts to P
@@ -727,7 +753,7 @@ The figure also illustrates the effect of a design correction. The two-phase pro
 - **Generated classes.** `p compile --mode pobserve` names tuple classes after their abbreviated field names; e.g., `(agent, res, ver)` yields `PTuple_agent_res_ver`. The generated `PTypes.java` should be inspected before the parser is written.
 - **Execution modes.** JUnit tests are suited to continuous integration on recorded logs, whereas the CLI is suited to on-demand checking of production logs.
 
-**Clock skew and causal order.** The log of the cell merges lines from several sources: the cell controller (PLC), the organizational engine, and the door switch or light curtain. Each source timestamps its lines with its own clock, so the timestamp order of the merged log coincides with the causal order of the events only if the clocks are synchronized more precisely than the shortest interval between causally related events. A skew of a few milliseconds can therefore swap a `HUMAN_ENTER` and a `LEAVE`, producing a false S1 violation or hiding a genuine one. Three measures mitigate the problem: synchronizing the clocks (NTP or, preferably, PTP) and recording the accuracy achieved; logging causally related events from a single source wherever possible; and relying on logical information that does not depend on clocks. The version number `Ver` of the norm set is such a logical clock: S2 compares the version under which an agent was admitted with the committed version, so its verdict does not depend on the timestamps of the two lines. Properties that relate events from different sources without such a field, such as S1 and R3, inherit the clock accuracy as a threat to validity (section 7.7).
+**Clock skew and causal order.** The log of the cell merges lines from several sources: the cell controller (PLC), the organizational engine, and the door switch or light curtain. Each source timestamps its lines with its own clock, so the timestamp order of the merged log coincides with the causal order of the events only if the clocks are synchronized more precisely than the shortest interval between causally related events. A skew of a few milliseconds can therefore swap a `HUMAN_ENTER` and a `LEAVE`, producing a false S1 violation or hiding a genuine one. Three measures mitigate the problem: synchronizing the clocks (NTP or, preferably, PTP) and recording the accuracy achieved; logging causally related events from a single source wherever possible; and relying on logical information that does not depend on clocks. The version number `Ver` of the norm set is such a logical clock: S2 compares the version under which an agent was admitted with the committed version, so its verdict does not depend on the timestamps of the two lines. Properties that relate events from different sources without such a field, such as S1 and R3, inherit the clock accuracy as a threat to validity ([Section 7.7](#77-modeling-assumptions-and-threats-to-validity)).
 
 **Learning path (days 1–7):**
 
@@ -741,9 +767,9 @@ The figure also illustrates the effect of a design correction. The two-phase pro
 
 `p check` does not enumerate all schedules. In each iteration, it executes one schedule chosen by a randomized strategy: uniformly random scheduling, or priority-based strategies such as PCT ([Burckhardt et al.](https://doi.org/10.1145/1736020.1736040)), which assigns random priorities to machines and changes them at a small number of randomly chosen steps. The strategies available, and their command-line names, depend on the installed P version (`p check --help`).
 
-- **Probabilistic guarantee.** A bug has *depth* d if it manifests whenever d particular ordering constraints between events are satisfied. For a program with n machines and at most k steps per schedule, a single PCT run finds a bug of depth d with probability at least 1/(n·k^(d−1)). The three-event race of Figure 13 has depth 2; with about 6 machines and 200 steps, a single run finds it with probability at least 1/1200, and 10,000 runs miss it with probability below (1 − 1/1200)^10000 ≈ 2.4·10⁻⁴. Deeper bugs require many more runs, and random scheduling offers no comparable bound.
+- **Probabilistic guarantee.** A bug has *depth* d if it manifests whenever d particular ordering constraints between events are satisfied. For a program with n machines and at most k steps per schedule, a single PCT run finds a bug of depth d with probability at least 1/(n·k^(d−1)). The three-event race of [Figure 13](#figure-13) has depth 2; with about 6 machines and 200 steps, a single run finds it with probability at least 1/1200, and 10,000 runs miss it with probability below (1 − 1/1200)^10000 ≈ 2.4·10⁻⁴. Deeper bugs require many more runs, and random scheduling offers no comparable bound.
 - **Small-scope hypothesis.** Most protocol defects manifest in small configurations (Jackson). The models of this project are therefore deliberately small, and each result is a statement about the configuration checked (two agents, one or two technicians, `maxTicks` = 10), not about cells of arbitrary size.
-- **Calibration with seeded bugs.** The adequacy of a schedule count can be estimated empirically. A known bug (the naive policy, or a mutant from section 5.11) is reintroduced, and the number of schedules until its first detection is recorded for several seeds. A claim about the corrected model should rest on a schedule count well above the largest of these numbers, for example ten times larger.
+- **Calibration with seeded bugs.** The adequacy of a schedule count can be estimated empirically. A known bug (the naive policy, or a mutant from [Section 5.11](#511-sanity-and-vacuity-checks)) is reintroduced, and the number of schedules until its first detection is recorded for several seeds. A claim about the corrected model should rest on a schedule count well above the largest of these numbers, for example ten times larger.
 - **Reporting.** Every result states the test case, the number of schedules, the strategy, the maximum number of steps per schedule, the seeds, the running time and the P version.
 
 ### 5.10 What a hot-state violation means
@@ -787,11 +813,15 @@ For every monitor, the project must therefore provide (a) a **mutant** of the mo
 
 ## 6. The system: a regulated manufacturing cell
 
-A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents.
+A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 14](#figure-14) shows the layout of the cell, and [Figure 15](#figure-15) its architecture by MAOP dimension.
+
+<a id="figure-14"></a>
 
 ![Figure 14 · the cell seen from above (illustrative)](figures/figure14.png)
 
 *Figure 14 · the cell seen from above (illustrative)*
+
+<a id="figure-15"></a>
 
 ![Figure 15 · cell architecture, components by MAOP dimension](figures/figure15.png)
 
@@ -827,10 +857,12 @@ The cell controller is the only means of access to the envelope, so regimented n
 | A requested lock-out is eventually installed, within a bounded time | obligation on the coordinator | monitored | adaptation | L2, R2 |
 | A resource is reopened only when no person is inside | prohibition on the coordinator | by construction after the fix of E4, monitored | adaptation and safety | S4 |
 
-**Execution policies.** Two policies for executing the lock-out are compared:
+**Execution policies.** Two policies for executing the lock-out are compared ([Figure 16](#figure-16)):
 
 - **Naive.** The coordinator declares the new norm set immediately, and the controller installs it whenever the corresponding message arrives.
 - **Two-phase.** The coordinator sends *prepare*; the controller stops admitting agents, waits until the envelope is empty (drain) and then acknowledges. Only after the acknowledgement does the coordinator *commit*.
+
+<a id="figure-16"></a>
 
 ![Figure 16 · naive vs. two-phase lock-out, as message sequences](figures/figure16.png)
 
@@ -840,7 +872,9 @@ In the naive sequence, the controller still holds norm set v0 when the arm reque
 
 The naive policy corresponds to a typical first implementation. Demonstrating *why* it is unsafe constitutes the central result of the project.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines (Figure 17): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 17](#figure-17)): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
+
+<a id="figure-17"></a>
 
 ![Figure 17 · the two-phase protocol as two communicating state machines](figures/figure17.png)
 
@@ -860,7 +894,7 @@ The deliverable is a P project consisting of three parts:
 - a catalogue of monitors checked against that model;
 - a PObserve package that checks the same monitors against execution logs.
 
-A starter kit containing draft versions of all three parts is provided (section 9). The project consists in making it compile, correcting it, justifying every modeling decision, and extending it.
+A starter kit containing draft versions of all three parts is provided ([Section 9](#9-starter-kit-setup-and-references)). The project consists in making it compile, correcting it, justifying every modeling decision, and extending it.
 
 ### 7.1 Model components
 
@@ -871,7 +905,7 @@ A starter kit containing draft versions of all three parts is provided (section 
 | `ObligationManager` | sanctioning | organization | creates obligations, checks deadlines on each tick, sanctions |
 | `AdaptationCoordinator` | adaptation (detect → design → execute) | organization | versioned norm sets; two-phase or naive policy |
 | `HumanRequester` | source of the detect-fact | environment (human) | requests the lock-out, enters on commit, leaves, requests reopening |
-| `Clock` | time | — | logical ticks; one final far-future tick so that every deadline passes (which makes L1 hold whenever the obligation manager is correct; section 5.11) |
+| `Clock` | time | — | logical ticks; one final far-future tick so that every deadline passes (which makes L1 hold whenever the obligation manager is correct; [Section 5.11](#511-sanity-and-vacuity-checks)) |
 
 ### 7.2 Property catalogue
 
@@ -881,11 +915,11 @@ A starter kit containing draft versions of all three parts is provided (section 
 | S2 | `NoStaleAdmission`: no admission to a resource the committed norm set closes; versions in order | safety | regimented | checker + PObserve | holds / **violated** |
 | S3 | `NoDoubleOutcome`: an obligation is never both fulfilled and sanctioned | safety (integrity) | by construction | checker + PObserve | holds / holds |
 | S4 | to be written in E4: no committed norm set opens a resource while a person is inside | safety | regimented after the fix | checker + PObserve | one technician: holds / holds; two technicians, starter kit: **violated** / **violated**; after the fix: holds |
-| L1 | `EveryObligationResolved`: every obligation is eventually fulfilled or sanctioned | liveness (hot state) | sanctioned | checker | holds / holds (see section 5.11 on vacuity) |
+| L1 | `EveryObligationResolved`: every obligation is eventually fulfilled or sanctioned | liveness (hot state) | sanctioned | checker | holds / holds (see [Section 5.11](#511-sanity-and-vacuity-checks) on vacuity) |
 | L2 | `AdaptationCompletes`: every adaptation eventually commits | liveness (hot state) | adaptation | checker | holds / holds, provided that agents release the envelope (fails in E3) |
 | R1 | `ObligationDeadlineRespected`: resolved no later than tick Due + 1 | bounded response | sanctioned | PObserve | holds / holds |
 | R2 | `AdaptationBoundedTime`: commits within B ticks of the start (B = 5 in the starter kit, to be calibrated) | bounded response | adaptation | PObserve | holds / holds if B is at least the maximum drain time |
-| R3 | `LockoutBeforeEntry`: a person enters only a locked-out resource | safety (procedure) | monitored | checker + PObserve | holds / holds (by construction in the model; section 5.11) |
+| R3 | `LockoutBeforeEntry`: a person enters only a locked-out resource | safety (procedure) | monitored | checker + PObserve | holds / holds (by construction in the model; [Section 5.11](#511-sanity-and-vacuity-checks)) |
 
 The expected outcomes are **hypotheses** derived from the design. A sample-log simulator agrees with them, but they have not yet been confirmed with `p check`; their confirmation or refutation is part of the project.
 
@@ -893,9 +927,9 @@ The expected outcomes are **hypotheses** derived from the design. A sample-log s
 
 | # | Experiment | Change to the model | Design hypothesis | Acceptance criterion | Minimum schedules | Evidence to record |
 | --- | --- | --- | --- | --- | --- | --- |
-| E1 | Baseline, two-phase | none | S1–S3, L1, L2 and R3 hold | no violation; schedule count justified by calibration (section 5.9) | 100,000 | command, versions, strategy, seeds, event coverage |
-| E2 | Baseline, naive | `twoPhase = false` | S1 or S2 fails | a counterexample explained with the template of section 7.8 | until the first violation (at most 10,000) | trace, seed, write-up |
-| E3 | Stuck agent | an agent never releases the envelope | L2 fails; the safety properties hold | the liveness violation classified as genuine (section 5.10) | 10,000 | trace, classification, argument for an e-stop |
+| E1 | Baseline, two-phase | none | S1–S3, L1, L2 and R3 hold | no violation; schedule count justified by calibration ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) | 100,000 | command, versions, strategy, seeds, event coverage |
+| E2 | Baseline, naive | `twoPhase = false` | S1 or S2 fails | a counterexample explained with the template of [Section 7.8](#78-writing-up-a-counterexample) | until the first violation (at most 10,000) | trace, seed, write-up |
+| E3 | Stuck agent | an agent never releases the envelope | L2 fails; the safety properties hold | the liveness violation classified as genuine ([Section 5.10](#510-what-a-hot-state-violation-means)) | 10,000 | trace, classification, argument for an e-stop |
 | E4 | Two technicians | a second `HumanRequester` | S1 and S4 fail on reopening; after the fix, all monitors hold | failing trace before the fix; no violation after it | 100,000 after the fix | both traces or runs, S4, the fix |
 | E5 | Deadline pressure | `due` reduced from 4–6 to 2 | more sanctions; S3 and L1 still hold | sanction counts reported per setting; no violation | 10,000 per setting | counts, runs |
 | E6 | Scale | 3–4 agents, larger `maxTicks` | checker time per schedule grows with the configuration | schedules per second reported per configuration | 1,000 per configuration | timing table |
@@ -931,10 +965,10 @@ Each line is prefixed by a UTC timestamp with microsecond precision. `Site` is t
 | --- | --- |
 | Must | All P files compile; E1 and E2 run; each result is explained with the trace or report |
 | Must | E4: the two-technician failure is reproduced, S4 is written, the regulation is fixed, and all monitors hold after the fix |
-| Must | Every monitor is traced to a norm of section 6 (section 7.6) and has a mutant that violates it (section 5.11) |
-| Must | The schedule count behind every claim is justified (section 5.9) |
-| Must | The PObserve package builds; both JUnit tests pass on the sample logs; the system-fault and log-defect runs of section 7.4 are reported |
-| Must | The assumptions table of section 7.7 is completed and discussed as threats to validity in the report |
+| Must | Every monitor is traced to a norm of [Section 6](#6-the-system-a-regulated-manufacturing-cell) ([Section 7.6](#76-traceability)) and has a mutant that violates it ([Section 5.11](#511-sanity-and-vacuity-checks)) |
+| Must | The schedule count behind every claim is justified ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) |
+| Must | The PObserve package builds; both JUnit tests pass on the sample logs; the system-fault and log-defect runs of [Section 7.4](#74-run-time-part-pobserve) are reported |
+| Must | The assumptions table of [Section 7.7](#77-modeling-assumptions-and-threats-to-validity) is completed and discussed as threats to validity in the report |
 | Should | E3 and E5; calibration of the R2 bound |
 | Could | E6, E7 and E8; JaCaMo instrumentation and a run on its logs; comparison with a Maude or UPPAAL encoding of one property |
 
@@ -942,7 +976,7 @@ Each line is prefixed by a UTC timestamp with microsecond precision. `Site` is t
 
 Each property is traced to the norm it protects, its temporal form, its class, its enforcement mechanism, the technique that checks it, the test case that exercises it and the log events it reads. The table is to be kept up to date as monitors are added or changed.
 
-| Norm (section 6) | Property | Temporal form | Class | Enforcement | Checked by | Test case | Log events |
+| Norm ([Section 6](#6-the-system-a-regulated-manufacturing-cell)) | Property | Temporal form | Class | Enforcement | Checked by | Test case | Log events |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | at most one agent; no agent with a person | S1 | G(occupancy ≤ capacity) ∧ G ¬(agentIn ∧ personIn) | safety | regimented | checker, PObserve | `tcCellTwoPhase`, `tcCellNaive` | `CONFIG`, `ENTER`, `LEAVE`, `HUMAN_ENTER`, `HUMAN_LEAVE` |
 | admissions follow the committed norm set | S2 | G(enter(r, v) → r ∉ closed(committed) ∧ v = version(committed)); versions increasing | safety | regimented | checker, PObserve | both | `ENTER`, `COMMIT` |
@@ -963,25 +997,25 @@ A model **over-approximates** the real system if every real behavior is also a b
 | Agents interact only through the protocol (request, release, report) and never enter without a grant | a robot may move without permission after a software or hardware fault | under-approximation | S1, S2: a safe verdict does not cover rogue motion |
 | Messages are neither lost nor duplicated and are delivered in order per sender–receiver pair | OPC UA and network links may lose, delay or duplicate messages | under-approximation | S2, L2, R2 |
 | Release is instantaneous; motion is abstracted to occupancy | an arm needs time and space to leave the envelope | abstraction | S1 (timing of exit) |
-| One guard, one resource of capacity 1, two agents | cells with several zones and more agents | scope restriction | all; small-scope argument (section 5.9) |
+| One guard, one resource of capacity 1, two agents | cells with several zones and more agents | scope restriction | all; small-scope argument ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) |
 | Logical ticks; deadlines in ticks | wall-clock time with jitter | abstraction | L1, R1, R2 |
 | The technician waits for the commit | people may bypass the procedure | under-approximation | R3 (holds by construction in the model) |
 | Sensors detect persons without error | light curtains fail or are muted | under-approximation | S1, R3: no software check covers sensor failure |
-| Bounded runs: `maxTicks` = 10, three denials, final far-future tick | unbounded operation | bounded | L1, L2 (section 5.11) |
+| Bounded runs: `maxTicks` = 10, three denials, final far-future tick | unbounded operation | bounded | L1, L2 ([Section 5.11](#511-sanity-and-vacuity-checks)) |
 | Agents' `$` choices cover compliance and non-compliance within the protocol | learning or vendor-supplied agents | over-approximation of agent decisions within the protocol | sanction-related properties |
-| Log timestamps reflect causal order | clocks of several sources with skew | depends on synchronization | S1, R3 at run time (section 5.8) |
+| Log timestamps reflect causal order | clocks of several sources with skew | depends on synchronization | S1, R3 at run time ([Section 5.8](#58-pobserve-in-more-detail)) |
 
-**Threats to validity** are the reasons why a reported result might not hold for the real cell. *Internal validity* concerns errors in the model, the monitors or the parser. *Construct validity* concerns whether the monitors express the intended norms, including the count-as mapping of the parser (section 3.6) and vacuity (section 5.11). *External validity* concerns whether results obtained for the small configuration generalize to real cells, with their timing, sensors and scale. The report must contain a threats-to-validity section that discusses each assumption of the table above under these three headings.
+**Threats to validity** are the reasons why a reported result might not hold for the real cell. *Internal validity* concerns errors in the model, the monitors or the parser. *Construct validity* concerns whether the monitors express the intended norms, including the count-as mapping of the parser ([Section 3.6](#36-constitutive-rules-situated-artificial-institutions)) and vacuity ([Section 5.11](#511-sanity-and-vacuity-checks)). *External validity* concerns whether results obtained for the small configuration generalize to real cells, with their timing, sensors and scale. The report must contain a threats-to-validity section that discusses each assumption of the table above under these three headings.
 
 ### 7.8 Writing up a counterexample
 
 Every counterexample reported in D2 and D4 follows the same template:
 
 1. **Setup.** Test case, configuration, P version, strategy, seed and schedule number.
-2. **Shortest violating prefix.** The events that lead to the violation, restricted to the relevant machines and drawn as a message-sequence chart in the style of Figure 9.
+2. **Shortest violating prefix.** The events that lead to the violation, restricted to the relevant machines and drawn as a message-sequence chart in the style of [Figure 9](#figure-9).
 3. **Failing monitor.** The monitor, its assertion message, and the state of the monitor at the failure.
-4. **Root cause.** The design decision that permits the interleaving, linked to a hazard of section 4.5.
-5. **Classification.** A genuine defect of the design, or an artifact of the model (with reference to the assumptions of section 7.7, and to section 5.10 for liveness violations).
+4. **Root cause.** The design decision that permits the interleaving, linked to a hazard of [Section 4.5](#45-consistency-during-a-regulation-change).
+5. **Classification.** A genuine defect of the design, or an artifact of the model (with reference to the assumptions of [Section 7.7](#77-modeling-assumptions-and-threats-to-validity), and to [Section 5.10](#510-what-a-hot-state-violation-means) for liveness violations).
 6. **Fix.** The change to the model or to the regulation.
 7. **Regression.** The rerun that shows that the fixed model satisfies the monitor, with its schedule count, and that no other monitor was weakened.
 
@@ -1000,7 +1034,9 @@ The root cause is hazard 2 (premature entry) for S1 and hazard 1 (stale admissio
 
 ## 8. Work plan and deliverables
 
-The project is carried out in five phases over 45 calendar days, counted from the start date. Each phase lasts 7 to 11 days and concludes with a short checkpoint meeting and a tagged commit.
+The project is carried out in five phases over 45 calendar days, counted from the start date. Each phase lasts 7 to 11 days and concludes with a short checkpoint meeting and a tagged commit ([Figure 18](#figure-18)).
+
+<a id="figure-18"></a>
 
 ![Figure 18 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure18.png)
 
@@ -1010,7 +1046,7 @@ The project is carried out in five phases over 45 calendar days, counted from th
 | --- | --- | --- | --- |
 | Background | 1–7 | toolchain; P-Tutorial; reading of Yan et al.; first `p compile` with the errors recorded; mapping of each machine to a regulation capability | D1 submitted; first compilation log recorded |
 | Model | 8–17 | compilation errors fixed; E1, E2 and at least three further experiments, each with a prediction recorded before the run | day 17: P steps of the validation record completed; experiment log with predictions, results and explanations |
-| Verification | 18–28 | E4: two-technician failure (days 18–22); S4, fix and re-verification (days 23–28); mutants for every monitor (section 5.11); calibration of schedule counts (section 5.9) | D2 submitted |
+| Verification | 18–28 | E4: two-technician failure (days 18–22); S4, fix and re-verification (days 23–28); mutants for every monitor ([Section 5.11](#511-sanity-and-vacuity-checks)); calibration of schedule counts ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) | D2 submitted |
 | Run time | 29–38 | PObserve package; sample logs; logs of the two-technician scenario; system-fault and log-defect runs; calibration of the R2 bound | D3 submitted |
 | Analysis | 39–45 | report, threats to validity, presentation | D4 and D5 submitted |
 
@@ -1021,9 +1057,9 @@ The verification phase constitutes the core of the project. If modeling is delay
 | # | Deliverable | Due (day) | Content |
 | --- | --- | --- | --- |
 | D1 | Background note | 7 | 2–3 pages: MAS, norms, the unified view, P; the cell placed in the grid, with justification; a one-page mapping of each machine in `Common/` to a regulation capability |
-| D2 | Verified model | 28 | compiling P project; results of E1, E2 and the further experiments; the two-technician failing trace explained with the template of section 7.8; S4; the fix and all monitors holding afterwards; mutants for every monitor; justification of every schedule count |
+| D2 | Verified model | 28 | compiling P project; results of E1, E2 and the further experiments; the two-technician failing trace explained with the template of [Section 7.8](#78-writing-up-a-counterexample); S4; the fix and all monitors holding afterwards; mutants for every monitor; justification of every schedule count |
 | D3 | PObserve package | 38 | parser (adapted as needed), JUnit tests, runner; results on all logs, including the two-technician scenario; system-fault and log-defect runs; the calibrated R2 bound with its justification |
-| D4 | Final report | 45 | 8–12 pages in a workshop-paper format (e.g. EMAS, COINE or WESAAC), structured as below, with the validation record and the completed tables of sections 7.6 and 7.7 as appendices |
+| D4 | Final report | 45 | 8–12 pages in a workshop-paper format (e.g. EMAS, COINE or WESAAC), structured as below, with the validation record and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity) as appendices |
 | D5 | Presentation and demonstration | 45 | 15 minutes plus 5 for questions: one checker counterexample run live and one PObserve violation shown |
 
 This section is the authoritative source for phases, deliverables and grading; ASSIGNMENT.md summarizes it for the teams.
@@ -1042,7 +1078,7 @@ This section is the authoritative source for phases, deliverables and grading; A
 
 Individual grades may be adjusted on the basis of the contribution statements and the answers given during the presentation.
 
-**Learning outcomes and assessment.** A dot marks the deliverables in which each learning outcome of section 1 is assessed.
+**Learning outcomes and assessment.** A dot marks the deliverables in which each learning outcome of [Section 1](#1-summary) is assessed.
 
 | Learning outcome | D1 | D2 | D3 | D4 | D5 |
 | --- | --- | --- | --- | --- | --- |
@@ -1057,14 +1093,14 @@ Individual grades may be adjusted on the basis of the contribution statements an
 
 1. Introduction and research questions.
 2. Background and the position of the cell in the unified-view grid (from D1).
-3. Model and norms, with the traceability table of section 7.6.
-4. Design-time results: E1–E8, each counterexample written up with the template of section 7.8.
+3. Model and norms, with the traceability table of [Section 7.6](#76-traceability).
+4. Design-time results: E1–E8, each counterexample written up with the template of [Section 7.8](#78-writing-up-a-counterexample).
 5. Run-time results: sample logs, the team's logs, system faults and log defects, calibration of the R2 bound.
-6. Threats to validity, discussed per assumption of section 7.7.
+6. Threats to validity, discussed per assumption of [Section 7.7](#77-modeling-assumptions-and-threats-to-validity).
 7. Related work.
 8. Conclusion.
 
-Appendices: the validation record, and the completed tables of sections 7.6 and 7.7.
+Appendices: the validation record, and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity).
 
 ## 9. Starter kit, setup and references
 
@@ -1114,23 +1150,23 @@ cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 
 ### A.2 Self-check questions
 
-**Section 2.** (1) Why must the correctness of an open MAS not depend on agent compliance, and how does the model reflect this? (2) In which MAOP dimension is the envelope regimented, and why there? (3) What distinguishes an agent's choice from a regulator's guarantee?
+**[Section 2](#2-background-multi-agent-systems).** (1) Why must the correctness of an open MAS not depend on agent compliance, and how does the model reflect this? (2) In which MAOP dimension is the envelope regimented, and why there? (3) What distinguishes an agent's choice from a regulator's guarantee?
 
-**Section 3.** (1) Why would requiring G ¬V be a modeling error? (2) Why is O φ ∧ ¬φ consistent, whereas G φ ∧ ¬φ (in the current state) is not? (3) Which properties of section 7.2 are safety, liveness and bounded-response properties, and which of them can PObserve check?
+**[Section 3](#3-background-norms-and-normative-mas).** (1) Why would requiring G ¬V be a modeling error? (2) Why is O φ ∧ ¬φ consistent, whereas G φ ∧ ¬φ (in the current state) is not? (3) Which properties of [Section 7.2](#72-property-catalogue) are safety, liveness and bounded-response properties, and which of them can PObserve check?
 
-**Section 4.** (1) What is the transition window, and which property covers each of its hazards? (2) Why does the serialization of adaptations not make two technicians safe? (3) How does the prepare–drain–commit protocol differ from classical two-phase commit?
+**[Section 4](#4-background-regulation-management-in-mas).** (1) What is the transition window, and which property covers each of its hazards? (2) Why does the serialization of adaptations not make two technicians safe? (3) How does the prepare–drain–commit protocol differ from classical two-phase commit?
 
-**Section 5.** (1) Why can PObserve not check L1? (2) What does "no bug found in 10,000 schedules" establish, and how can that number be justified? (3) When is a reported liveness violation an artifact of the scheduler?
+**[Section 5](#5-background-the-p-language-and-pobserve).** (1) Why can PObserve not check L1? (2) What does "no bug found in 10,000 schedules" establish, and how can that number be justified? (3) When is a reported liveness violation an artifact of the scheduler?
 
 ### A.3 Common misconceptions
 
-- *"No bug in N schedules means that the design is correct."* It means that N sampled schedules of one configuration showed no violation (section 5.9).
-- *"A clean PObserve run means that the system is safe."* It means that the logged execution contains no bad prefix; for bounded properties whose deadline lies beyond the end of the log, the verdict is inconclusive (section 3.4).
-- *"A monitor that never fails is a good monitor."* It may be vacuous (section 5.11).
-- *"`defer` and `ignore` fix unhandled-event errors."* They hide them unless the protocol justifies them (section 5.3).
-- *"The two-phase protocol is two-phase commit."* It has neither votes nor an abort path (section 4.5).
-- *"A sanction is a violation."* The violation is the missed deadline; the sanction is the regulator's reaction to it (section 3.2).
-- *"A permission can be checked on a log."* Permission is a branching property (section 3.2).
+- *"No bug in N schedules means that the design is correct."* It means that N sampled schedules of one configuration showed no violation ([Section 5.9](#59-what-a-number-of-schedules-guarantees)).
+- *"A clean PObserve run means that the system is safe."* It means that the logged execution contains no bad prefix; for bounded properties whose deadline lies beyond the end of the log, the verdict is inconclusive ([Section 3.4](#34-norms-as-temporal-properties)).
+- *"A monitor that never fails is a good monitor."* It may be vacuous ([Section 5.11](#511-sanity-and-vacuity-checks)).
+- *"`defer` and `ignore` fix unhandled-event errors."* They hide them unless the protocol justifies them ([Section 5.3](#53-communication-semantics)).
+- *"The two-phase protocol is two-phase commit."* It has neither votes nor an abort path ([Section 4.5](#45-consistency-during-a-regulation-change)).
+- *"A sanction is a violation."* The violation is the missed deadline; the sanction is the regulator's reaction to it ([Section 3.2](#32-deontic-logic-in-brief)).
+- *"A permission can be checked on a log."* Permission is a branching property ([Section 3.2](#32-deontic-logic-in-brief)).
 
 ### A.4 Glossary
 
@@ -1150,7 +1186,7 @@ cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 | Drain | the phase in which the controller denies new requests and waits until the envelope is empty |
 | Event | a typed message in P, sent to a machine or announced to monitors |
 | Event coverage | the number of occurrences of each monitored event in a set of runs |
-| Fairness (weak, strong) | assumptions that enabled actions are eventually taken (section 5.10) |
+| Fairness (weak, strong) | assumptions that enabled actions are eventually taken ([Section 5.10](#510-what-a-hot-state-violation-means)) |
 | Hot state | a monitor state that must eventually be left |
 | Inconclusive verdict | the verdict of a finite trace that can be extended both to a violation and to a satisfaction |
 | Interleaving | an order in which the events of concurrent machines are processed |
@@ -1168,7 +1204,7 @@ cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 | NPL | Normative Programming Language of JaCaMo |
 | Obligation, prohibition, permission | the three deontic modalities |
 | Open system | a MAS whose agents are not under the designer's control |
-| Over-/under-approximation | a model with more / fewer behaviors than the real system (section 7.7) |
+| Over-/under-approximation | a model with more / fewer behaviors than the real system ([Section 7.7](#77-modeling-assumptions-and-threats-to-validity)) |
 | Partition key | the PObserve key that groups the events checked by one monitor instance |
 | PCT | probabilistic concurrency testing, a randomized scheduling strategy with a probabilistic guarantee |
 | PObserve | the tool that checks logs against P monitors |
@@ -1181,7 +1217,7 @@ cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 | Schedule | one execution of the model chosen by the checker |
 | Seed | the value that reproduces a schedule |
 | Small-scope hypothesis | the observation that most defects manifest in small configurations |
-| Threats to validity | reasons why a result might not hold for the real system (section 7.7) |
+| Threats to validity | reasons why a result might not hold for the real system ([Section 7.7](#77-modeling-assumptions-and-threats-to-validity)) |
 | Tick | one step of the organization's logical clock |
 | Transition window | the interval during which components may disagree on the norms in force |
 | Unified view | the classification of regulation management by Yan et al. |
