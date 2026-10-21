@@ -1,0 +1,1919 @@
+[
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "RegimentationSafety was created.",
+      "payload": "null",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "RegimentationSafety enters state \u0027Init\u0027.",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "NoStaleAdmission was created.",
+      "payload": "null",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "NoStaleAdmission enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "NoDoubleOutcome was created.",
+      "payload": "null",
+      "monitor": "NoDoubleOutcome",
+      "clock": {
+        "NoDoubleOutcome": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "NoDoubleOutcome enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "NoDoubleOutcome",
+      "clock": {
+        "NoDoubleOutcome": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "EveryObligationResolved was created.",
+      "payload": "null",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "EveryObligationResolved enters cold state \u0027NoneOpen\u0027.",
+      "state": "NoneOpen",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": false,
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "AdaptationCompletes was created.",
+      "payload": "null",
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes enters cold state \u0027Idle\u0027.",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": false,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "LockoutBeforeEntry was created.",
+      "payload": "null",
+      "monitor": "LockoutBeforeEntry",
+      "clock": {
+        "LockoutBeforeEntry": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "LockoutBeforeEntry enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "LockoutBeforeEntry",
+      "clock": {
+        "LockoutBeforeEntry": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "TestCellNaive(1) was created by task \u002738\u0027.",
+      "id": "TestCellNaive(1)",
+      "payload": "null",
+      "clock": {
+        "TestCellNaive(1)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "TestCellNaive(1) enters state \u0027Init\u0027.",
+      "id": "TestCellNaive(1)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "TestCellNaive(1)": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ManufacturingSystem(2) was created by TestCellNaive(1).",
+      "id": "ManufacturingSystem(2)",
+      "creatorName": "TestCellNaive(1)",
+      "creatorType": "TestCellNaive",
+      "payload": "null",
+      "clock": {
+        "ManufacturingSystem(2)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ManufacturingSystem(2) enters state \u0027Init\u0027.",
+      "id": "ManufacturingSystem(2)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ManufacturingSystem(2)": 2
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ManufacturingSystem(2) announced event eMonitorConfig with payload (\u003C0-\u003E1\u003E).",
+      "id": "ManufacturingSystem(2)",
+      "event": "eMonitorConfig",
+      "payload": {
+        "0": 1
+      },
+      "clock": {
+        "ManufacturingSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "RegimentationSafety is processing event \u0027eMonitorConfig with payload ((\u003C0-\u003E1\u003E))\u0027 in state \u0027Init\u0027.",
+      "event": "eMonitorConfig",
+      "state": "Init",
+      "payload": {
+        "0": 1
+      },
+      "sender": "ManufacturingSystem(2)",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 3,
+        "ManufacturingSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorRaiseEvent",
+    "details": {
+      "log": "Monitor \u0027RegimentationSafety\u0027 raised event \u0027GotoStateEvent\u0027 in state \u0027Init\u0027.",
+      "event": "GotoStateEvent",
+      "state": "Init",
+      "payload": "null",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 4,
+        "ManufacturingSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "RegimentationSafety exits state \u0027Init\u0027.",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 5,
+        "ManufacturingSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "RegimentationSafety enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 6,
+        "ManufacturingSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ResourceGuard(3) was created by ManufacturingSystem(2).",
+      "id": "ResourceGuard(3)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(3)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(3) enters state \u0027Init\u0027.",
+      "id": "ResourceGuard(3)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(3)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "ResourceGuard(3) is transitioning from state \u0027Init\u0027 to state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "startState": "Init",
+      "endState": "Open",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(3)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(3) exits state \u0027Init\u0027.",
+      "id": "ResourceGuard(3)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "ResourceGuard(3)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(3) enters state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "state": "Open",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(3)": 5
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "AdaptationCoordinator(4) was created by ManufacturingSystem(2).",
+      "id": "AdaptationCoordinator(4)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(4)": 1
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ObligationManager(5) was created by ManufacturingSystem(2).",
+      "id": "ObligationManager(5)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "ObligationManager(5)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) enters state \u0027Init\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(4)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "AdaptationCoordinator(4) is transitioning from state \u0027Init\u0027 to state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "startState": "Init",
+      "endState": "Stable",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(4)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) exits state \u0027Init\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "AdaptationCoordinator(4)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) enters state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Stable",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(4)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ObligationManager(5) enters state \u0027Active\u0027.",
+      "id": "ObligationManager(5)",
+      "state": "Active",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ObligationManager(5)": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "CellAgent(6) was created by ManufacturingSystem(2).",
+      "id": "CellAgent(6)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "CellAgent(6)": 1
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "CellAgent(7) was created by ManufacturingSystem(2).",
+      "id": "CellAgent(7)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "CellAgent(7)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) enters state \u0027Init\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(6)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "CellAgent(6) is transitioning from state \u0027Init\u0027 to state \u0027Idle\u0027.",
+      "id": "CellAgent(6)",
+      "startState": "Init",
+      "endState": "Idle",
+      "payload": "null",
+      "clock": {
+        "CellAgent(6)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) exits state \u0027Init\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "CellAgent(6)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) enters state \u0027Idle\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(6)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(7) enters state \u0027Init\u0027.",
+      "id": "CellAgent(7)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(7)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "CellAgent(7) is transitioning from state \u0027Init\u0027 to state \u0027Idle\u0027.",
+      "id": "CellAgent(7)",
+      "startState": "Init",
+      "endState": "Idle",
+      "payload": "null",
+      "clock": {
+        "CellAgent(7)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(7) exits state \u0027Init\u0027.",
+      "id": "CellAgent(7)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "CellAgent(7)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(7) enters state \u0027Idle\u0027.",
+      "id": "CellAgent(7)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(7)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ManufacturingSystem(2)\u0027 in state \u0027Init\u0027 sent event \u0027eAssignTask with payload (\u003Cagent:1, agentRef:CellAgent(6), task:100, due:4, \u003E)\u0027 to \u0027ObligationManager(5)\u0027.",
+      "event": "eAssignTask",
+      "state": "Init",
+      "payload": {
+        "agent": 1,
+        "agentRef": "CellAgent(6)",
+        "task": 100,
+        "due": 4
+      },
+      "sender": "ManufacturingSystem(2)",
+      "target": "ObligationManager(5)",
+      "isTargetHalted": false,
+      "clock": {
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ManufacturingSystem(2)\u0027 in state \u0027Init\u0027 sent event \u0027eAssignTask with payload (\u003Cagent:2, agentRef:CellAgent(7), task:200, due:6, \u003E)\u0027 to \u0027ObligationManager(5)\u0027.",
+      "event": "eAssignTask",
+      "state": "Init",
+      "payload": {
+        "agent": 2,
+        "agentRef": "CellAgent(7)",
+        "task": 200,
+        "due": 6
+      },
+      "sender": "ManufacturingSystem(2)",
+      "target": "ObligationManager(5)",
+      "isTargetHalted": false,
+      "clock": {
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "Clock(8) was created by ManufacturingSystem(2).",
+      "id": "Clock(8)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "Clock(8)": 1
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "HumanRequester(9) was created by ManufacturingSystem(2).",
+      "id": "HumanRequester(9)",
+      "creatorName": "ManufacturingSystem(2)",
+      "creatorType": "ManufacturingSystem",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(9)": 1
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(5)\u0027 dequeued event \u0027eAssignTask with payload (\u003Cagent:1, agentRef:CellAgent(6), task:100, due:4, \u003E)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(5)",
+      "event": "eAssignTask",
+      "state": "Active",
+      "payload": {
+        "agent": 1,
+        "agentRef": "CellAgent(6)",
+        "task": 100,
+        "due": 4
+      },
+      "clock": {
+        "ObligationManager(5)": 3,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ObligationManager(5) announced event eObligationCreated with payload \u003Cid:0, agent:1, task:100, due:4, \u003E.",
+      "id": "ObligationManager(5)",
+      "event": "eObligationCreated",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 100,
+        "due": 4
+      },
+      "clock": {
+        "ObligationManager(5)": 4,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "EveryObligationResolved is processing event \u0027eObligationCreated with payload (\u003Cid:0, agent:1, task:100, due:4, \u003E)\u0027 in state \u0027NoneOpen\u0027.",
+      "event": "eObligationCreated",
+      "state": "NoneOpen",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 100,
+        "due": 4
+      },
+      "sender": "ObligationManager(5)",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 3,
+        "ObligationManager(5)": 4,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorRaiseEvent",
+    "details": {
+      "log": "Monitor \u0027EveryObligationResolved\u0027 raised event \u0027GotoStateEvent\u0027 in state \u0027NoneOpen\u0027.",
+      "event": "GotoStateEvent",
+      "state": "NoneOpen",
+      "payload": "null",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 4,
+        "ObligationManager(5)": 4,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "EveryObligationResolved exits cold state \u0027NoneOpen\u0027.",
+      "state": "NoneOpen",
+      "payload": "null",
+      "isEntry": false,
+      "isInHotState": false,
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 5,
+        "ObligationManager(5)": 4,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "EveryObligationResolved enters hot state \u0027SomeOpen\u0027.",
+      "state": "SomeOpen",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": true,
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 6,
+        "ObligationManager(5)": 4,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(8) enters state \u0027Init\u0027.",
+      "id": "Clock(8)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Clock(8)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Clock(8) is transitioning from state \u0027Init\u0027 to state \u0027Ticking\u0027.",
+      "id": "Clock(8)",
+      "startState": "Init",
+      "endState": "Ticking",
+      "payload": "null",
+      "clock": {
+        "Clock(8)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(8) exits state \u0027Init\u0027.",
+      "id": "Clock(8)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Clock(8)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(8) enters state \u0027Ticking\u0027.",
+      "id": "Clock(8)",
+      "state": "Ticking",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Clock(8)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(8)\u0027 in state \u0027Ticking\u0027 sent event \u0027eTick with payload (1)\u0027 to \u0027ObligationManager(5)\u0027.",
+      "event": "eTick",
+      "state": "Ticking",
+      "payload": 1,
+      "sender": "Clock(8)",
+      "target": "ObligationManager(5)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(8)": 6
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ObligationManager(5)\u0027 in state \u0027Active\u0027 sent event \u0027eObligationNotice with payload (\u003Cid:0, agent:1, task:100, due:4, \u003E)\u0027 to \u0027CellAgent(6)\u0027.",
+      "event": "eObligationNotice",
+      "state": "Active",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 100,
+        "due": 4
+      },
+      "sender": "ObligationManager(5)",
+      "target": "CellAgent(6)",
+      "isTargetHalted": false,
+      "clock": {
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(9) enters state \u0027Init\u0027.",
+      "id": "HumanRequester(9)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "HumanRequester(9)": 2
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(5)\u0027 dequeued event \u0027eAssignTask with payload (\u003Cagent:2, agentRef:CellAgent(7), task:200, due:6, \u003E)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(5)",
+      "event": "eAssignTask",
+      "state": "Active",
+      "payload": {
+        "agent": 2,
+        "agentRef": "CellAgent(7)",
+        "task": 200,
+        "due": 6
+      },
+      "clock": {
+        "ObligationManager(5)": 6,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ObligationManager(5) announced event eObligationCreated with payload \u003Cid:1, agent:2, task:200, due:6, \u003E.",
+      "id": "ObligationManager(5)",
+      "event": "eObligationCreated",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 200,
+        "due": 6
+      },
+      "clock": {
+        "ObligationManager(5)": 7,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "EveryObligationResolved is processing event \u0027eObligationCreated with payload (\u003Cid:1, agent:2, task:200, due:6, \u003E)\u0027 in state \u0027SomeOpen\u0027.",
+      "event": "eObligationCreated",
+      "state": "SomeOpen",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 200,
+        "due": 6
+      },
+      "sender": "ObligationManager(5)",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 7,
+        "ObligationManager(5)": 7,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ObligationManager(5)\u0027 in state \u0027Active\u0027 sent event \u0027eObligationNotice with payload (\u003Cid:1, agent:2, task:200, due:6, \u003E)\u0027 to \u0027CellAgent(7)\u0027.",
+      "event": "eObligationNotice",
+      "state": "Active",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 200,
+        "due": 6
+      },
+      "sender": "ObligationManager(5)",
+      "target": "CellAgent(7)",
+      "isTargetHalted": false,
+      "clock": {
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027CellAgent(6)\u0027 dequeued event \u0027eObligationNotice with payload (\u003Cid:0, agent:1, task:100, due:4, \u003E)\u0027 in state \u0027Idle\u0027.",
+      "id": "CellAgent(6)",
+      "event": "eObligationNotice",
+      "state": "Idle",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 100,
+        "due": 4
+      },
+      "clock": {
+        "CellAgent(6)": 6,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "CellAgent(6) is transitioning from state \u0027Idle\u0027 to state \u0027Requesting\u0027.",
+      "id": "CellAgent(6)",
+      "startState": "Idle",
+      "endState": "Requesting",
+      "payload": "null",
+      "clock": {
+        "CellAgent(6)": 7,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) exits state \u0027Idle\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "CellAgent(6)": 8,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) enters state \u0027Requesting\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Requesting",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(6)": 9,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027CellAgent(6)\u0027 in state \u0027Requesting\u0027 sent event \u0027eAccessRequest with payload (\u003Cagent:1, agentRef:CellAgent(6), resource:0, \u003E)\u0027 to \u0027ResourceGuard(3)\u0027.",
+      "event": "eAccessRequest",
+      "state": "Requesting",
+      "payload": {
+        "agent": 1,
+        "agentRef": "CellAgent(6)",
+        "resource": 0
+      },
+      "sender": "CellAgent(6)",
+      "target": "ResourceGuard(3)",
+      "isTargetHalted": false,
+      "clock": {
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(8)\u0027 in state \u0027Ticking\u0027 sent event \u0027eContinue\u0027 to \u0027Clock(8)\u0027.",
+      "event": "eContinue",
+      "state": "Ticking",
+      "payload": "null",
+      "sender": "Clock(8)",
+      "target": "Clock(8)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(8)": 7
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027HumanRequester(9)\u0027 in state \u0027Init\u0027 sent event \u0027eContinue\u0027 to \u0027HumanRequester(9)\u0027.",
+      "event": "eContinue",
+      "state": "Init",
+      "payload": "null",
+      "sender": "HumanRequester(9)",
+      "target": "HumanRequester(9)",
+      "isTargetHalted": false,
+      "clock": {
+        "HumanRequester(9)": 3
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "HumanRequester(9) is transitioning from state \u0027Init\u0027 to state \u0027Outside\u0027.",
+      "id": "HumanRequester(9)",
+      "startState": "Init",
+      "endState": "Outside",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(9)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(9) exits state \u0027Init\u0027.",
+      "id": "HumanRequester(9)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "HumanRequester(9)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(9) enters state \u0027Outside\u0027.",
+      "id": "HumanRequester(9)",
+      "state": "Outside",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "HumanRequester(9)": 6
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(3)\u0027 dequeued event \u0027eAccessRequest with payload (\u003Cagent:1, agentRef:CellAgent(6), resource:0, \u003E)\u0027 in state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "event": "eAccessRequest",
+      "state": "Open",
+      "payload": {
+        "agent": 1,
+        "agentRef": "CellAgent(6)",
+        "resource": 0
+      },
+      "clock": {
+        "ResourceGuard(3)": 6,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ResourceGuard(3) announced event eResourceEntered with payload \u003Cagent:1, res:0, ver:0, \u003E.",
+      "id": "ResourceGuard(3)",
+      "event": "eResourceEntered",
+      "payload": {
+        "agent": 1,
+        "res": 0,
+        "ver": 0
+      },
+      "clock": {
+        "ResourceGuard(3)": 7,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "RegimentationSafety is processing event \u0027eResourceEntered with payload (\u003Cagent:1, res:0, ver:0, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eResourceEntered",
+      "state": "Watching",
+      "payload": {
+        "agent": 1,
+        "res": 0,
+        "ver": 0
+      },
+      "sender": "ResourceGuard(3)",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 7,
+        "ManufacturingSystem(2)": 4,
+        "ResourceGuard(3)": 7,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "NoStaleAdmission is processing event \u0027eResourceEntered with payload (\u003Cagent:1, res:0, ver:0, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eResourceEntered",
+      "state": "Watching",
+      "payload": {
+        "agent": 1,
+        "res": 0,
+        "ver": 0
+      },
+      "sender": "ResourceGuard(3)",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 3,
+        "ResourceGuard(3)": 7,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(3)\u0027 in state \u0027Open\u0027 sent event \u0027eAccessGranted with payload (\u003Cresource:0, version:0, \u003E)\u0027 to \u0027CellAgent(6)\u0027.",
+      "event": "eAccessGranted",
+      "state": "Open",
+      "payload": {
+        "resource": 0,
+        "version": 0
+      },
+      "sender": "ResourceGuard(3)",
+      "target": "CellAgent(6)",
+      "isTargetHalted": false,
+      "clock": {
+        "ResourceGuard(3)": 8,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027HumanRequester(9)\u0027 dequeued event \u0027eContinue\u0027 in state \u0027Outside\u0027.",
+      "id": "HumanRequester(9)",
+      "event": "eContinue",
+      "state": "Outside",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(9)": 7
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027HumanRequester(9)\u0027 in state \u0027Outside\u0027 sent event \u0027eAdaptationTriggered with payload (\u003Cresource:0, close:True, requester:HumanRequester(9), \u003E)\u0027 to \u0027AdaptationCoordinator(4)\u0027.",
+      "event": "eAdaptationTriggered",
+      "state": "Outside",
+      "payload": {
+        "resource": 0,
+        "close": true,
+        "requester": "HumanRequester(9)"
+      },
+      "sender": "HumanRequester(9)",
+      "target": "AdaptationCoordinator(4)",
+      "isTargetHalted": false,
+      "clock": {
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "HumanRequester(9) is transitioning from state \u0027Outside\u0027 to state \u0027WaitingForLock\u0027.",
+      "id": "HumanRequester(9)",
+      "startState": "Outside",
+      "endState": "WaitingForLock",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(9)": 9
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(9) exits state \u0027Outside\u0027.",
+      "id": "HumanRequester(9)",
+      "state": "Outside",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "HumanRequester(9)": 10
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(9) enters state \u0027WaitingForLock\u0027.",
+      "id": "HumanRequester(9)",
+      "state": "WaitingForLock",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "HumanRequester(9)": 11
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(5)\u0027 dequeued event \u0027eTick with payload (1)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(5)",
+      "event": "eTick",
+      "state": "Active",
+      "payload": 1,
+      "clock": {
+        "ObligationManager(5)": 9,
+        "ManufacturingSystem(2)": 5,
+        "Clock(8)": 6
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027Clock(8)\u0027 dequeued event \u0027eContinue\u0027 in state \u0027Ticking\u0027.",
+      "id": "Clock(8)",
+      "event": "eContinue",
+      "state": "Ticking",
+      "payload": "null",
+      "clock": {
+        "Clock(8)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Clock(8) is transitioning from state \u0027Ticking\u0027 to state \u0027Ticking\u0027.",
+      "id": "Clock(8)",
+      "startState": "Ticking",
+      "endState": "Ticking",
+      "payload": "null",
+      "clock": {
+        "Clock(8)": 9
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(8) exits state \u0027Ticking\u0027.",
+      "id": "Clock(8)",
+      "state": "Ticking",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Clock(8)": 10
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(8) enters state \u0027Ticking\u0027.",
+      "id": "Clock(8)",
+      "state": "Ticking",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Clock(8)": 11
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(8)\u0027 in state \u0027Ticking\u0027 sent event \u0027eTick with payload (2)\u0027 to \u0027ObligationManager(5)\u0027.",
+      "event": "eTick",
+      "state": "Ticking",
+      "payload": 2,
+      "sender": "Clock(8)",
+      "target": "ObligationManager(5)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(8)": 12
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(5)\u0027 dequeued event \u0027eTick with payload (2)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(5)",
+      "event": "eTick",
+      "state": "Active",
+      "payload": 2,
+      "clock": {
+        "ObligationManager(5)": 10,
+        "ManufacturingSystem(2)": 5,
+        "Clock(8)": 12
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027CellAgent(7)\u0027 dequeued event \u0027eObligationNotice with payload (\u003Cid:1, agent:2, task:200, due:6, \u003E)\u0027 in state \u0027Idle\u0027.",
+      "id": "CellAgent(7)",
+      "event": "eObligationNotice",
+      "state": "Idle",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 200,
+        "due": 6
+      },
+      "clock": {
+        "CellAgent(7)": 6,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "CellAgent(7) is transitioning from state \u0027Idle\u0027 to state \u0027Requesting\u0027.",
+      "id": "CellAgent(7)",
+      "startState": "Idle",
+      "endState": "Requesting",
+      "payload": "null",
+      "clock": {
+        "CellAgent(7)": 7,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(7) exits state \u0027Idle\u0027.",
+      "id": "CellAgent(7)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "CellAgent(7)": 8,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(7) enters state \u0027Requesting\u0027.",
+      "id": "CellAgent(7)",
+      "state": "Requesting",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(7)": 9,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027CellAgent(7)\u0027 in state \u0027Requesting\u0027 sent event \u0027eAccessRequest with payload (\u003Cagent:2, agentRef:CellAgent(7), resource:0, \u003E)\u0027 to \u0027ResourceGuard(3)\u0027.",
+      "event": "eAccessRequest",
+      "state": "Requesting",
+      "payload": {
+        "agent": 2,
+        "agentRef": "CellAgent(7)",
+        "resource": 0
+      },
+      "sender": "CellAgent(7)",
+      "target": "ResourceGuard(3)",
+      "isTargetHalted": false,
+      "clock": {
+        "CellAgent(7)": 10,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027CellAgent(6)\u0027 dequeued event \u0027eAccessGranted with payload (\u003Cresource:0, version:0, \u003E)\u0027 in state \u0027Requesting\u0027.",
+      "id": "CellAgent(6)",
+      "event": "eAccessGranted",
+      "state": "Requesting",
+      "payload": {
+        "resource": 0,
+        "version": 0
+      },
+      "clock": {
+        "CellAgent(6)": 11,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4,
+        "ResourceGuard(3)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "CellAgent(6) is transitioning from state \u0027Requesting\u0027 to state \u0027Working\u0027.",
+      "id": "CellAgent(6)",
+      "startState": "Requesting",
+      "endState": "Working",
+      "payload": "null",
+      "clock": {
+        "CellAgent(6)": 12,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4,
+        "ResourceGuard(3)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) exits state \u0027Requesting\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Requesting",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "CellAgent(6)": 13,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4,
+        "ResourceGuard(3)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "CellAgent(6) enters state \u0027Working\u0027.",
+      "id": "CellAgent(6)",
+      "state": "Working",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "CellAgent(6)": 14,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4,
+        "ResourceGuard(3)": 8
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(3)\u0027 dequeued event \u0027eAccessRequest with payload (\u003Cagent:2, agentRef:CellAgent(7), resource:0, \u003E)\u0027 in state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "event": "eAccessRequest",
+      "state": "Open",
+      "payload": {
+        "agent": 2,
+        "agentRef": "CellAgent(7)",
+        "resource": 0
+      },
+      "clock": {
+        "ResourceGuard(3)": 9,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5,
+        "CellAgent(7)": 10
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027AdaptationCoordinator(4)\u0027 dequeued event \u0027eAdaptationTriggered with payload (\u003Cresource:0, close:True, requester:HumanRequester(9), \u003E)\u0027 in state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "event": "eAdaptationTriggered",
+      "state": "Stable",
+      "payload": {
+        "resource": 0,
+        "close": true,
+        "requester": "HumanRequester(9)"
+      },
+      "clock": {
+        "AdaptationCoordinator(4)": 6,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "AdaptationCoordinator(4) announced event eAdaptationStarted with payload 1.",
+      "id": "AdaptationCoordinator(4)",
+      "event": "eAdaptationStarted",
+      "payload": 1,
+      "clock": {
+        "AdaptationCoordinator(4)": 7,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "AdaptationCompletes is processing event \u0027eAdaptationStarted with payload (1)\u0027 in state \u0027Idle\u0027.",
+      "event": "eAdaptationStarted",
+      "state": "Idle",
+      "payload": 1,
+      "sender": "AdaptationCoordinator(4)",
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 3,
+        "AdaptationCoordinator(4)": 7,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes exits cold state \u0027Idle\u0027.",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": false,
+      "isInHotState": false,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 4,
+        "AdaptationCoordinator(4)": 7,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes enters hot state \u0027InProgress\u0027.",
+      "state": "InProgress",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": true,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 5,
+        "AdaptationCoordinator(4)": 7,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "AdaptationCoordinator(4) is transitioning from state \u0027Stable\u0027 to state \u0027Committing\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "startState": "Stable",
+      "endState": "Committing",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(4)": 8,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) exits state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Stable",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "AdaptationCoordinator(4)": 9,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) enters state \u0027Committing\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Committing",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(4)": 10,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "AdaptationCoordinator(4) announced event eNormCommitted with payload \u003Cver:1, closed:(\u003C0\u003E), \u003E.",
+      "id": "AdaptationCoordinator(4)",
+      "event": "eNormCommitted",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "clock": {
+        "AdaptationCoordinator(4)": 11,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "NoStaleAdmission is processing event \u0027eNormCommitted with payload (\u003Cver:1, closed:(\u003C0\u003E), \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eNormCommitted",
+      "state": "Watching",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "sender": "AdaptationCoordinator(4)",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 4,
+        "ResourceGuard(3)": 7,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "ManufacturingSystem(2)": 4,
+        "AdaptationCoordinator(4)": 11,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "AdaptationCompletes is processing event \u0027eNormCommitted with payload (\u003Cver:1, closed:(\u003C0\u003E), \u003E)\u0027 in state \u0027InProgress\u0027.",
+      "event": "eNormCommitted",
+      "state": "InProgress",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "sender": "AdaptationCoordinator(4)",
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 6,
+        "AdaptationCoordinator(4)": 11,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes exits hot state \u0027InProgress\u0027.",
+      "state": "InProgress",
+      "payload": "null",
+      "isEntry": false,
+      "isInHotState": true,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 7,
+        "AdaptationCoordinator(4)": 11,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes enters cold state \u0027Idle\u0027.",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": false,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 8,
+        "AdaptationCoordinator(4)": 11,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "LockoutBeforeEntry is processing event \u0027eNormCommitted with payload (\u003Cver:1, closed:(\u003C0\u003E), \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eNormCommitted",
+      "state": "Watching",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "sender": "AdaptationCoordinator(4)",
+      "monitor": "LockoutBeforeEntry",
+      "clock": {
+        "LockoutBeforeEntry": 3,
+        "AdaptationCoordinator(4)": 11,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(3)\u0027 in state \u0027Open\u0027 sent event \u0027eAccessDenied with payload (0)\u0027 to \u0027CellAgent(7)\u0027.",
+      "event": "eAccessDenied",
+      "state": "Open",
+      "payload": 0,
+      "sender": "ResourceGuard(3)",
+      "target": "CellAgent(7)",
+      "isTargetHalted": false,
+      "clock": {
+        "ResourceGuard(3)": 10,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 8,
+        "ManufacturingSystem(2)": 5,
+        "CellAgent(7)": 10
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027AdaptationCoordinator(4)\u0027 in state \u0027Committing\u0027 sent event \u0027eNormCommit with payload (\u003Cver:1, closed:(\u003C0\u003E), \u003E)\u0027 to \u0027ResourceGuard(3)\u0027.",
+      "event": "eNormCommit",
+      "state": "Committing",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "sender": "AdaptationCoordinator(4)",
+      "target": "ResourceGuard(3)",
+      "isTargetHalted": false,
+      "clock": {
+        "AdaptationCoordinator(4)": 12,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027AdaptationCoordinator(4)\u0027 in state \u0027Committing\u0027 sent event \u0027eAdaptationDone with payload (\u003Cver:1, closed:(\u003C0\u003E), \u003E)\u0027 to \u0027HumanRequester(9)\u0027.",
+      "event": "eAdaptationDone",
+      "state": "Committing",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "sender": "AdaptationCoordinator(4)",
+      "target": "HumanRequester(9)",
+      "isTargetHalted": false,
+      "clock": {
+        "AdaptationCoordinator(4)": 13,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "AdaptationCoordinator(4) is transitioning from state \u0027Committing\u0027 to state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "startState": "Committing",
+      "endState": "Stable",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(4)": 14,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) exits state \u0027Committing\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Committing",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "AdaptationCoordinator(4)": 15,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(4) enters state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(4)",
+      "state": "Stable",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(4)": 16,
+        "HumanRequester(9)": 8
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027HumanRequester(9)\u0027 dequeued event \u0027eAdaptationDone with payload (\u003Cver:1, closed:(\u003C0\u003E), \u003E)\u0027 in state \u0027WaitingForLock\u0027.",
+      "id": "HumanRequester(9)",
+      "event": "eAdaptationDone",
+      "state": "WaitingForLock",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          0
+        ]
+      },
+      "clock": {
+        "HumanRequester(9)": 12,
+        "AdaptationCoordinator(4)": 13
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "HumanRequester(9) announced event eHumanEntered with payload 0.",
+      "id": "HumanRequester(9)",
+      "event": "eHumanEntered",
+      "payload": 0,
+      "clock": {
+        "HumanRequester(9)": 13,
+        "AdaptationCoordinator(4)": 13
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "RegimentationSafety is processing event \u0027eHumanEntered with payload (0)\u0027 in state \u0027Watching\u0027.",
+      "event": "eHumanEntered",
+      "state": "Watching",
+      "payload": 0,
+      "sender": "HumanRequester(9)",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 8,
+        "ManufacturingSystem(2)": 4,
+        "ResourceGuard(3)": 7,
+        "CellAgent(6)": 10,
+        "ObligationManager(5)": 5,
+        "HumanRequester(9)": 13,
+        "AdaptationCoordinator(4)": 13
+      }
+    }
+  },
+  {
+    "type": "AssertionFailure",
+    "details": {
+      "log": "Assertion Failed: ..\\Common\\Specs.p:32:7 human entered resource 0 while agents were inside",
+      "error": "Assertion Failed: ..\\Common\\Specs.p:32:7 human entered resource 0 while agents were inside",
+      "payload": "null"
+    }
+  },
+  {
+    "type": "StrategyDescription",
+    "details": {
+      "log": "Found bug using \u0027random\u0027 strategy.",
+      "payload": "null",
+      "strategy": "random",
+      "strategyDescription": "random[seed \u002742\u0027]"
+    }
+  }
+]

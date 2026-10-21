@@ -1,0 +1,238 @@
+Total event coverage: 92.7%
+===========================
+Monitor: AdaptationCompletes
+============================
+Event coverage: 100.0%
+
+	State: Idle
+		State event coverage: 100.0%
+		Events received: eAdaptationStarted
+		Next states: InProgress[hot]
+
+	State: InProgress
+		State event coverage: 100.0%
+		Events received: eNormCommitted
+		Next states: Idle[cold]
+
+StateMachine: AdaptationCoordinator
+===================================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Next states: Stable
+
+	State: Stable
+		State event coverage: 100.0%
+		Events received: eAdaptationTriggered
+		Previous states: Committing, Init
+		Next states: Preparing
+
+	State: Preparing
+		State event coverage: 100.0%
+		Events received: eNormPrepareAck
+		Events sent: eNormPrepare
+		Previous states: Stable
+		Next states: Committing
+
+	State: Committing
+		State has no expected events, so coverage is 100%
+		Events sent: eAdaptationDone, eNormCommit
+		Previous states: Preparing
+		Next states: Stable
+
+StateMachine: Clock
+===================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Next states: Ticking
+
+	State: Ticking
+		State event coverage: 100.0%
+		Events received: eContinue
+		Events sent: eContinue, eTick
+		Previous states: Init, Ticking
+		Next states: Stopped, Ticking
+
+	State: Stopped
+		State has no expected events, so coverage is 100%
+		Previous states: Ticking
+
+Monitor: EveryObligationResolved
+================================
+Event coverage: 66.7%
+
+	State: NoneOpen
+		State event coverage: 33.3%
+		Events received: eObligationCreated
+		Events not covered: eObligationFulfilled, eSanctionApplied
+		Next states: NoneOpen[cold], SomeOpen[hot]
+
+	State: SomeOpen
+		State event coverage: 100.0%
+		Events received: eObligationCreated, eObligationFulfilled, eSanctionApplied
+		Next states: NoneOpen[cold], SomeOpen[hot]
+
+StateMachine: FleetSystem
+=========================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Events sent: eAssignTask
+
+StateMachine: HumanRequester
+============================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Events sent: eContinue
+		Next states: Outside
+
+	State: Outside
+		State event coverage: 100.0%
+		Events received: eContinue
+		Events sent: eAdaptationTriggered
+		Previous states: Init
+		Next states: WaitingForLock
+
+	State: WaitingForLock
+		State event coverage: 100.0%
+		Events received: eAdaptationDone
+		Events sent: eContinue
+		Previous states: Outside
+		Next states: Inside
+
+	State: Inside
+		State event coverage: 100.0%
+		Events received: eContinue
+		Events sent: eAdaptationTriggered
+		Previous states: WaitingForLock
+		Next states: WaitingForUnlock
+
+	State: WaitingForUnlock
+		State event coverage: 100.0%
+		Events received: eAdaptationDone
+		Previous states: Inside
+		Next states: Done
+
+	State: Done
+		State has no expected events, so coverage is 100%
+		Previous states: WaitingForUnlock
+
+Monitor: LockoutBeforeEntry
+===========================
+Event coverage: 100.0%
+
+	State: Watching
+		State event coverage: 100.0%
+		Events received: eHumanEntered, eNormCommitted
+		Previous states: Watching
+		Next states: Watching
+
+Monitor: NoDoubleOutcome
+========================
+Event coverage: 100.0%
+
+	State: Watching
+		State event coverage: 100.0%
+		Events received: eObligationFulfilled, eSanctionApplied
+		Previous states: Watching
+		Next states: Watching
+
+Monitor: NoStaleAdmission
+=========================
+Event coverage: 100.0%
+
+	State: Watching
+		State event coverage: 100.0%
+		Events received: eNormCommitted, eResourceEntered
+		Previous states: Watching
+		Next states: Watching
+
+StateMachine: ObligationManager
+===============================
+Event coverage: 100.0%
+
+	State: Active
+		State event coverage: 100.0%
+		Events received: eAssignTask, eReportFulfilled, eTick
+		Events sent: eObligationNotice, eSanction
+
+Monitor: RegimentationSafety
+============================
+Event coverage: 100.0%
+
+	State: Init
+		State event coverage: 100.0%
+		Events received: eMonitorConfig
+		Previous states: Init
+		Next states: Init, Watching
+
+	State: Watching
+		State event coverage: 100.0%
+		Events received: eHumanEntered, eHumanLeft, eResourceEntered, eResourceLeft
+		Previous states: Init, Watching
+		Next states: Watching
+
+StateMachine: ResourceGuard
+===========================
+Event coverage: 88.9%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Next states: Open
+
+	State: Open
+		State event coverage: 100.0%
+		Events received: eAccessRequest, eNormCommit, eNormPrepare, eRelease
+		Events sent: eAccessDenied, eAccessGranted, eNormPrepareAck
+		Previous states: AwaitCommit, Init
+		Next states: Draining
+
+	State: Draining
+		State event coverage: 100.0%
+		Events received: eAccessRequest, eRelease
+		Events sent: eAccessDenied, eNormPrepareAck
+		Previous states: Draining, Open
+		Next states: AwaitCommit, Draining
+
+	State: AwaitCommit
+		State event coverage: 66.7%
+		Events received: eAccessRequest, eNormCommit
+		Events sent: eAccessDenied
+		Events not covered: eRelease
+		Previous states: Draining
+		Next states: Open
+
+StateMachine: Robot
+===================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+		Next states: Idle
+
+	State: Idle
+		State event coverage: 100.0%
+		Events received: eObligationNotice
+		Previous states: Init, Moving
+		Next states: Moving
+
+	State: Moving
+		State event coverage: 100.0%
+		Events received: eAccessDenied, eAccessGranted
+		Events sent: eAccessRequest, eRelease, eReportFulfilled
+		Previous states: Idle, Moving
+		Next states: Idle, Moving
+
+StateMachine: TestFleetTwoPhase
+===============================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+

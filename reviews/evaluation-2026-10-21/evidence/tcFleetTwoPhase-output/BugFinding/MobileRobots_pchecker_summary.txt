@@ -1,0 +1,5 @@
+bugs:0
+schedules:3442
+max_depth:186
+time_seconds:30.02
+memory_max_mb:0.01

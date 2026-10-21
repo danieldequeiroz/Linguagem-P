@@ -1,0 +1,19 @@
+Total event coverage: 100.0%
+============================
+StateMachine: ProbeSanctionThenAbandon
+======================================
+Event coverage: 100.0%
+
+	State: Init
+		State has no expected events, so coverage is 100%
+
+Monitor: SanctionsReflectMisconduct
+===================================
+Event coverage: 100.0%
+
+	State: Watching
+		State event coverage: 100.0%
+		Events received: eSanctionApplied, eTaskAbandoned
+		Previous states: Watching
+		Next states: Watching
+

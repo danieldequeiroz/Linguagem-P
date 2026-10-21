@@ -1,0 +1,18 @@
+<TestLog> Running test 'tcAbandonThenSanction'.
+<CreateLog> PImplementation.SanctionsReflectMisconduct was created.
+<MonitorLog> PImplementation.SanctionsReflectMisconduct enters state 'Watching'.
+<CreateLog> ProbeAbandonThenSanction(1) was created by task '2'.
+<StateLog> ProbeAbandonThenSanction(1) enters state 'Init'.
+<AnnounceLog> 'ProbeAbandonThenSanction(1)' announced event 'eTaskAbandoned' with payload <id:0, agent:1, where:1, >.
+<MonitorLog> SanctionsReflectMisconduct is processing event 'eTaskAbandoned with payload (<id:0, agent:1, where:1, >)' in state 'Watching'.
+<AnnounceLog> 'ProbeAbandonThenSanction(1)' announced event 'eSanctionApplied' with payload <id:0, agent:1, >.
+<MonitorLog> SanctionsReflectMisconduct is processing event 'eSanctionApplied with payload (<id:0, agent:1, >)' in state 'Watching'.
+<ErrorLog> Assertion Failed: ..\..\Projects\ProjectRobot2026\MobileRobots\PSpec\FleetSpecs.p:39:7 obligation 0 of robot 1 sanctioned after the robot abandoned it following repeated access denials
+<StrategyLog> Found bug using 'random' strategy.
+<StrategyLog> Checking statistics:
+<StrategyLog> Found 1 bug.
+<StrategyLog> Scheduling statistics:
+<StrategyLog> Explored 1 schedule
+<StrategyLog> Explored 1 timeline
+<StrategyLog> Found 100.00% buggy schedules.
+<StrategyLog> Number of scheduling points in terminating schedules: 2 (min), 2 (avg), 2 (max).

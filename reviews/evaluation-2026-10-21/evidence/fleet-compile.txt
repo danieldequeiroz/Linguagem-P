@@ -1,0 +1,37 @@
+.. Searching for a P project file *.pproj locally in the current folder
+.. Found P project file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\MobileRobots.pproj
+----------------------------------------
+==== Loading project file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\MobileRobots.pproj
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\AdaptationCoordinator.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\Clock.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\HumanRequester.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\MonitorEvents.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\ObligationManager.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\ResourceGuard.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\RuntimeSpecs.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\Specs.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\Common\Types.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\PSrc\Robot.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\PSpec\FleetSpecs.p
+....... includes p file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\PTst\TestScript.p
+----------------------------------------
+Parsing ...
+Type checking ...
+----------------------------------------
+Code generation for PChecker...
+Generated MobileRobots.cs.
+Compiling generated code...
+  Determining projects to restore...
+  Restored C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\PGenerated\PChecker\MobileRobots.csproj (in 59 ms).
+  MobileRobots -> C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\PGenerated\PChecker\net8.0\MobileRobots.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.97
+
+
+----------------------------------------
+Compilation succeeded.
+~~ [PTool]: Thanks for using P! ~~

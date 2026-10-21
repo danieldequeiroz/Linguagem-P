@@ -104,3 +104,27 @@ spec AdaptationCompletes observes eAdaptationStarted, eNormCommitted {
     on eNormCommitted goto Idle;
   }
 }
+
+// L3 Every adaptation that starts eventually terminates: it is committed or
+//    explicitly aborted (experiment E9). L2 (AdaptationCompletes) remains the
+//    stronger requirement that the change is installed. Versions are correlated,
+//    so a commit or abort of another version is reported.
+spec AdaptationTerminates observes eAdaptationStarted, eNormCommitted, eAdaptationAborted {
+  var pending: int;
+
+  start cold state Idle {
+    on eAdaptationStarted do (v: int) { pending = v; goto InProgress; }
+    ignore eNormCommitted, eAdaptationAborted;
+  }
+
+  hot state InProgress {
+    on eNormCommitted do (n: tNormSet) {
+      assert n.ver == pending, format("committed v{0} while v{1} was pending", n.ver, pending);
+      goto Idle;
+    }
+    on eAdaptationAborted do (v: int) {
+      assert v == pending, format("aborted v{0} while v{1} was pending", v, pending);
+      goto Idle;
+    }
+  }
+}

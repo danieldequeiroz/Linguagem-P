@@ -1,0 +1,110 @@
+{
+  "fleet": {
+    "samples": [
+      {
+        "policy": "twophase",
+        "seed": 1,
+        "ticks": 60,
+        "lines": 197,
+        "matches_after_newline_normalization": true,
+        "verdicts": {
+          "RegimentationSafety": null,
+          "NoStaleAdmission": null,
+          "NoDoubleOutcome": null,
+          "ObligationDeadlineRespected": null,
+          "AdaptationBoundedTime": null,
+          "LockoutBeforeEntry": null,
+          "SanctionsReflectMisconduct": "obligation 0 of robot 2 sanctioned after it was abandoned (tick 8)"
+        }
+      },
+      {
+        "policy": "naive",
+        "seed": 2,
+        "ticks": 60,
+        "lines": 215,
+        "matches_after_newline_normalization": true,
+        "verdicts": {
+          "RegimentationSafety": "agent 1 admitted to resource 1 with a human inside (tick 3)",
+          "NoStaleAdmission": "agent 1 admitted to resource 1 closed by v1, guard on v0 (tick 3)",
+          "NoDoubleOutcome": null,
+          "ObligationDeadlineRespected": null,
+          "AdaptationBoundedTime": null,
+          "LockoutBeforeEntry": null,
+          "SanctionsReflectMisconduct": "obligation 0 of robot 2 sanctioned after it was abandoned (tick 8)"
+        }
+      }
+    ],
+    "two_phase_500_seeds": {
+      "ticks": 60,
+      "seeds": "0..499",
+      "failing_runs": {
+        "SanctionsReflectMisconduct": 500
+      },
+      "first_examples": {
+        "SanctionsReflectMisconduct": {
+          "seed": 0,
+          "message": "obligation 2 of robot 1 sanctioned after it was abandoned (tick 14)"
+        }
+      },
+      "completed_adaptations": 5347,
+      "maximum_adaptation_ticks": 3,
+      "adaptations_over_5_ticks": 0,
+      "sanctions": 4479,
+      "flags_with_legacy_agent_matching": 4255,
+      "flags_with_obligation_matching": 3468
+    }
+  },
+  "cell": {
+    "samples": [
+      {
+        "policy": "twophase",
+        "seed": 1,
+        "ticks": 60,
+        "lines": 180,
+        "matches_after_newline_normalization": true,
+        "verdicts": {
+          "RegimentationSafety": null,
+          "NoStaleAdmission": null,
+          "NoDoubleOutcome": null,
+          "ObligationDeadlineRespected": null,
+          "AdaptationBoundedTime": null,
+          "LockoutBeforeEntry": null
+        }
+      },
+      {
+        "policy": "naive",
+        "seed": 2,
+        "ticks": 60,
+        "lines": 200,
+        "matches_after_newline_normalization": true,
+        "verdicts": {
+          "RegimentationSafety": "human entered resource 0 while agents were inside (tick 3)",
+          "NoStaleAdmission": "agent 2 admitted to resource 0 closed by v1, guard on v0 (tick 3)",
+          "NoDoubleOutcome": null,
+          "ObligationDeadlineRespected": null,
+          "AdaptationBoundedTime": null,
+          "LockoutBeforeEntry": null
+        }
+      }
+    ],
+    "two_phase_500_seeds": {
+      "ticks": 60,
+      "seeds": "0..499",
+      "failing_runs": {
+        "AdaptationBoundedTime": 9
+      },
+      "first_examples": {
+        "AdaptationBoundedTime": {
+          "seed": 64,
+          "message": "adaptation v3 not committed by tick 26"
+        }
+      },
+      "completed_adaptations": 5180,
+      "maximum_adaptation_ticks": 8,
+      "adaptations_over_5_ticks": 9,
+      "sanctions": 4313,
+      "flags_with_legacy_agent_matching": 3543,
+      "flags_with_obligation_matching": 2369
+    }
+  }
+}

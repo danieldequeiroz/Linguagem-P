@@ -1,0 +1,30 @@
+.. Searching for a P project file *.pproj locally in the current folder
+.. Found P project file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectRobot2026\MobileRobots\MobileRobots.pproj
+.. Searching for a P compiled file locally in folder ./PGenerated/
+.. Found a P compiled file: ./PGenerated/PChecker\net8.0\MobileRobots.dll
+.. Checking ./PGenerated/PChecker\net8.0\MobileRobots.dll
+.. Running test cases with prefix 'tcFleetSanctionFairness':
+tcFleetSanctionFairness
+.. Test case :: tcFleetSanctionFairness
+... Checker is using 'random' strategy (seed:42).
+..... Schedule #1
+Checker found a bug.
+... Emitting traces:
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcFleetSanctionFairness-output\BugFinding\MobileRobots_0_0.txt
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcFleetSanctionFairness-output\BugFinding\MobileRobots_0_0.trace.json
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcFleetSanctionFairness-output\BugFinding\MobileRobots_0_0.schedule
+... Elapsed 0.15 sec and used 0 GB.
+... Emitting coverage report:
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcFleetSanctionFairness-output\BugFinding\MobileRobots.coverage.txt
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcFleetSanctionFairness-output\BugFinding\MobileRobots.sci
+... Checking statistics:
+..... Found 1 bug.
+... Scheduling statistics:
+..... Explored 1 schedule
+..... Explored 1 timeline
+..... Found 100.00% buggy schedules.
+..... Number of scheduling points in terminating schedules: 138 (min), 138 (avg), 138 (max).
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcFleetSanctionFairness-output\BugFinding\MobileRobots_pchecker_summary.txt
+... Elapsed 0.2146548 sec.
+. Done
+~~ [PTool]: Thanks for using P! ~~
