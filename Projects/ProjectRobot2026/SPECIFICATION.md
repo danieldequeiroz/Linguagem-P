@@ -31,31 +31,66 @@ The objective in this project is to build and verify the regulation layer of a s
 
 **Why a multi-agent system.** The corridor could in principle be controlled by a single centralized program, but several features of the problem favor a multi-agent design. First, each robot plans its own route, pursues its own deliveries and decides locally how to react to a denial, which corresponds to the notion of an autonomous agent; in practice, robots of a warehouse fleet are often supplied by different vendors and governed by their own software ([Section 2](#2-background-multi-agent-systems), [Section 2.5](#25-multi-robot-coordination)). Second, the system is open: robots may be added, replaced or upgraded, and a picker enters the corridor as a further participant with goals of their own, so the system cannot be designed as a closed program whose components are all known in advance. Third, admission is inherently distributed: each zone has its own controller, which decides on local information, while deliveries, deadlines and closures are commitments that span the whole corridor; organizations and norms are the abstractions that a multi-agent system provides for expressing such coordination ([Section 2.4](#24-organization-moise), [Section 3](#3-background-norms-and-normative-mas)). Fourth, a multi-agent architecture separates concerns: the robots decide what to do, the environment enforces physical constraints through artifacts such as the zone controllers ([Section 2.2](#22-environment-artifacts)), and the fleet manager states obligations and sanctions their violation, so that each part can be modified without rewriting the others. The price of this autonomy is that compliance cannot be assumed, which is the reason why the regulation layer described below is required.
 
-**The regulation layer.** In a normative multi-agent system, the agents are autonomous: each decides its own actions and may, deliberately or through a fault, fail to comply with the rules of the corridor. The *regulation layer* is the part of the system that states these rules and makes them effective without controlling the agents' decisions ([Figure 1](#figure-1)). It comprises four capabilities ([Section 4.1](#41-the-capabilities-in-detail)): it *represents* the norms in force as a versioned norm set; it *monitors* entries, departures, delivery reports and deadlines in order to detect violations; it *enforces* the norms, either by regimentation, when an environment artifact such as a zone controller prevents a prohibited action, or by sanctioning, when the fleet manager reacts after a violation ([Section 3.8](#38-choosing-an-enforcement-mechanism)); and it *adapts* the norm set while the fleet is running, as in the closure of zone 1 before the picker enters ([Section 4](#4-background-regulation-management-in-mas)).
-
-**Why the regulation layer is needed.** Four properties of the corridor make an explicit and verified regulation layer necessary. First, the robots cannot be assumed to comply, so safety cannot rest on the correctness of each robot; it must rest on rules that the system itself enforces. Second, the robots share a physical space with people, so a single erroneous admission can injure the picker. Third, the rules change during operation, and because each zone controller receives the new norm set at a different time, the controllers may temporarily disagree on the rules in force. Fourth, the regulation itself can cause a robot to miss a deadline, by closing a zone or by leaving two robots blocked head-on, so sanctions must be checked for fairness ([Section 3.9](#39-conditions-for-a-fair-sanction)). The regulation layer is therefore the object of design and verification in this project, and its properties must hold irrespective of how the robots behave, both in the model and in the running fleet.
+[Figure 1](#figure-1) shows the corridor and the regulation layer that controls access to it; [Figure 3](#figure-3) shows the four stages in which zone 1 is closed safely, and [Figure 4](#figure-4) contrasts this sequence with a naive adaptation, in which the picker and a robot can occupy zone 1 together. Two robots traverse a one-lane corridor of three zones, each admitting at most one robot, in opposite directions, so that their paths meet head-on; a human picker occasionally requires access to zone 1. Each zone is regulated by its own zone controller, which admits or denies robots according to the version of the norm set that it currently holds, while an adaptation coordinator closes zone 1 by distributing a new norm set. Because the controllers receive the new version at different times, there is a transition window in which they disagree on the norms in force; in addition, a robot that is repeatedly denied access abandons its delivery, parks in a side bay, and is subsequently sanctioned by the fleet manager for the missed deadline. Three questions must be answered: whether a person and a robot can ever occupy zone 1 together while the norms change (safety), whether every obligation and every closure is eventually resolved (liveness), and whether robots are sanctioned for delays caused by the regulation or by traffic rather than by their own conduct (sanction fairness).
 
 <a id="figure-1"></a>
 
-![Figure 1 · the regulation layer between the robots and the corridor](figures/figure1.svg)
+![Figure 1 · the robot fleet and its regulation layer](figures/figure1.svg)
 
-*Figure 1 · the regulation layer between the robots and the corridor*
+*Figure 1 · the robot fleet and its regulation layer*
 
-[Figure 2](#figure-2) shows the corridor and the regulation layer that controls access to it; [Figure 3](#figure-3) shows the four stages in which zone 1 is closed safely, and [Figure 4](#figure-4) contrasts this sequence with a naive adaptation, in which the picker and a robot can occupy zone 1 together. Two robots traverse a one-lane corridor of three zones, each admitting at most one robot, in opposite directions, so that their paths meet head-on; a human picker occasionally requires access to zone 1. Each zone is regulated by its own zone controller, which admits or denies robots according to the version of the norm set that it currently holds, while an adaptation coordinator closes zone 1 by distributing a new norm set. Because the controllers receive the new version at different times, there is a transition window in which they disagree on the norms in force; in addition, a robot that is repeatedly denied access abandons its delivery, parks in a side bay, and is subsequently sanctioned by the fleet manager for the missed deadline. Three questions must be answered: whether a person and a robot can ever occupy zone 1 together while the norms change (safety), whether every obligation and every closure is eventually resolved (liveness), and whether robots are sanctioned for delays caused by the regulation or by traffic rather than by their own conduct (sanction fairness).
+**Reading Figure 1.** The left panel shows the physical system: a one-lane corridor of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot R1 travels 0 → 1 → 2 and robot R2 travels 2 → 1 → 0, so their paths meet head-on in zone 1, which the picker also needs to enter. The right panel shows the regulation layer: a single adaptation coordinator, which changes the norm set when the picker requests the closure of zone 1, and a single fleet manager, which assigns deliveries with deadlines and sanctions missed ones. Admission is therefore distributed, whereas adaptation and sanctioning are centralized. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the robots to `Robot`, each zone controller to one `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the fleet manager to `ObligationManager`, and the picker to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: the picker enters zone 1 only after a committed closure and only when the zone is empty. Physical faults, such as a failed light curtain or a robot that ignores its controller, lie outside the model.
 
-<a id="figure-2"></a>
-
-![Figure 2 · the robot fleet and its regulation layer](figures/figure2.svg)
-
-*Figure 2 · the robot fleet and its regulation layer*
-
-**Reading Figure 2.** The left panel shows the physical system: a one-lane corridor of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot R1 travels 0 → 1 → 2 and robot R2 travels 2 → 1 → 0, so their paths meet head-on in zone 1, which the picker also needs to enter. The right panel shows the regulation layer: a single adaptation coordinator, which changes the norm set when the picker requests the closure of zone 1, and a single fleet manager, which assigns deliveries with deadlines and sanctions missed ones. Admission is therefore distributed, whereas adaptation and sanctioning are centralized. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the robots to `Robot`, each zone controller to one `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the fleet manager to `ObligationManager`, and the picker to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: the picker enters zone 1 only after a committed closure and only when the zone is empty. Physical faults, such as a failed light curtain or a robot that ignores its controller, lie outside the model.
-
-The following must be done with respect to Figure 2:
+The following must be done with respect to Figure 1:
 
 - map each element to its P machine and to the events that the machine announces ([Section 7.1](#71-model-components)), and include the mapping in deliverable D1;
 - place the fleet in the unified-view grid ([Figure 15](#figure-15)) and justify which responsibilities are distributed and which are centralized;
 - classify each norm as regimented or enforced by sanctions ([Section 3.8](#38-choosing-an-enforcement-mechanism)), and restate the requirement in the note as the safety properties S1 and S2 ([Section 7.2](#72-property-catalog)).
+
+**The regulation layer.** In a normative multi-agent system, the agents are autonomous: each decides its own actions and may, deliberately or through a fault, fail to comply with the rules of the corridor. The *regulation layer* is the part of the system that states these rules and makes them effective without controlling the agents' decisions ([Figure 2](#figure-2)). It comprises four capabilities ([Section 4.1](#41-the-capabilities-in-detail)): it *represents* the norms in force as a versioned norm set; it *monitors* entries, departures, delivery reports and deadlines in order to detect violations; it *enforces* the norms, either by regimentation, when an environment artifact such as a zone controller prevents a prohibited action, or by sanctioning, when the fleet manager reacts after a violation ([Section 3.8](#38-choosing-an-enforcement-mechanism)); and it *adapts* the norm set while the fleet is running, as in the closure of zone 1 before the picker enters ([Section 4](#4-background-regulation-management-in-mas)).
+
+**Why the regulation layer is needed.** Four properties of the corridor make an explicit and verified regulation layer necessary. First, the robots cannot be assumed to comply, so safety cannot rest on the correctness of each robot; it must rest on rules that the system itself enforces. Second, the robots share a physical space with people, so a single erroneous admission can injure the picker. Third, the rules change during operation, and because each zone controller receives the new norm set at a different time, the controllers may temporarily disagree on the rules in force. Fourth, the regulation itself can cause a robot to miss a deadline, by closing a zone or by leaving two robots blocked head-on, so sanctions must be checked for fairness ([Section 3.9](#39-conditions-for-a-fair-sanction)). The regulation layer is therefore the object of design and verification in this project, and its properties must hold for every behavior of the robots that the model admits, under its stated assumptions; in the running fleet, PObserve can check only the executions that are logged.
+
+<a id="figure-2"></a>
+
+![Figure 2 · the regulation layer between the robots and the corridor](figures/figure2.svg)
+
+*Figure 2 · the regulation layer between the robots and the corridor*
+
+**What the P model represents.** The domain agents are the robots R1 and R2. Each has its own deliveries and its own controller. P represents their externally visible behavior with state machines and abstracts some of their choices with nondeterminism (`$`); it implements neither a BDI interpreter nor planning or learning. The other P machines model the environment and the organization and are not agents: a P machine is a modeling construct, not automatically an agent. Jason, Moise, CArtAgO, NPL and ROS 2 appear in this specification as background and as possible deployment platforms; they do not run inside the P model. The tests use a fixed configuration of two agents, so openness motivates the architecture but is not verified by the baseline. A multi-agent system may contain centralized services: *multi-agent*, *distributed*, *open* and *norm-aware* are different properties.
+
+| Domain entity | Goal or decision | P machine | Omitted in the model |
+| --- | --- | --- | --- |
+| Robots R1, R2 (agents) | deliver along a fixed path; request the next zone; park after three denials | `Robot` | route planning, BDI reasoning, learning |
+| Zone controllers 0–2 (environment) | admit or deny entry to one zone | `ResourceGuard`, one per zone | sensors, physical faults |
+| Fleet manager (organization) | assign deliveries with deadlines; sanction missed ones | `ObligationManager` | concrete penalties, role negotiation |
+| Adaptation coordinator | close or reopen zone 1 by prepare, drain and commit | `AdaptationCoordinator` | role checks on requests |
+| Picker (person) | request the closure; enter after the commit | `HumanRequester` | identity and presence sensing |
+| Clock (infrastructure) | advance logical time | `Clock` | real time |
+
+**From a norm to a monitor: a worked example.** One norm of the fleet can be followed through every layer of the project:
+
+| Step | Closure example |
+| --- | --- |
+| Norm | an agent must not enter resource r while the committed norm set closes r |
+| Instance | r = zone 1 |
+| Representation | `tNormSet.ver` and `tNormSet.closed` |
+| Enforcement | `ResourceGuard` refuses the access request (regimentation) |
+| Adaptation | `AdaptationCoordinator` runs prepare, drain and commit |
+| Observable evidence | the events `eNormCommitted` and `eResourceEntered` |
+| Verification | the monitor `NoStaleAdmission` (S2) rejects an entry to a committed-closed resource |
+| Limit | robots use the admission interface; physical motion that bypasses it is excluded |
+
+The guard prevents the action; the monitor checks the behavior. A monitor neither admits nor refuses anything, and it does not make the physical system safe by itself. For deadlines, the agent's obligation to report on time is distinct from the organization's resolution of the record: a sanction resolves the record, which satisfies L1, but it does not make the delivery successful or turn a violation into compliance.
+
+**Implemented and conceptual features.** Several mechanisms described in the background sections are not implemented by the starter kit:
+
+- Sanctions are abstract events (`eSanctionApplied`); the agents ignore them, and the model implements no fines, priority reductions or learning from penalties. The effects listed in [Section 3.7](#37-sanctions) are possible implementations.
+- The coordinator changes only which resources are closed, and increments the version; it does not revise deadlines, sanctions or other norms.
+- The coordinator does not check who requests a closure; role-based authorization ([Section 4.4](#44-adaptation-as-a-control-loop)) is a conceptual extension.
+- The inactivation of an obligation ([Figure 9](#figure-9)) is an extension: no event or handler implements it.
+- Count-as rules ([Section 3.6](#36-constitutive-rules-situated-artificial-institutions)), such as a badge swipe counting as entry, are modeling choices; a presence event in a log requires evidence that a person is actually inside.
+- P specification monitors observe and assert; they enforce nothing in a deployed system. The JaCaMo components of [Figure 5](#figure-5) are a deployment illustration.
 
 <a id="figure-3"></a>
 
@@ -307,7 +342,7 @@ Norms are usually *conditional*: they comprise an activation condition, a deonti
 | Mechanism | Principle | Guarantee | Cost | In this project |
 | --- | --- | --- | --- | --- |
 | Regimentation | the violation is made impossible: the environment refuses the action | the norm holds invariantly | removes autonomy; applicable only to actions controlled by the environment | each zone controller refuses entry to a closed or occupied zone |
-| Sanctioning (regulation) | the violation is permitted, detected and followed by a sanction | the norm holds only to the extent that sanctions deter violations | requires monitoring and a fair sanction policy | a missed delivery deadline results in a sanction |
+| Sanctioning | the violation remains operationally possible, although the action stays forbidden, and is detected and followed by a sanction | the norm holds only to the extent that sanctions deter violations | requires monitoring and a fair sanction policy | a missed delivery deadline results in a sanction |
 
 Safety-critical norms (people and robots in the same zone) should be regimented, whereas performance norms (deadlines) are normally sanctioned. [Alechina, Bulling, Dastani and Logan (AAMAS 2015)](https://nottingham-repository.worktribe.com/output/752739) show that not every norm can be enforced by a guard, which is why the distinction is significant.
 
@@ -336,7 +371,7 @@ A conditional norm can be represented as a tuple of six components. The followin
 | Modality | obligation, prohibition or permission | obligation |
 | Content | the state or action concerned | d is reported as delivered |
 | Deadline | when the content must hold | tick of assignment + 5 |
-| Sanction | what follows a violation (or reward for compliance) | a penalty recorded against the robot |
+| Sanction | what follows a violation (or reward for compliance) | a penalty recorded against the robot (in the baseline model, an abstract sanction event) |
 
 The norm is a template: each assignment creates a new **norm instance** with its own deadline. The `ObligationManager` described in [Section 7](#7-technical-specification) maintains one record per instance.
 
@@ -402,7 +437,7 @@ The reduction also clarifies *whose* behavior a given property specifies ([Figur
 - **For the robots, norms are deontic.** A robot may miss a deadline. The specification must therefore not reject such a trace; instead, it must determine the consequences. Requiring G ¬V would be inappropriate, because it would convert every norm into a regimented constraint and eliminate the autonomy that characterizes an open MAS.
 - **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit a robot to a zone that the committed norm set closes, and must complete every adaptation. These are G and F properties that must hold on every run; a run that violates them reveals a defect.
 
-Accordingly, the P monitors never assert that robots behave correctly. They assert that the *regulation* behaves correctly, irrespective of the robots' behavior: S1 and S2 address regimented norms, which the regulator enforces by blocking; S3 concerns the integrity of the organization's records; R3 addresses a procedural norm that can only be monitored; L1 and R1 address sanctioned norms, to which the regulator must respond; L2, L3 and R2 address the adaptation itself, which must terminate by a commit or an explicit abort (L3) and, unless aborted, be installed (L2) within a bound (R2); and F1 addresses the sanction fairness of the responses. Table 7.2 states the enforcement mechanism of each property.
+Accordingly, the P monitors never assert that robots behave correctly. They assert that the *regulation* behaves correctly for every robot behavior that the model admits: S1 and S2 address regimented norms, which the regulator enforces by blocking; S3 concerns the integrity of the organization's records; R3 addresses a procedural norm that can only be monitored; L1 and R1 address sanctioned norms, to which the regulator must respond; L2, L3 and R2 address the adaptation itself, which must terminate by a commit or an explicit abort (L3) and, unless aborted, be installed (L2) within a bound (R2); and F1 addresses the sanction fairness of the responses. Table 7.2 states the enforcement mechanism of each property.
 
 #### Kinds of norms as temporal patterns
 
@@ -414,7 +449,7 @@ Once violations are represented as events, each kind of norm corresponds to a ch
 | Maintenance obligation | keep zone 1 free of robots while it is closed | a robot is admitted while it is closed | regimented: G(closed → ¬admitted), S2 |
 | Prohibition | no robot in a zone with the picker | both are in the zone | regimented: G ¬(robot in zone ∧ picker in zone), S1 |
 | Contrary-to-duty obligation | if a robot is in a zone with the picker, it must stop | the prohibition above is violated | G(V → F≤k protective stop), a bounded response on the *reaction*; not modeled in the starter kit |
-| Permission | a robot may enter an open, free zone | never: a permission cannot be violated | AG(request ∧ open ∧ free → EF granted): branching, not a trace property |
+| Permission | a robot may enter an open, free zone | never: a permission cannot be violated | operational availability associated with the permission, not the permission itself: AG(request ∧ open ∧ free → EF granted), a branching property; entry may be permitted while another robot occupies the zone |
 
 Two rows of the table require further discussion.
 
@@ -451,7 +486,7 @@ For verification with a model checker, each kind of norm is expressed as a tempo
 | Prohibition: *never two robots in a zone* | G ¬(occupancy > 1) | safety | `assert` in a spec | yes (PObserve) |
 | Obligation, deadline abstracted: *every delivery is eventually resolved* | G(assigned → F resolved) | liveness | `hot` state in a spec | no: on a finite log the verdict is always *inconclusive* |
 | Obligation with deadline Due | G(assigned → F≤(Due+1) resolved) | bounded response, i.e., a safety property over time | `assert` when the clock passes Due + 1 | yes (PObserve) |
-| Permission | AG(request → EF granted) | branching, not a trace property | not expressible as a monitor; approximated by the stronger liveness property AG(request → AF granted) with a `hot` state | no |
+| Permission | AG(request → EF granted), the operational availability associated with the permission | branching, not a trace property | not expressible as a monitor; approximated by the stronger liveness property AG(request → AF granted) with a `hot` state | no |
 
 In an open system, the regulation cannot guarantee that every obligation is *fulfilled*; it can guarantee only that every obligation is *resolved*, either by fulfillment or by sanction. The property checked is therefore:
 
@@ -566,9 +601,9 @@ A sanction is intended to influence behavior by signaling to the agent that its 
 
 <a id="figure-13"></a>
 
-![Figure 13 · conditions for sanctioning a missed deadline](figures/figure13.svg)
+![Figure 13 · a proposed sanction policy for a missed deadline](figures/figure13.svg)
 
-*Figure 13 · conditions for sanctioning a missed deadline*
+*Figure 13 · a proposed sanction policy for a missed deadline*
 
 [Figure 13](#figure-13) formalizes this principle as a decision rule. Before applying a sanction, the organization determines whether the delay was caused by a regulator or by traffic. Only if neither is the case is the delay attributed to the robot.
 
@@ -601,7 +636,7 @@ Regulation management balances the autonomy of the agents against control over t
 | Perspective | Options | This project (fleet) |
 | --- | --- | --- |
 | Regulation capabilities | what the regulation layer can do; operationalized here as *represent, monitor, enforce (regiment or sanction), adapt* | all four |
-| MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | **hybrid**: environment (zone controllers) + organization (fleet manager, closures) + agent (robots decide to park and give up) |
+| MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | **hybrid**: environment (zone controllers) + organization (fleet manager, closures); the robots are regulated agents, and their decision to park is compliance behavior, not regulation management |
 | Architectural style | centralized vs. decentralized / distributed regulators | **distributed regimentation**: one controller per zone deciding locally; adaptation (one coordinator) and sanctioning (one fleet manager) are **centralized** |
 
 <a id="figure-15"></a>
@@ -610,7 +645,7 @@ Regulation management balances the autonomy of the agents against control over t
 
 *Figure 15 · the fleet placed in the unified-view grid*
 
-Because the COINE 2025 paper is not openly available, the student verifies its exact list of capabilities during the first week and adjusts the mapping in [Section 7](#7-technical-specification) accordingly.
+The COINE 2025 paper is openly available from the [workshop website](https://coin-workshop.github.io/coine-2025-detroit/papers/paper_6.pdf). It defines three run-time capabilities: regiment, enforce (comprising monitoring, deliberation about regulated behavior, and sanctioning) and adapt; the creation of regulations lies outside its scope, and an agent's deliberation to comply with or violate a regulation is explicitly not a capability. Its unified view classifies systems as organization-centric, agent-centric or hybrid-centric (organization and agent combined), and as fully centralized, semi-(de)centralized or fully decentralized; environment- and interaction-centric approaches are discussed only briefly. The four capabilities used in this specification (represent, monitor, enforce, adapt) and the grid with environment- and interaction-centric rows are a teaching adaptation of that classification; where the two differ, the paper is authoritative.
 
 **Regulation adaptation.** Regulations change at run time, for example when a picker requires an aisle, a zone is flooded or a robot breaks down in a lane. [Yan et al. (ECAI 2025)](https://hal-lara.archives-ouvertes.fr/ISCOD-ENSMSE/hal-05350751v1) propose a general adaptation model with three capabilities, each of which produces a fact:
 
@@ -644,11 +679,11 @@ Each capability corresponds to a design question, and different designs may real
 
 ### 4.2 The MAOP views, with examples
 
-The unified view locates regulation along the four MAOP dimensions. The examples below are representative systems for each view; they reflect the interpretation adopted in this specification rather than the classification of the paper, which the student verifies during the first week.
+The unified view locates regulation along the four MAOP dimensions. The examples below are representative systems for each view; they reflect the interpretation adopted in this specification rather than the classification of the paper, which is summarized in the paragraph on the COINE 2025 paper above.
 
 | View | Regulation is represented and managed by… | Typical mechanism | Strength | Weakness |
 | --- | --- | --- | --- | --- |
-| Agent-centric | the agents themselves | norm-aware BDI agents that reason about obligations and choose to comply | full autonomy; no central component | relies on agents being honest and correct |
+| Agent-centric | the agents themselves | agents that themselves monitor norms or propose norm changes, e.g. agents that report violations by others (an agent that decides whether to comply is regulated, not managing regulation) | full autonomy; no central component | relies on agents being honest and correct |
 | Environment-centric | artifacts in the environment | CArtAgO artifacts or smart controllers that refuse forbidden actions | strong guarantees (regimentation) | only for actions that pass through an artifact |
 | Interaction-centric | the protocols agents use to communicate | electronic institutions whose governors filter messages; commitment protocols | detects violations in communication | blind to physical actions |
 | Organization-centric | an organizational infrastructure | Moise roles and missions with an NPL engine | explicit, inspectable norms | needs reliable reports from agents and environment |
@@ -688,7 +723,7 @@ The detect–design–execute model of [Yan et al.](https://hal-lara.archives-ou
 | Execute | execute | the zone controllers install v + 1 |
 | Knowledge | the norm sets and the organization's state | current version, closed zones, open obligations |
 
-The two models differ in one significant respect: in a normative MAS, the adaptation loop is **itself regulated**. Constitutive norms define which facts count as a valid trigger, and regulative norms define who may perform each step, e.g., *only an agent playing `picker` or `safety_officer` may request a closure*. An unauthorized closure request therefore constitutes a violation in its own right.
+The two models differ in one significant respect: in a normative MAS, the adaptation loop is **itself regulated**. Constitutive norms define which facts count as a valid trigger, and regulative norms define who may perform each step, e.g., *only an agent playing `picker` or `safety_officer` may request a closure*. An unauthorized closure request therefore constitutes a violation in its own right. The starter coordinator does not check roles; role-based authorization is a conceptual extension.
 
 ### 4.5 Consistency during a regulation change
 
@@ -968,7 +1003,7 @@ The effect depends on the property. S2, as implemented, compares each admission 
 
 ## 6. The system: robots in a shared corridor
 
-Two mobile robots deliver goods through a one-lane corridor consisting of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot 1 travels 0 → 1 → 2 and robot 2 travels 2 → 1 → 0; their paths therefore meet head-on. A fleet manager assigns deliveries with deadlines. At unpredictable times, a human picker requires access to zone 1, which first necessitates a **zone closure**: a regulation adaptation that closes zone 1 to robots ([Figure 2](#figure-2)).
+Two mobile robots deliver goods through a one-lane corridor consisting of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot 1 travels 0 → 1 → 2 and robot 2 travels 2 → 1 → 0; their paths therefore meet head-on. A fleet manager assigns deliveries with deadlines. At unpredictable times, a human picker requires access to zone 1, which first necessitates a **zone closure**: a regulation adaptation that closes zone 1 to robots ([Figure 1](#figure-1)).
 
 <a id="figure-20"></a>
 
@@ -1327,6 +1362,18 @@ p check -tc tcFleetNaive -s 10000
 p check -tc tcFleetSanctionFairness -s 10000
 cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 ```
+
+**Self-check questions (the model and its limits).**
+
+1. Why is `Clock` a P machine but not a domain agent? *Answer sketch:* It models infrastructure, namely logical time; it has no goals and makes no decisions on behalf of a participant.
+2. Can two robots still form a multi-agent system when one organization assigns their tasks? *Answer sketch:* Yes. A multi-agent system may contain centralized services; autonomy concerns how agents pursue their tasks, not who assigns them.
+3. Does `$` in `Robot` mean that the agent implements a BDI interpreter? *Answer sketch:* No. `$` is a nondeterministic choice that lets the checker explore both outcomes; it abstracts a decision rather than implementing reasoning.
+4. Can an agent be permitted to enter a resource and still be unable to enter it now? *Answer sketch:* Yes. An open resource may be occupied. Normative permission, physical or protocol feasibility, and an eventual-service guarantee are different properties.
+5. Who blocks an entry: `ResourceGuard` or the P monitor? *Answer sketch:* `ResourceGuard`. The monitor only observes the events and reports a violation.
+6. Does a sanctioned delivery count as completed? What does L1 actually establish? *Answer sketch:* No. L1 establishes that every obligation is resolved, by fulfillment or by sanction; a sanction resolves the record but is not success.
+7. Does observing a denial before a missed deadline prove that the denial caused it? *Answer sketch:* No. A denial can follow from a closure or from occupancy by the other robot, and it need not have caused the miss; F1 flags candidates only.
+8. Which norm data can the starter coordinator change, and which remain fixed? *Answer sketch:* Only the set of closed resources and the version number; deadlines, sanctions and roles are fixed.
+9. Which lifecycle transitions and enforcement effects are proposed extensions rather than baseline behavior? *Answer sketch:* The inactivation of an obligation, concrete sanction effects such as priority reductions or fines, and role checks on adaptation requests.
 
 ## Appendix A. Glossary and reading map
 
