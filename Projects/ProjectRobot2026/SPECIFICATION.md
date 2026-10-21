@@ -1214,7 +1214,7 @@ cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 | Abandonment | a robot gives up a delivery after three denials and parks; announced as `eTaskAbandoned` |
 | Adaptation | a run-time change of the norm set, executed by the coordinator (detect, design, execute) |
 | Announce | a P statement that delivers an event to monitors only |
-| Bounded response | a property of the form G(p → F≤k q); a safety property that can be checked on finite logs |
+| Bounded response | a property such as G(p → F≤k q); a safety property that can be checked on finite logs |
 | Cold / hot state | a monitor state in which an execution may / must not end or remain forever |
 | Constitutive rule | a count-as rule that relates physical facts to institutional facts |
 | Counterexample | a trace that violates a monitor, together with the seed that reproduces it |
