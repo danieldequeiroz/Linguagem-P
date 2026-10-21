@@ -31,31 +31,66 @@ The objective in this project is to construct and verify the regulation layer of
 
 **Why a multi-agent system.** The cell could in principle be controlled by a single centralized program, but several features of the problem favor a multi-agent design. First, the robot arm, the AGV and the organizational engine are separate systems, typically supplied by different vendors and governed by their own software; each pursues its own jobs and decides locally how to accomplish them, which corresponds to the notion of an autonomous agent ([Section 2](#2-background-multi-agent-systems)). Second, the system is open: agents may be added, replaced or upgraded, and a technician joins the cell as a further participant with goals of their own, so the system cannot be designed as a closed program whose components are all known in advance. Third, the participants coordinate through shared resources and explicit commitments, such as job obligations, deadlines and access to the envelope, rather than through a fixed control flow; organizations and norms are the abstractions that a multi-agent system provides for expressing such coordination ([Section 2.4](#24-organization-moise), [Section 3](#3-background-norms-and-normative-mas)). Fourth, a multi-agent architecture separates concerns: the agents decide what to do, the environment enforces physical constraints through artifacts such as the cell controller ([Section 2.2](#22-environment-artifacts)), and the organization states obligations and sanctions their violation, so that each part can be modified without rewriting the others. The price of this autonomy is that compliance cannot be assumed, which is the reason why the regulation layer described below is required.
 
-**The regulation layer.** In a normative multi-agent system, the agents are autonomous: each decides its own actions and may, deliberately or through a fault, fail to comply with the rules of the cell. The *regulation layer* is the part of the system that states these rules and makes them effective without controlling the agents' decisions ([Figure 1](#figure-1)). It comprises four capabilities ([Section 4.1](#41-the-capabilities-in-detail)): it *represents* the norms in force as a versioned norm set; it *monitors* entries, departures, job reports and deadlines in order to detect violations; it *enforces* the norms, either by regimentation, when an environment artifact such as the cell controller prevents a prohibited action, or by sanctioning, when the organization reacts after a violation ([Section 3.8](#38-choosing-an-enforcement-mechanism)); and it *adapts* the norm set while the cell is running, as in the lock-out that closes the envelope before a technician enters ([Section 4](#4-background-regulation-management-in-mas)).
-
-**Why the regulation layer is needed.** Three properties of the cell make an explicit and verified regulation layer necessary. First, the agents may be developed by different parties and cannot be assumed to comply, so safety cannot rest on the correctness of each agent; it must rest on rules that the system itself enforces. Second, the agents share a physical resource with people, so a single erroneous admission can injure a person. Third, the rules change during operation: maintenance requires a lock-out, and while the change is in progress the components may act under different versions of the rules. The regulation layer is therefore the object of design and verification in this project, and its properties must hold irrespective of how the agents behave, both in the model and in the running cell.
+[Figure 1](#figure-1) shows the cell and the regulation layer that controls access to it. [Figure 3](#figure-3) shows how a lock-out is established safely in four stages (request, block new entries, drain, commit), and [Figure 4](#figure-4) contrasts this sequence with a naive adaptation, in which a person and an agent can occupy the envelope together. A robot arm and an automated guided vehicle (AGV) share a work envelope that admits one agent at a time, and a maintenance technician occasionally needs to enter the cell. Before the technician may enter, the adaptation coordinator installs a new norm set that closes the envelope (a lock-out), while the cell controller continues to admit or deny agents under the norm set it currently holds and the organization continues to assign jobs with deadlines and sanctions. The central risk lies in the transition window, during which these components may act under different norm sets. Two questions must be answered: whether a person and an agent can ever occupy the envelope together while the norms change (safety: S1, S2, S4), and whether every job obligation is resolved and every lock-out completes (liveness: L1, L2). The safety monitors are shared: the checker applies them to the model at design time, and PObserve applies them to logs of the running cell at run time. The liveness properties, which a finite log cannot refute, are checked at run time through bounded-response counterparts ([Section 5.8](#58-pobserve-in-more-detail)).
 
 <a id="figure-1"></a>
 
-![Figure 1 · the regulation layer between the agents and the cell](figures/figure1.svg)
+![Figure 1 · the manufacturing cell and its regulation layer](figures/figure1.svg)
 
-*Figure 1 · the regulation layer between the agents and the cell*
+*Figure 1 · the manufacturing cell and its regulation layer*
 
-[Figure 2](#figure-2) shows the cell and the regulation layer that controls access to it. [Figure 3](#figure-3) shows how a lock-out is established safely in four stages (request, block new entries, drain, commit), and [Figure 4](#figure-4) contrasts this sequence with a naive adaptation, in which a person and an agent can occupy the envelope together. A robot arm and an automated guided vehicle (AGV) share a work envelope that admits one agent at a time, and a maintenance technician occasionally needs to enter the cell. Before the technician may enter, the adaptation coordinator installs a new norm set that closes the envelope (a lock-out), while the cell controller continues to admit or deny agents under the norm set it currently holds and the organization continues to assign jobs with deadlines and sanctions. The central risk lies in the transition window, during which these components may act under different norm sets. Two questions must be answered: whether a person and an agent can ever occupy the envelope together while the norms change (safety: S1, S2, S4), and whether every job obligation is resolved and every lock-out completes (liveness: L1, L2). The safety monitors are shared: the checker applies them to the model at design time, and PObserve applies them to logs of the running cell at run time. The liveness properties, which a finite log cannot refute, are checked at run time through bounded-response counterparts ([Section 5.8](#58-pobserve-in-more-detail)).
+**Reading Figure 1.** The left panel shows the physical system: one work envelope (resource 0, capacity 1) shared by the robot arm (agent 1) and the AGV (agent 2), and the cell admission controller, which admits an agent only if the norm set it currently holds leaves the envelope open and the envelope has free capacity. The right panel shows the regulation layer: the adaptation coordinator, which changes the norm set when the technician requests a lock-out, and the organization, which assigns jobs with deadlines and sanctions missed ones. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the agents to `CellAgent`, the controller to `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the organization to `ObligationManager`, and the technician to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: a person enters only after a committed closure and only when the envelope is empty. Physical faults, such as a failed light curtain or an agent that ignores the controller, lie outside the model.
 
-<a id="figure-2"></a>
-
-![Figure 2 · the manufacturing cell and its regulation layer](figures/figure2.svg)
-
-*Figure 2 · the manufacturing cell and its regulation layer*
-
-**Reading Figure 2.** The left panel shows the physical system: one work envelope (resource 0, capacity 1) shared by the robot arm (agent 1) and the AGV (agent 2), and the cell admission controller, which admits an agent only if the norm set it currently holds leaves the envelope open and the envelope has free capacity. The right panel shows the regulation layer: the adaptation coordinator, which changes the norm set when the technician requests a lock-out, and the organization, which assigns jobs with deadlines and sanctions missed ones. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the agents to `CellAgent`, the controller to `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the organization to `ObligationManager`, and the technician to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: a person enters only after a committed closure and only when the envelope is empty. Physical faults, such as a failed light curtain or an agent that ignores the controller, lie outside the model.
-
-The following must be done with respect to Figure 2:
+The following must be done with respect to Figure 1:
 
 - map each element to its P machine and to the events that the machine announces ([Section 7.1](#71-model-components)), and include the mapping in deliverable D1;
 - classify each norm as regimented (the controller can prevent the action) or enforced by sanctions (the organization reacts after the violation), and justify the classification ([Section 3.8](#38-choosing-an-enforcement-mechanism));
 - restate the requirement in the note as the safety properties S1 and S2 of the property catalogue ([Section 7.2](#72-property-catalogue)), and identify the events on which each property depends.
+
+**The regulation layer.** In a normative multi-agent system, the agents are autonomous: each decides its own actions and may, deliberately or through a fault, fail to comply with the rules of the cell. The *regulation layer* is the part of the system that states these rules and makes them effective without controlling the agents' decisions ([Figure 2](#figure-2)). It comprises four capabilities ([Section 4.1](#41-the-capabilities-in-detail)): it *represents* the norms in force as a versioned norm set; it *monitors* entries, departures, job reports and deadlines in order to detect violations; it *enforces* the norms, either by regimentation, when an environment artifact such as the cell controller prevents a prohibited action, or by sanctioning, when the organization reacts after a violation ([Section 3.8](#38-choosing-an-enforcement-mechanism)); and it *adapts* the norm set while the cell is running, as in the lock-out that closes the envelope before a technician enters ([Section 4](#4-background-regulation-management-in-mas)).
+
+**Why the regulation layer is needed.** Three properties of the cell make an explicit and verified regulation layer necessary. First, the agents may be developed by different parties and cannot be assumed to comply, so safety cannot rest on the correctness of each agent; it must rest on rules that the system itself enforces. Second, the agents share a physical resource with people, so a single erroneous admission can injure a person. Third, the rules change during operation: maintenance requires a lock-out, and while the change is in progress the components may act under different versions of the rules. The regulation layer is therefore the object of design and verification in this project, and its properties must hold for every behavior of the agents that the model admits, under its stated assumptions; in the running cell, PObserve can check only the executions that are logged.
+
+<a id="figure-2"></a>
+
+![Figure 2 · the regulation layer between the agents and the cell](figures/figure2.svg)
+
+*Figure 2 · the regulation layer between the agents and the cell*
+
+**What the P model represents.** The domain agents are the robot arm and the AGV. Each has its own jobs and its own controller. P represents their externally visible behavior with state machines and abstracts some of their choices with nondeterminism (`$`); it implements neither a BDI interpreter nor planning or learning. The other P machines model the environment and the organization and are not agents: a P machine is a modeling construct, not automatically an agent. Jason, Moise, CArtAgO and NPL appear in this specification as background and as possible deployment platforms; they do not run inside the P model. The tests use a fixed configuration of two agents, so openness motivates the architecture but is not verified by the baseline. A multi-agent system may contain centralized services: *multi-agent*, *distributed*, *open* and *norm-aware* are different properties.
+
+| Domain entity | Goal or decision | P machine | Omitted in the model |
+| --- | --- | --- | --- |
+| Robot arm, AGV (agents) | perform assigned jobs; request the envelope; may omit a report | `CellAgent` | motion planning, BDI reasoning, learning |
+| Cell controller (environment) | admit or deny under the current norm set | `ResourceGuard` | sensors, PLC hardware, physical faults |
+| Organization | assign jobs with deadlines; sanction missed ones | `ObligationManager` | concrete penalties, role negotiation |
+| Adaptation coordinator | change the norm set by prepare, drain and commit | `AdaptationCoordinator` | role checks on requests |
+| Technician (person) | request a lock-out; enter after the commit | `HumanRequester` | identity, badge and presence sensing |
+| Clock (infrastructure) | advance logical time | `Clock` | real time |
+
+**From a norm to a monitor: a worked example.** One norm of the cell can be followed through every layer of the project:
+
+| Step | Closure example |
+| --- | --- |
+| Norm | an agent must not enter resource r while the committed norm set closes r |
+| Instance | r = resource 0, the work envelope |
+| Representation | `tNormSet.ver` and `tNormSet.closed` |
+| Enforcement | `ResourceGuard` refuses the access request (regimentation) |
+| Adaptation | `AdaptationCoordinator` runs prepare, drain and commit |
+| Observable evidence | the events `eNormCommitted` and `eResourceEntered` |
+| Verification | the monitor `NoStaleAdmission` (S2) rejects an entry to a committed-closed resource |
+| Limit | agents use the admission interface; physical motion that bypasses it is excluded |
+
+The guard prevents the action; the monitor checks the behavior. A monitor neither admits nor refuses anything, and it does not make the physical system safe by itself. For deadlines, the agent's obligation to report on time is distinct from the organization's resolution of the record: a sanction resolves the record, which satisfies L1, but it does not make the job successful or turn a violation into compliance.
+
+**Implemented and conceptual features.** Several mechanisms described in the background sections are not implemented by the starter kit:
+
+- Sanctions are abstract events (`eSanctionApplied`); the agents ignore them, and the model implements no fines, priority reductions or learning from penalties. The effects listed in [Section 3.7](#37-sanctions) are possible implementations.
+- The coordinator changes only which resources are closed, and increments the version; it does not revise deadlines, sanctions or other norms.
+- The coordinator does not check who requests a lock-out; role-based authorization ([Section 4.4](#44-adaptation-as-a-control-loop)) is a conceptual extension.
+- The inactivation of an obligation ([Figure 9](#figure-9)) is an extension: no event or handler implements it.
+- Count-as rules ([Section 3.6](#36-constitutive-rules-situated-artificial-institutions)), such as a badge swipe counting as entry, are modeling choices; a presence event in a log requires evidence that a person is actually inside.
+- P specification monitors observe and assert; they enforce nothing in a deployed system. The JaCaMo components of [Figure 5](#figure-5) are a deployment illustration.
 
 <a id="figure-3"></a>
 
@@ -275,7 +310,7 @@ Norms are usually *conditional*: they comprise an activation condition, a deonti
 | Mechanism | Idea | Guarantee | Cost | In this project |
 | --- | --- | --- | --- | --- |
 | Regimentation | make the violation impossible: the environment refuses the action | the norm always holds | removes autonomy; only for actions the environment controls | the cell controller refuses admission to a closed or full envelope |
-| Sanctioning (regulation) | allow the violation, detect it, react with a sanction | holds only as far as sanctions deter | needs monitoring and a fair sanction policy | a missed job deadline leads to a sanction |
+| Sanctioning | leave the violation operationally possible (the action stays forbidden), detect it, react with a sanction | holds only as far as sanctions deter | needs monitoring and a fair sanction policy | a missed job deadline leads to a sanction |
 
 Safety-critical norms in a CPS, where people and machines share the same space, must be regimented, whereas performance norms such as deadlines are normally sanctioned. [Alechina, Bulling, Dastani and Logan (AAMAS 2015)](https://nottingham-repository.worktribe.com/output/752739) show that not every norm can be enforced by a guard; the choice between the two mechanisms is therefore a substantive design decision.
 
@@ -300,7 +335,7 @@ A conditional norm can be represented as a tuple of six components. The job obli
 | Modality | obligation, prohibition or permission | obligation |
 | Content | the state or action concerned | j is reported as done |
 | Deadline | when the content must hold | 4 ticks after assignment in the simulated logs; an absolute tick (4 for the arm, 6 for the AGV) in the starter model |
-| Sanction | what follows a violation (or reward for compliance) | lower priority in the next job allocation |
+| Sanction | what follows a violation (or reward for compliance) | e.g., lower priority in the next job allocation (in the baseline model, an abstract sanction event) |
 
 The norm is a template: each job assignment creates a new **norm instance** with its own deadline. The `ObligationManager` described in [Section 7](#7-technical-specification) maintains one record per instance.
 
@@ -368,7 +403,7 @@ The reduction also clarifies *whose* behavior is being specified ([Figure 8](#fi
 - **For the agents, norms are deontic.** An agent may miss a deadline; the specification must therefore not reject such a trace, but must determine its consequences. Requiring G ¬V would be a modeling error: it would convert every norm into a regimented constraint and thereby eliminate the autonomy that characterizes an open MAS.
 - **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit an agent that the norm set prohibits, and must complete every adaptation. These are G and F properties that must hold on every run; a run that violates them exposes a defect in the regulator.
 
-Consequently, the P monitors never assert that agents behave correctly. They assert that the *regulation* behaves correctly irrespective of agent behavior: S1 and S2 for regimented norms, where the regulator is able to block actions; R3 for the lock-out procedure, which can only be monitored; S3 for the integrity of the organization's records; L1 and R1 for sanctioned norms, where the regulator must react to violations; and L2 and R2 for the adaptation itself. [Section 7.6](#76-traceability) gives the complete classification.
+Consequently, the P monitors never assert that agents behave correctly. They assert that the *regulation* behaves correctly for every agent behavior that the model admits: S1 and S2 for regimented norms, where the regulator is able to block actions; R3 for the lock-out procedure, which can only be monitored; S3 for the integrity of the organization's records; L1 and R1 for sanctioned norms, where the regulator must react to violations; and L2 and R2 for the adaptation itself. [Section 7.6](#76-traceability) gives the complete classification.
 
 #### Kinds of norms as temporal patterns
 
@@ -380,7 +415,7 @@ Once violations are represented as events, each kind of norm corresponds to a ch
 | Maintenance obligation | keep the envelope empty while it is locked out | an agent is admitted while it is closed | regimented: G(closed → ¬admitted), S2 |
 | Prohibition | no agent in the envelope with a person | both are inside | regimented: G ¬(agent inside ∧ person inside), S1 |
 | Contrary-to-duty obligation | if an agent is inside during a lock-out, trigger the e-stop | the prohibition above is violated | G(V → e-stop before any further admission): a bounded response on the *reaction*; not implemented in the starter kit |
-| Permission | an agent may enter an open, empty envelope | never: a permission cannot be violated | AG(request ∧ open ∧ empty → EF granted): branching, not a trace property |
+| Permission | an agent may enter an open, empty envelope | never: a permission cannot be violated | operational availability associated with the permission, not the permission itself: AG(request ∧ open ∧ empty → EF granted), a branching property; entry may be permitted while another agent occupies the envelope |
 
 Two rows of the table require further explanation.
 
@@ -417,7 +452,7 @@ To verify norms with a model checker, each kind of norm is expressed as a tempor
 | Prohibition: *never an agent and a person in the envelope* | G ¬(agentIn ∧ personIn) | safety | `assert` in a spec | yes (PObserve) |
 | Obligation without deadline: *every job is eventually resolved* | G(assigned → F resolved) | liveness | `hot` state in a spec | no: no finite log can refute it; a clean log is inconclusive |
 | Obligation with deadline d (in ticks) | G(assigned(d) → resolved no later than tick d + 1) | bounded response (a safety property over time) | `assert` when tick d + 2 arrives | yes (PObserve) |
-| Permission: *an agent may enter an open, empty envelope* | AG(request ∧ open ∧ empty → EF granted) | branching (CTL), not a trace property | no direct construct; only the stronger liveness approximation of [Section 3.2](#32-deontic-logic-in-brief) | no |
+| Permission: *an agent may enter an open, empty envelope* | AG(request ∧ open ∧ empty → EF granted) | branching (CTL), not a trace property; it states operational availability, not the permission itself | no direct construct; only the stronger liveness approximation of [Section 3.2](#32-deontic-logic-in-brief) | no |
 
 In an open system, the regulation cannot guarantee that every obligation is *fulfilled*; it can guarantee only that every obligation is *resolved*, either by fulfillment or by sanction. The property to be checked is therefore:
 
@@ -541,7 +576,7 @@ Regulation management concerns the balance between agent autonomy and system-lev
 
 *Figure 12 · the cell placed in the unified-view grid*
 
-The COINE 2025 paper is not openly deposited. During the first week, the exact list of capabilities given in the paper is to be verified and the mapping in [Section 7](#7-technical-specification) adjusted accordingly.
+The COINE 2025 paper is openly available from the [workshop website](https://coin-workshop.github.io/coine-2025-detroit/papers/paper_6.pdf). It defines three run-time capabilities: regiment, enforce (comprising monitoring, deliberation about regulated behavior, and sanctioning) and adapt; the creation of regulations lies outside its scope, and an agent's deliberation to comply with or violate a regulation is explicitly not a capability. Its unified view classifies systems as organization-centric, agent-centric or hybrid-centric (organization and agent combined), and as fully centralized, semi-(de)centralized or fully decentralized; environment- and interaction-centric approaches are discussed only briefly. The four capabilities used in this specification (represent, monitor, enforce, adapt) and the grid with environment- and interaction-centric rows are a teaching adaptation of that classification; where the two differ, the paper is authoritative.
 
 **Regulation adaptation.** Regulations change at run time, for instance when a technician requires access to the cell, when a shift changes, or when a sensor fails. [Yan et al. (ECAI 2025)](https://hal-lara.archives-ouvertes.fr/ISCOD-ENSMSE/hal-05350751v1) propose a general adaptation model comprising three capabilities, each of which produces a fact:
 
@@ -568,11 +603,11 @@ Each capability addresses a specific design question, and two designs may realiz
 
 ### 4.2 The MAOP views, with examples
 
-The unified view locates regulation along the four MAOP dimensions. The examples below are typical systems for each view; they reflect the interpretation adopted in this specification rather than the classification given in the paper, which is to be verified during the first week.
+The unified view locates regulation along the four MAOP dimensions. The examples below are typical systems for each view; they reflect the interpretation adopted in this specification rather than the classification given in the paper, which is summarized at the beginning of this section.
 
 | View | Regulation is represented and managed by… | Typical mechanism | Strength | Weakness |
 | --- | --- | --- | --- | --- |
-| Agent-centric | the agents themselves | norm-aware BDI agents that reason about obligations and choose to comply | full autonomy; no central component | relies on agents being honest and correct |
+| Agent-centric | the agents themselves | agents that themselves monitor norms or propose norm changes, e.g. agents that report violations by others (an agent that decides whether to comply is regulated, not managing regulation) | full autonomy; no central component | relies on agents being honest and correct |
 | Environment-centric | artifacts in the environment | CArtAgO artifacts or PLC interlocks that refuse forbidden actions | strong guarantees (regimentation) | only for actions that pass through an artifact |
 | Interaction-centric | the protocols agents use to communicate | electronic institutions whose governors filter messages; commitment protocols | detects violations in communication | blind to physical actions |
 | Organization-centric | an organizational infrastructure | Moise roles and missions with an NPL engine | explicit, inspectable norms | needs reliable reports from agents and environment |
@@ -601,7 +636,7 @@ The detect–design–execute model of [Yan et al.](https://hal-lara.archives-ou
 | Execute | execute | the cell controller installs v + 1 |
 | Knowledge | the norm sets and the organization's state | current version, lock-out status, open obligations |
 
-One difference is significant: in a normative MAS, the adaptation loop is **itself regulated**. Constitutive norms determine which facts count as a valid trigger, and regulative norms determine who may perform each step; e.g., *only an agent playing `maintenance` or `safety_officer` may request a lock-out*. An unauthorized request therefore constitutes a violation in its own right.
+One difference is significant: in a normative MAS, the adaptation loop is **itself regulated**. Constitutive norms determine which facts count as a valid trigger, and regulative norms determine who may perform each step; e.g., *only an agent playing `maintenance` or `safety_officer` may request a lock-out*. An unauthorized request therefore constitutes a violation in its own right. The starter coordinator does not check roles; role-based authorization is a conceptual extension.
 
 ### 4.5 Consistency during a regulation change
 
@@ -880,7 +915,7 @@ For every monitor, the project must therefore provide (a) a **mutant** of the mo
 
 ## 6. The system: a regulated manufacturing cell
 
-A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 2](#figure-2) shows the layout of the cell, and [Figure 18](#figure-18) its architecture by MAOP dimension.
+A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 1](#figure-1) shows the layout of the cell, and [Figure 18](#figure-18) its architecture by MAOP dimension.
 
 <a id="figure-18"></a>
 
@@ -1238,6 +1273,18 @@ cd pobserve && gradle wrapper && ./gradlew build uberjar && ./run_pobserve.sh
 **[Section 4](#4-background-regulation-management-in-mas).** (1) What is the transition window, and which property covers each of its hazards? (2) Why does the serialization of adaptations not make two technicians safe? (3) How does the prepare–drain–commit protocol differ from classical two-phase commit?
 
 **[Section 5](#5-background-the-p-language-and-pobserve).** (1) Why can PObserve not check L1? (2) What does "no bug found in 10,000 schedules" establish, and how can that number be justified? (3) When is a reported liveness violation an artifact of the scheduler?
+
+**Questions on the model and its limits.**
+
+1. Why is `Clock` a P machine but not a domain agent? *Answer sketch:* It models infrastructure, namely logical time; it has no goals and makes no decisions on behalf of a participant.
+2. Can two agents still form a multi-agent system when one organization assigns their tasks? *Answer sketch:* Yes. A multi-agent system may contain centralized services; autonomy concerns how agents pursue their tasks, not who assigns them.
+3. Does `$` in `CellAgent` mean that the agent implements a BDI interpreter? *Answer sketch:* No. `$` is a nondeterministic choice that lets the checker explore both outcomes; it abstracts a decision rather than implementing reasoning.
+4. Can an agent be permitted to enter a resource and still be unable to enter it now? *Answer sketch:* Yes. An open resource may be occupied. Normative permission, physical or protocol feasibility, and an eventual-service guarantee are different properties.
+5. Who blocks an entry: `ResourceGuard` or the P monitor? *Answer sketch:* `ResourceGuard`. The monitor only observes the events and reports a violation.
+6. Does a sanctioned job count as completed? What does L1 actually establish? *Answer sketch:* No. L1 establishes that every obligation is resolved, by fulfillment or by sanction; a sanction resolves the record but is not success.
+7. Does observing a denial before a missed deadline prove that the denial caused it? *Answer sketch:* No. A denial can follow from a closure or from occupancy, and it need not have caused the miss; the cell has no fairness monitor, and experiment E7 examines this question.
+8. Which norm data can the starter coordinator change, and which remain fixed? *Answer sketch:* Only the set of closed resources and the version number; deadlines, sanctions and roles are fixed.
+9. Which lifecycle transitions and enforcement effects are proposed extensions rather than baseline behavior? *Answer sketch:* The inactivation of an obligation, concrete sanction effects such as priority reductions or fines, and role checks on adaptation requests.
 
 ### A.3 Common misconceptions
 
