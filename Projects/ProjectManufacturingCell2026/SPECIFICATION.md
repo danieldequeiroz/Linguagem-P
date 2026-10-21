@@ -384,7 +384,7 @@ spec EveryObligationResolved observes eObligationCreated, eObligationFulfilled, 
 }
 ```
 
-Not every temporal formula maps as directly. Safety formulas of the form G p or G(p → q), evaluated over the variables of the monitor, map to `assert` statements; response formulas G(p → F q) map to a hot state that is entered on p and left on q; formulas with nested temporal operators require auxiliary monitor variables or additional states; and branching formulas such as EF have no counterpart. P monitors are, moreover, *event-based*: a proposition such as agentIn is not observed directly but is reconstructed by the monitor from entry and exit events, which is itself a modeling decision (section 3.6).
+Not every temporal formula maps as directly. Safety formulas such as G p or G(p → q), evaluated over the variables of the monitor, map to `assert` statements; response formulas G(p → F q) map to a hot state that is entered on p and left on q; formulas with nested temporal operators require auxiliary monitor variables or additional states; and branching formulas such as EF have no counterpart. P monitors are, moreover, *event-based*: a proposition such as agentIn is not observed directly but is reconstructed by the monitor from entry and exit events, which is itself a modeling decision (section 3.6).
 
 ### 3.5 Normative programming in JaCaMo: NPL
 
