@@ -13,7 +13,7 @@ All project material is available in the GitHub repository [perkusic/P-Language]
 
 ## 1. Introduction
 
-The objective of this project is to build and verify the regulation layer of a small fleet of mobile robots that share a narrow corridor with people. The work proceeds in two steps:
+The objective in this project is to build and verify the regulation layer of a small fleet of mobile robots that share a narrow corridor with people. The work proceeds in two steps:
 
 1. The regulation layer is modeled in the P language and model-checked.
 2. Fleet logs, either simulated or recorded from a ROS 2 system, are checked against the same P monitors with PObserve.
