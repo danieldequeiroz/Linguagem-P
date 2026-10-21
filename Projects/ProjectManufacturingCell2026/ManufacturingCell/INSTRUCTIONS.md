@@ -3,6 +3,8 @@
 A robot arm and an AGV share one work envelope (resource `0`, capacity 1). A single cell controller regiments access to it, and one organizational engine manages job obligations. A maintenance technician triggers a **lock-out adaptation** before entering the cell.
 
 > **Verification status.** Nothing in this guide has been confirmed by running P or PObserve yet. The P files have not been compiled, and the Java parser has not been built (it depends on classes that `p compile --mode pobserve` generates). Every "expected" result below is a hypothesis. The only results actually produced so far come from the Python mirror of the monitors (`tools/simulate_logs.py --check`), recorded in section 5. Fill in the validation record there as you confirm each step.
+>
+> *Note.* Independent evaluation, 21 October 2026 (P 3.1.0.0, .NET SDK 8.0.426): `p compile` succeeds with no warnings; `tcCellNaive` fails S1 on schedule 2 as intended; `tcCellTwoPhase`: no bug in 5,370 schedules within a 30-second run (not the 100,000-schedule acceptance run); `p compile --mode pobserve` generates the Java classes; Java build, JUnit and PObserve replay not yet run. Evidence: [`reviews/evaluation-2026-10-21`](https://github.com/perkusic/P-Language/tree/main/reviews/evaluation-2026-10-21).
 
 Grid cell (Yan et al., COINE 2025): **organization-centric + environment-centric, centralized**. One `ResourceGuard` (the cell controller) admits agents, one `AdaptationCoordinator` changes the norm set, and one `ObligationManager` handles jobs and sanctions. With a single guard, the two-phase adaptation reduces to "block, drain, commit" at one place.
 
@@ -11,7 +13,7 @@ You will do two things. They share most monitors but not all:
 | Monitor | Design time (`p check`) | Run time (PObserve) |
 |---|---|---|
 | `RegimentationSafety`, `NoStaleAdmission`, `NoDoubleOutcome`, `LockoutBeforeEntry` | yes | yes, the same P code |
-| `EveryObligationResolved`, `AdaptationCompletes` (liveness, hot states) | yes | no: a finite log cannot show that something *never* happens |
+| `EveryObligationResolved`, `AdaptationCompletes`, `AdaptationTerminates` (liveness, hot states) | yes | no: a finite log cannot show that something *never* happens |
 | `ObligationDeadlineRespected`, `AdaptationBoundedTime` (bounded response, section 3.9) | no: they read `eTick`, which the model announces before the obligation manager acts on it, so they would raise false alarms | yes, replacing the two liveness monitors |
 
 1. **Design time.** Model-check the regulation design with the P checker (part 2).
@@ -106,7 +108,9 @@ Expected results (hypotheses, not yet run):
 | Test | Expected | Meaning |
 |---|---|---|
 | `tcCellTwoPhase` | no bug found | The regulation design is safe under every explored interleaving |
-| `tcCellNaive` | bug found in `RegimentationSafety` or `NoStaleAdmission` | The technician is admitted while the arm is still in the envelope, or the controller admits an agent on the old norm set |
+| `tcCellNaive` | bug found in `RegimentationSafety` or `NoStaleAdmission` | The technician is admitted while the arm is still in the envelope, or the controller admits an agent to a resource that the committed norm set closes |
+
+`NoStaleAdmission` (S2) is a closure property, not a check of strict version equality: an admission recorded under an older version is accepted if the committed norm set does not close that resource (confirmed by the probe `tcStaleOpenZone` of the independent evaluation, [`probe-stale.txt`](https://github.com/perkusic/P-Language/blob/main/reviews/evaluation-2026-10-21/probe-stale.txt)). Requiring every admission to carry the committed version would be a separate, stronger property that needs its own justification in the protocol.
 
 When a bug is found, the checker writes a trace under `PCheckerOutput/BugFinding/`. To read it:
 1. Open the `.txt` log. Its last lines name the failing monitor and its message (e.g. *human entered resource 0 while agents were inside*).
@@ -125,7 +129,7 @@ The ids refer to the experiment table in section 7.3 of the specification, which
 | E5 | Shorter deadlines (`due = 2`) | `ManufacturingSystem` | More sanctions; `EveryObligationResolved` (L1) must still hold |
 | E4 | Two technicians (a challenge, not a check of existing behavior) | add a second `HumanRequester` | See 2.5 |
 
-E6–E8 (specification section 7.3) are further options.
+E6–E8 (specification section 7.3) are further options. In E8 (cancelling a prepare), announce `eAdaptationAborted` with the aborted version and judge liveness by `AdaptationTerminates` (L3: every started adaptation eventually commits or is explicitly aborted, under the same version); `AdaptationCompletes` (L2) fails by design for an aborted change. The starter kit never aborts, so L3 holds there as L2 does.
 
 ### 2.5 Challenge: two technicians
 
@@ -277,7 +281,7 @@ The run-time results are only as good as the log. The monitors assume:
 
 **The two bounds:**
 - `ObligationDeadlineRespected` uses a grace of **1 tick**. The obligation engine sanctions at the first tick where `now > Due`, and logs the `SANCTION` *after* that `TICK` line. So an obligation due at tick *d* is resolved by tick *d+1* at the latest, and the monitor complains at tick *d+2*. One tick is the smallest grace that does not raise false alarms; in 500 simulated runs every sanction came exactly one tick after its due time. Raise it if your engine checks deadlines less often than every tick.
-- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining the envelope takes as long as the agent inside stays there. **The simulator already exceeds it**: in 500 simulated two-phase cell runs, 9 of 5,180 adaptations took 6 to 8 ticks, so longer two-phase logs can fail this monitor although the design is safe. The property (R2 in the specification) holds only if the bound is at least the maximum drain time. Set the bound from your cell (maximum job time in the envelope plus the controller's reaction time) and record why.
+- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining the envelope takes as long as the agent inside stays there. **The simulator already exceeds it**: in 500 simulated two-phase cell runs, 9 of 5,180 adaptations took 6 to 8 ticks, so longer two-phase logs can fail this monitor although the design is safe. The property (R2 in the specification) holds only if the bound is at least the maximum observed start-to-commit duration. Calibrate it by measuring, for each completed adaptation, the time from `ADAPT_START` to `COMMIT` (protocol delay included), not the drain time alone, and record why the chosen bound suffices (e.g., maximum job time in the envelope plus the controller's reaction time). An observed maximum is empirical, not a bound for all executions: the independent evaluation found 9 of 5,180 completed adaptations above 5 ticks, with a maximum of 8 ([`python-verification.json`](https://github.com/perkusic/P-Language/blob/main/reviews/evaluation-2026-10-21/python-verification.json)).
 
 **Bounded monitors need later ticks.** Both bounded monitors check only when a `TICK` arrives. If the log ends before tick *d+2* (or 5 ticks after `ADAPT_START`), an unresolved obligation or adaptation is simply not reported. A clean result on a log that stops early does not show that work completed.
 
@@ -294,6 +298,9 @@ The run-time results are only as good as the log. The monitors assume:
 | duplicate `ENTER` | false capacity violation |
 | duplicate `FULFILLED` / `SANCTION` | false `NoDoubleOutcome` violation |
 | duplicate `COMMIT` | false version-order violation |
+| deleted `SANCTION` (log mutant: an existing line removed in post-processing) | `ObligationDeadlineRespected` (R1) may report an overdue obligation, although the system did sanction it |
+
+**A system fault and a log defect can look alike.** Suppressing the sanction in the simulator or model, while ticks and all other events are still recorded faithfully, is a system fault, and R1 must report it. Deleting an existing `SANCTION` line from a correct log is a log defect: R1 may report the same overdue obligation, but the ground truth differs. Keep both the original and the modified logs, and explain the different causes despite their identical observable prefixes.
 
 **Equal timestamps.** PObserve orders events by timestamp within a site. These guides do not establish how it orders events with equal timestamps, so do not rely on it: make timestamps strictly increasing within a site (the simulator adds 1 ms per event).
 
@@ -342,10 +349,13 @@ The simulator is deterministic for a given seed, so these commands reproduce the
 
 | Step | Command | Tool versions | Seed / schedules | Actual result |
 |---|---|---|---|---|
-| Compile the model | `p compile` | | — | |
-| Two-phase design | `p check -tc tcCellTwoPhase -s 10000` | | | |
-| Naive design | `p check -tc tcCellNaive -s 10000` | | | |
-| PObserve package build and JUnit | `./gradlew build` | | — | |
-| PObserve CLI on both sample logs | `./run_pobserve.sh <log>` | | — | |
+| Compile the model | `p compile` | P 3.1.0.0, .NET SDK 8.0.426 (independent evaluation, 2026-10-21) | — | succeeds, no warnings |
+| Two-phase design | `p check -tc tcCellTwoPhase -s 10000` | same (independent evaluation) | 30-second run | no bug in 5,370 schedules; not the 100,000-schedule acceptance run |
+| Naive design | `p check -tc tcCellNaive -s 10000` | same (independent evaluation) | schedule 2 | fails S1 (`RegimentationSafety`), as intended |
+| Generate the Java classes | `p compile --mode pobserve` | same (independent evaluation) | — | Java classes generated |
+| PObserve package build and JUnit | `./gradlew build` | | — | not yet run: the independent evaluation found Gradle and Maven absent and no committed wrapper |
+| PObserve CLI on both sample logs | `./run_pobserve.sh <log>` | | — | not yet run |
+
+Rows marked "independent evaluation" come from the evaluation of 21 October 2026, not from your own runs; evidence in [`reviews/evaluation-2026-10-21`](https://github.com/perkusic/P-Language/tree/main/reviews/evaluation-2026-10-21). Repeat them on your machine and record your own versions.
 
 For each failing check, keep the trace (`.txt` and `.schedule`) from `PCheckerOutput/BugFinding/` and note the seed that reproduces it.

@@ -106,7 +106,7 @@ spec AdaptationCompletes observes eAdaptationStarted, eNormCommitted {
 }
 
 // L3 Every adaptation that starts eventually terminates: it is committed or
-//    explicitly aborted (experiment E9). L2 (AdaptationCompletes) remains the
+//    explicitly aborted (experiment E8). L2 (AdaptationCompletes) remains the
 //    stronger requirement that the change is installed. Versions are correlated,
 //    so a commit or abort of another version is reported.
 spec AdaptationTerminates observes eAdaptationStarted, eNormCommitted, eAdaptationAborted {
