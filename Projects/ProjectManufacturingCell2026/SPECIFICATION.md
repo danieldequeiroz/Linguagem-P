@@ -45,7 +45,7 @@ The following must be done with respect to Figure 1:
 The following must be done with respect to Figure 2:
 
 - locate each stage in `AdaptationCoordinator.p` and `ResourceGuard.p`, using the state machines of [Figure 19](#figure-19), and name the event that causes each transition;
-- run `p check -tc tcCellTwoPhase` (experiment E1, [Section 7.3](#73-experiments-priorities-in-75)), confirm that S1–S3, L1, L2 and R3 hold, and justify the number of schedules explored ([Section 5.9](#59-what-a-number-of-schedules-guarantees));
+- run `p check -tc tcCellTwoPhase` (experiment E1, [Section 7.3](#73-experiments-priorities-in-75)), confirm that S1–S3, L1–L3 and R3 hold, and justify the number of schedules explored ([Section 5.9](#59-what-a-number-of-schedules-guarantees));
 - run experiment E3 and explain why L2 fails while the safety properties continue to hold ([Section 5.10](#510-what-a-hot-state-violation-means)).
 
 <a id="figure-3"></a>
@@ -966,7 +966,7 @@ The expected outcomes are **hypotheses** derived from the design. A sample-log s
 
 | # | Experiment | Change to the model | Design hypothesis | Acceptance criterion | Minimum schedules | Evidence to record |
 | --- | --- | --- | --- | --- | --- | --- |
-| E1 | Baseline, two-phase | none | S1–S3, L1, L2 and R3 hold | no violation; schedule count justified by calibration ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) | 100,000 | command, versions, strategy, seeds, event coverage |
+| E1 | Baseline, two-phase | none | S1–S3, L1–L3 and R3 hold | no violation; schedule count justified by calibration ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) | 100,000 | command, versions, strategy, seeds, event coverage |
 | E2 | Baseline, naive | `twoPhase = false` | S1 or S2 fails | a counterexample explained with the template of [Section 7.8](#78-writing-up-a-counterexample) | until the first violation (at most 10,000) | trace, seed, write-up |
 | E3 | Stuck agent | an agent never releases the envelope | L2 fails; the safety properties hold | the liveness violation classified as genuine ([Section 5.10](#510-what-a-hot-state-violation-means)) | 10,000 | trace, classification, argument for an e-stop |
 | E4 | Two technicians | a second `HumanRequester` | S1 and S4 fail on reopening; after the fix, all monitors hold | failing trace before the fix; no violation after it | 100,000 after the fix | both traces or runs, S4, the fix |

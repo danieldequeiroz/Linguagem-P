@@ -9,7 +9,8 @@ machine TestFleetNaive {
 // Expected (hypothesis): all monitors hold.
 test tcFleetTwoPhase [main=TestFleetTwoPhase]:
   assert RegimentationSafety, NoStaleAdmission, NoDoubleOutcome,
-         EveryObligationResolved, AdaptationCompletes, LockoutBeforeEntry in
+         EveryObligationResolved, AdaptationCompletes, AdaptationTerminates,
+         LockoutBeforeEntry in
   { TestFleetTwoPhase, FleetSystem, Robot, ResourceGuard,
     AdaptationCoordinator, ObligationManager, Clock, HumanRequester };
 
@@ -18,7 +19,8 @@ test tcFleetTwoPhase [main=TestFleetTwoPhase]:
 // still in zone 1.
 test tcFleetNaive [main=TestFleetNaive]:
   assert RegimentationSafety, NoStaleAdmission, NoDoubleOutcome,
-         EveryObligationResolved, AdaptationCompletes, LockoutBeforeEntry in
+         EveryObligationResolved, AdaptationCompletes, AdaptationTerminates,
+         LockoutBeforeEntry in
   { TestFleetNaive, FleetSystem, Robot, ResourceGuard,
     AdaptationCoordinator, ObligationManager, Clock, HumanRequester };
 
