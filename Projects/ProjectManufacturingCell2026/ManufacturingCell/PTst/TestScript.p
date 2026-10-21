@@ -9,7 +9,8 @@ machine TestCellNaive {
 // Expected (hypothesis): all monitors hold.
 test tcCellTwoPhase [main=TestCellTwoPhase]:
   assert RegimentationSafety, NoStaleAdmission, NoDoubleOutcome,
-         EveryObligationResolved, AdaptationCompletes, LockoutBeforeEntry in
+         EveryObligationResolved, AdaptationCompletes, AdaptationTerminates,
+         LockoutBeforeEntry in
   { TestCellTwoPhase, ManufacturingSystem, CellAgent, ResourceGuard,
     AdaptationCoordinator, ObligationManager, Clock, HumanRequester };
 
@@ -18,6 +19,7 @@ test tcCellTwoPhase [main=TestCellTwoPhase]:
 // envelope, or is admitted on the old norm set.
 test tcCellNaive [main=TestCellNaive]:
   assert RegimentationSafety, NoStaleAdmission, NoDoubleOutcome,
-         EveryObligationResolved, AdaptationCompletes, LockoutBeforeEntry in
+         EveryObligationResolved, AdaptationCompletes, AdaptationTerminates,
+         LockoutBeforeEntry in
   { TestCellNaive, ManufacturingSystem, CellAgent, ResourceGuard,
     AdaptationCoordinator, ObligationManager, Clock, HumanRequester };
