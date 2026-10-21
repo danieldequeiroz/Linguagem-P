@@ -1,0 +1,2006 @@
+[
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "RegimentationSafety was created.",
+      "payload": "null",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "RegimentationSafety enters state \u0027Init\u0027.",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "NoStaleAdmission was created.",
+      "payload": "null",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "NoStaleAdmission enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "NoDoubleOutcome was created.",
+      "payload": "null",
+      "monitor": "NoDoubleOutcome",
+      "clock": {
+        "NoDoubleOutcome": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "NoDoubleOutcome enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "NoDoubleOutcome",
+      "clock": {
+        "NoDoubleOutcome": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "EveryObligationResolved was created.",
+      "payload": "null",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "EveryObligationResolved enters cold state \u0027NoneOpen\u0027.",
+      "state": "NoneOpen",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": false,
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "AdaptationCompletes was created.",
+      "payload": "null",
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes enters cold state \u0027Idle\u0027.",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": false,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 2
+      }
+    }
+  },
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "LockoutBeforeEntry was created.",
+      "payload": "null",
+      "monitor": "LockoutBeforeEntry",
+      "clock": {
+        "LockoutBeforeEntry": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "LockoutBeforeEntry enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "LockoutBeforeEntry",
+      "clock": {
+        "LockoutBeforeEntry": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "TestFleetNaive(1) was created by task \u00272\u0027.",
+      "id": "TestFleetNaive(1)",
+      "payload": "null",
+      "clock": {
+        "TestFleetNaive(1)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "TestFleetNaive(1) enters state \u0027Init\u0027.",
+      "id": "TestFleetNaive(1)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "TestFleetNaive(1)": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "FleetSystem(2) was created by TestFleetNaive(1).",
+      "id": "FleetSystem(2)",
+      "creatorName": "TestFleetNaive(1)",
+      "creatorType": "TestFleetNaive",
+      "payload": "null",
+      "clock": {
+        "FleetSystem(2)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "FleetSystem(2) enters state \u0027Init\u0027.",
+      "id": "FleetSystem(2)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "FleetSystem(2)": 2
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "FleetSystem(2) announced event eMonitorConfig with payload (\u003C0-\u003E1\u003E, \u003C1-\u003E1\u003E, \u003C2-\u003E1\u003E).",
+      "id": "FleetSystem(2)",
+      "event": "eMonitorConfig",
+      "payload": {
+        "0": 1,
+        "1": 1,
+        "2": 1
+      },
+      "clock": {
+        "FleetSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "RegimentationSafety is processing event \u0027eMonitorConfig with payload ((\u003C0-\u003E1\u003E, \u003C1-\u003E1\u003E, \u003C2-\u003E1\u003E))\u0027 in state \u0027Init\u0027.",
+      "event": "eMonitorConfig",
+      "state": "Init",
+      "payload": {
+        "0": 1,
+        "1": 1,
+        "2": 1
+      },
+      "sender": "FleetSystem(2)",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 3,
+        "FleetSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorRaiseEvent",
+    "details": {
+      "log": "Monitor \u0027RegimentationSafety\u0027 raised event \u0027GotoStateEvent\u0027 in state \u0027Init\u0027.",
+      "event": "GotoStateEvent",
+      "state": "Init",
+      "payload": "null",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 4,
+        "FleetSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "RegimentationSafety exits state \u0027Init\u0027.",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 5,
+        "FleetSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "RegimentationSafety enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 6,
+        "FleetSystem(2)": 3
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ResourceGuard(3) was created by FleetSystem(2).",
+      "id": "ResourceGuard(3)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(3)": 1
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ResourceGuard(4) was created by FleetSystem(2).",
+      "id": "ResourceGuard(4)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(4)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(4) enters state \u0027Init\u0027.",
+      "id": "ResourceGuard(4)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(4)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "ResourceGuard(4) is transitioning from state \u0027Init\u0027 to state \u0027Open\u0027.",
+      "id": "ResourceGuard(4)",
+      "startState": "Init",
+      "endState": "Open",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(4)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(4) exits state \u0027Init\u0027.",
+      "id": "ResourceGuard(4)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "ResourceGuard(4)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(4) enters state \u0027Open\u0027.",
+      "id": "ResourceGuard(4)",
+      "state": "Open",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(4)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(3) enters state \u0027Init\u0027.",
+      "id": "ResourceGuard(3)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(3)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "ResourceGuard(3) is transitioning from state \u0027Init\u0027 to state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "startState": "Init",
+      "endState": "Open",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(3)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(3) exits state \u0027Init\u0027.",
+      "id": "ResourceGuard(3)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "ResourceGuard(3)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(3) enters state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "state": "Open",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(3)": 5
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ResourceGuard(5) was created by FleetSystem(2).",
+      "id": "ResourceGuard(5)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(5)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(5) enters state \u0027Init\u0027.",
+      "id": "ResourceGuard(5)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(5)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "ResourceGuard(5) is transitioning from state \u0027Init\u0027 to state \u0027Open\u0027.",
+      "id": "ResourceGuard(5)",
+      "startState": "Init",
+      "endState": "Open",
+      "payload": "null",
+      "clock": {
+        "ResourceGuard(5)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(5) exits state \u0027Init\u0027.",
+      "id": "ResourceGuard(5)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "ResourceGuard(5)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ResourceGuard(5) enters state \u0027Open\u0027.",
+      "id": "ResourceGuard(5)",
+      "state": "Open",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ResourceGuard(5)": 5
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "AdaptationCoordinator(6) was created by FleetSystem(2).",
+      "id": "AdaptationCoordinator(6)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(6)": 1
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ObligationManager(7) was created by FleetSystem(2).",
+      "id": "ObligationManager(7)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "ObligationManager(7)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(6) enters state \u0027Init\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(6)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "AdaptationCoordinator(6) is transitioning from state \u0027Init\u0027 to state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "startState": "Init",
+      "endState": "Stable",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(6)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(6) exits state \u0027Init\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "AdaptationCoordinator(6)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(6) enters state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "state": "Stable",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(6)": 5
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "Robot(8) was created by FleetSystem(2).",
+      "id": "Robot(8)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "Robot(8)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ObligationManager(7) enters state \u0027Active\u0027.",
+      "id": "ObligationManager(7)",
+      "state": "Active",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ObligationManager(7)": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "Robot(9) was created by FleetSystem(2).",
+      "id": "Robot(9)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "Robot(9)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(8) enters state \u0027Init\u0027.",
+      "id": "Robot(8)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(8)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Robot(8) is transitioning from state \u0027Init\u0027 to state \u0027Idle\u0027.",
+      "id": "Robot(8)",
+      "startState": "Init",
+      "endState": "Idle",
+      "payload": "null",
+      "clock": {
+        "Robot(8)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(8) exits state \u0027Init\u0027.",
+      "id": "Robot(8)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Robot(8)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(8) enters state \u0027Idle\u0027.",
+      "id": "Robot(8)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(8)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027FleetSystem(2)\u0027 in state \u0027Init\u0027 sent event \u0027eAssignTask with payload (\u003Cagent:1, agentRef:Robot(8), task:10, due:5, \u003E)\u0027 to \u0027ObligationManager(7)\u0027.",
+      "event": "eAssignTask",
+      "state": "Init",
+      "payload": {
+        "agent": 1,
+        "agentRef": "Robot(8)",
+        "task": 10,
+        "due": 5
+      },
+      "sender": "FleetSystem(2)",
+      "target": "ObligationManager(7)",
+      "isTargetHalted": false,
+      "clock": {
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) enters state \u0027Init\u0027.",
+      "id": "Robot(9)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(9)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Robot(9) is transitioning from state \u0027Init\u0027 to state \u0027Idle\u0027.",
+      "id": "Robot(9)",
+      "startState": "Init",
+      "endState": "Idle",
+      "payload": "null",
+      "clock": {
+        "Robot(9)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) exits state \u0027Init\u0027.",
+      "id": "Robot(9)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Robot(9)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) enters state \u0027Idle\u0027.",
+      "id": "Robot(9)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(9)": 5
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(7)\u0027 dequeued event \u0027eAssignTask with payload (\u003Cagent:1, agentRef:Robot(8), task:10, due:5, \u003E)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(7)",
+      "event": "eAssignTask",
+      "state": "Active",
+      "payload": {
+        "agent": 1,
+        "agentRef": "Robot(8)",
+        "task": 10,
+        "due": 5
+      },
+      "clock": {
+        "ObligationManager(7)": 3,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ObligationManager(7) announced event eObligationCreated with payload \u003Cid:0, agent:1, task:10, due:5, \u003E.",
+      "id": "ObligationManager(7)",
+      "event": "eObligationCreated",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 10,
+        "due": 5
+      },
+      "clock": {
+        "ObligationManager(7)": 4,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "EveryObligationResolved is processing event \u0027eObligationCreated with payload (\u003Cid:0, agent:1, task:10, due:5, \u003E)\u0027 in state \u0027NoneOpen\u0027.",
+      "event": "eObligationCreated",
+      "state": "NoneOpen",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 10,
+        "due": 5
+      },
+      "sender": "ObligationManager(7)",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 3,
+        "ObligationManager(7)": 4,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorRaiseEvent",
+    "details": {
+      "log": "Monitor \u0027EveryObligationResolved\u0027 raised event \u0027GotoStateEvent\u0027 in state \u0027NoneOpen\u0027.",
+      "event": "GotoStateEvent",
+      "state": "NoneOpen",
+      "payload": "null",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 4,
+        "ObligationManager(7)": 4,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "EveryObligationResolved exits cold state \u0027NoneOpen\u0027.",
+      "state": "NoneOpen",
+      "payload": "null",
+      "isEntry": false,
+      "isInHotState": false,
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 5,
+        "ObligationManager(7)": 4,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "EveryObligationResolved enters hot state \u0027SomeOpen\u0027.",
+      "state": "SomeOpen",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": true,
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 6,
+        "ObligationManager(7)": 4,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027FleetSystem(2)\u0027 in state \u0027Init\u0027 sent event \u0027eAssignTask with payload (\u003Cagent:2, agentRef:Robot(9), task:20, due:5, \u003E)\u0027 to \u0027ObligationManager(7)\u0027.",
+      "event": "eAssignTask",
+      "state": "Init",
+      "payload": {
+        "agent": 2,
+        "agentRef": "Robot(9)",
+        "task": 20,
+        "due": 5
+      },
+      "sender": "FleetSystem(2)",
+      "target": "ObligationManager(7)",
+      "isTargetHalted": false,
+      "clock": {
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "Clock(10) was created by FleetSystem(2).",
+      "id": "Clock(10)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "Clock(10)": 1
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "HumanRequester(11) was created by FleetSystem(2).",
+      "id": "HumanRequester(11)",
+      "creatorName": "FleetSystem(2)",
+      "creatorType": "FleetSystem",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(11)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(11) enters state \u0027Init\u0027.",
+      "id": "HumanRequester(11)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "HumanRequester(11)": 2
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027HumanRequester(11)\u0027 in state \u0027Init\u0027 sent event \u0027eContinue\u0027 to \u0027HumanRequester(11)\u0027.",
+      "event": "eContinue",
+      "state": "Init",
+      "payload": "null",
+      "sender": "HumanRequester(11)",
+      "target": "HumanRequester(11)",
+      "isTargetHalted": false,
+      "clock": {
+        "HumanRequester(11)": 3
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "HumanRequester(11) is transitioning from state \u0027Init\u0027 to state \u0027Outside\u0027.",
+      "id": "HumanRequester(11)",
+      "startState": "Init",
+      "endState": "Outside",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(11)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(11) exits state \u0027Init\u0027.",
+      "id": "HumanRequester(11)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "HumanRequester(11)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(11) enters state \u0027Outside\u0027.",
+      "id": "HumanRequester(11)",
+      "state": "Outside",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "HumanRequester(11)": 6
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(10) enters state \u0027Init\u0027.",
+      "id": "Clock(10)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Clock(10)": 2
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Clock(10) is transitioning from state \u0027Init\u0027 to state \u0027Ticking\u0027.",
+      "id": "Clock(10)",
+      "startState": "Init",
+      "endState": "Ticking",
+      "payload": "null",
+      "clock": {
+        "Clock(10)": 3
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(10) exits state \u0027Init\u0027.",
+      "id": "Clock(10)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Clock(10)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(10) enters state \u0027Ticking\u0027.",
+      "id": "Clock(10)",
+      "state": "Ticking",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Clock(10)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ObligationManager(7)\u0027 in state \u0027Active\u0027 sent event \u0027eObligationNotice with payload (\u003Cid:0, agent:1, task:10, due:5, \u003E)\u0027 to \u0027Robot(8)\u0027.",
+      "event": "eObligationNotice",
+      "state": "Active",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 10,
+        "due": 5
+      },
+      "sender": "ObligationManager(7)",
+      "target": "Robot(8)",
+      "isTargetHalted": false,
+      "clock": {
+        "ObligationManager(7)": 5,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(10)\u0027 in state \u0027Ticking\u0027 sent event \u0027eTick with payload (1)\u0027 to \u0027ObligationManager(7)\u0027.",
+      "event": "eTick",
+      "state": "Ticking",
+      "payload": 1,
+      "sender": "Clock(10)",
+      "target": "ObligationManager(7)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(10)": 6
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(7)\u0027 dequeued event \u0027eAssignTask with payload (\u003Cagent:2, agentRef:Robot(9), task:20, due:5, \u003E)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(7)",
+      "event": "eAssignTask",
+      "state": "Active",
+      "payload": {
+        "agent": 2,
+        "agentRef": "Robot(9)",
+        "task": 20,
+        "due": 5
+      },
+      "clock": {
+        "ObligationManager(7)": 6,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ObligationManager(7) announced event eObligationCreated with payload \u003Cid:1, agent:2, task:20, due:5, \u003E.",
+      "id": "ObligationManager(7)",
+      "event": "eObligationCreated",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 20,
+        "due": 5
+      },
+      "clock": {
+        "ObligationManager(7)": 7,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "EveryObligationResolved is processing event \u0027eObligationCreated with payload (\u003Cid:1, agent:2, task:20, due:5, \u003E)\u0027 in state \u0027SomeOpen\u0027.",
+      "event": "eObligationCreated",
+      "state": "SomeOpen",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 20,
+        "due": 5
+      },
+      "sender": "ObligationManager(7)",
+      "monitor": "EveryObligationResolved",
+      "clock": {
+        "EveryObligationResolved": 7,
+        "ObligationManager(7)": 7,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027HumanRequester(11)\u0027 dequeued event \u0027eContinue\u0027 in state \u0027Outside\u0027.",
+      "id": "HumanRequester(11)",
+      "event": "eContinue",
+      "state": "Outside",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(11)": 7
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(10)\u0027 in state \u0027Ticking\u0027 sent event \u0027eContinue\u0027 to \u0027Clock(10)\u0027.",
+      "event": "eContinue",
+      "state": "Ticking",
+      "payload": "null",
+      "sender": "Clock(10)",
+      "target": "Clock(10)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(10)": 7
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027Clock(10)\u0027 dequeued event \u0027eContinue\u0027 in state \u0027Ticking\u0027.",
+      "id": "Clock(10)",
+      "event": "eContinue",
+      "state": "Ticking",
+      "payload": "null",
+      "clock": {
+        "Clock(10)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Clock(10) is transitioning from state \u0027Ticking\u0027 to state \u0027Ticking\u0027.",
+      "id": "Clock(10)",
+      "startState": "Ticking",
+      "endState": "Ticking",
+      "payload": "null",
+      "clock": {
+        "Clock(10)": 9
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(10) exits state \u0027Ticking\u0027.",
+      "id": "Clock(10)",
+      "state": "Ticking",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Clock(10)": 10
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Clock(10) enters state \u0027Ticking\u0027.",
+      "id": "Clock(10)",
+      "state": "Ticking",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Clock(10)": 11
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ObligationManager(7)\u0027 in state \u0027Active\u0027 sent event \u0027eObligationNotice with payload (\u003Cid:1, agent:2, task:20, due:5, \u003E)\u0027 to \u0027Robot(9)\u0027.",
+      "event": "eObligationNotice",
+      "state": "Active",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 20,
+        "due": 5
+      },
+      "sender": "ObligationManager(7)",
+      "target": "Robot(9)",
+      "isTargetHalted": false,
+      "clock": {
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ObligationManager(7)\u0027 dequeued event \u0027eTick with payload (1)\u0027 in state \u0027Active\u0027.",
+      "id": "ObligationManager(7)",
+      "event": "eTick",
+      "state": "Active",
+      "payload": 1,
+      "clock": {
+        "ObligationManager(7)": 9,
+        "FleetSystem(2)": 5,
+        "Clock(10)": 6
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027Robot(9)\u0027 dequeued event \u0027eObligationNotice with payload (\u003Cid:1, agent:2, task:20, due:5, \u003E)\u0027 in state \u0027Idle\u0027.",
+      "id": "Robot(9)",
+      "event": "eObligationNotice",
+      "state": "Idle",
+      "payload": {
+        "id": 1,
+        "agent": 2,
+        "task": 20,
+        "due": 5
+      },
+      "clock": {
+        "Robot(9)": 6,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Robot(9) is transitioning from state \u0027Idle\u0027 to state \u0027Moving\u0027.",
+      "id": "Robot(9)",
+      "startState": "Idle",
+      "endState": "Moving",
+      "payload": "null",
+      "clock": {
+        "Robot(9)": 7,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) exits state \u0027Idle\u0027.",
+      "id": "Robot(9)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Robot(9)": 8,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) enters state \u0027Moving\u0027.",
+      "id": "Robot(9)",
+      "state": "Moving",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(9)": 9,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(10)\u0027 in state \u0027Ticking\u0027 sent event \u0027eTick with payload (2)\u0027 to \u0027ObligationManager(7)\u0027.",
+      "event": "eTick",
+      "state": "Ticking",
+      "payload": 2,
+      "sender": "Clock(10)",
+      "target": "ObligationManager(7)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(10)": 12
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027HumanRequester(11)\u0027 in state \u0027Outside\u0027 sent event \u0027eAdaptationTriggered with payload (\u003Cresource:1, close:True, requester:HumanRequester(11), \u003E)\u0027 to \u0027AdaptationCoordinator(6)\u0027.",
+      "event": "eAdaptationTriggered",
+      "state": "Outside",
+      "payload": {
+        "resource": 1,
+        "close": true,
+        "requester": "HumanRequester(11)"
+      },
+      "sender": "HumanRequester(11)",
+      "target": "AdaptationCoordinator(6)",
+      "isTargetHalted": false,
+      "clock": {
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "HumanRequester(11) is transitioning from state \u0027Outside\u0027 to state \u0027WaitingForLock\u0027.",
+      "id": "HumanRequester(11)",
+      "startState": "Outside",
+      "endState": "WaitingForLock",
+      "payload": "null",
+      "clock": {
+        "HumanRequester(11)": 9
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(11) exits state \u0027Outside\u0027.",
+      "id": "HumanRequester(11)",
+      "state": "Outside",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "HumanRequester(11)": 10
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "HumanRequester(11) enters state \u0027WaitingForLock\u0027.",
+      "id": "HumanRequester(11)",
+      "state": "WaitingForLock",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "HumanRequester(11)": 11
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027AdaptationCoordinator(6)\u0027 dequeued event \u0027eAdaptationTriggered with payload (\u003Cresource:1, close:True, requester:HumanRequester(11), \u003E)\u0027 in state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "event": "eAdaptationTriggered",
+      "state": "Stable",
+      "payload": {
+        "resource": 1,
+        "close": true,
+        "requester": "HumanRequester(11)"
+      },
+      "clock": {
+        "AdaptationCoordinator(6)": 6,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "AdaptationCoordinator(6) announced event eAdaptationStarted with payload 1.",
+      "id": "AdaptationCoordinator(6)",
+      "event": "eAdaptationStarted",
+      "payload": 1,
+      "clock": {
+        "AdaptationCoordinator(6)": 7,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "AdaptationCompletes is processing event \u0027eAdaptationStarted with payload (1)\u0027 in state \u0027Idle\u0027.",
+      "event": "eAdaptationStarted",
+      "state": "Idle",
+      "payload": 1,
+      "sender": "AdaptationCoordinator(6)",
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 3,
+        "AdaptationCoordinator(6)": 7,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes exits cold state \u0027Idle\u0027.",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": false,
+      "isInHotState": false,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 4,
+        "AdaptationCoordinator(6)": 7,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes enters hot state \u0027InProgress\u0027.",
+      "state": "InProgress",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": true,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 5,
+        "AdaptationCoordinator(6)": 7,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "AdaptationCoordinator(6) is transitioning from state \u0027Stable\u0027 to state \u0027Committing\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "startState": "Stable",
+      "endState": "Committing",
+      "payload": "null",
+      "clock": {
+        "AdaptationCoordinator(6)": 8,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(6) exits state \u0027Stable\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "state": "Stable",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "AdaptationCoordinator(6)": 9,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "AdaptationCoordinator(6) enters state \u0027Committing\u0027.",
+      "id": "AdaptationCoordinator(6)",
+      "state": "Committing",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "AdaptationCoordinator(6)": 10,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "AdaptationCoordinator(6) announced event eNormCommitted with payload \u003Cver:1, closed:(\u003C1\u003E), \u003E.",
+      "id": "AdaptationCoordinator(6)",
+      "event": "eNormCommitted",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          1
+        ]
+      },
+      "clock": {
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "NoStaleAdmission is processing event \u0027eNormCommitted with payload (\u003Cver:1, closed:(\u003C1\u003E), \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eNormCommitted",
+      "state": "Watching",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          1
+        ]
+      },
+      "sender": "AdaptationCoordinator(6)",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 3,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "AdaptationCompletes is processing event \u0027eNormCommitted with payload (\u003Cver:1, closed:(\u003C1\u003E), \u003E)\u0027 in state \u0027InProgress\u0027.",
+      "event": "eNormCommitted",
+      "state": "InProgress",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          1
+        ]
+      },
+      "sender": "AdaptationCoordinator(6)",
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 6,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes exits hot state \u0027InProgress\u0027.",
+      "state": "InProgress",
+      "payload": "null",
+      "isEntry": false,
+      "isInHotState": true,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 7,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "AdaptationCompletes enters cold state \u0027Idle\u0027.",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": true,
+      "isInHotState": false,
+      "monitor": "AdaptationCompletes",
+      "clock": {
+        "AdaptationCompletes": 8,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "LockoutBeforeEntry is processing event \u0027eNormCommitted with payload (\u003Cver:1, closed:(\u003C1\u003E), \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eNormCommitted",
+      "state": "Watching",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          1
+        ]
+      },
+      "sender": "AdaptationCoordinator(6)",
+      "monitor": "LockoutBeforeEntry",
+      "clock": {
+        "LockoutBeforeEntry": 3,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027Robot(8)\u0027 dequeued event \u0027eObligationNotice with payload (\u003Cid:0, agent:1, task:10, due:5, \u003E)\u0027 in state \u0027Idle\u0027.",
+      "id": "Robot(8)",
+      "event": "eObligationNotice",
+      "state": "Idle",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "task": 10,
+        "due": 5
+      },
+      "clock": {
+        "Robot(8)": 6,
+        "ObligationManager(7)": 5,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Robot(8) is transitioning from state \u0027Idle\u0027 to state \u0027Moving\u0027.",
+      "id": "Robot(8)",
+      "startState": "Idle",
+      "endState": "Moving",
+      "payload": "null",
+      "clock": {
+        "Robot(8)": 7,
+        "ObligationManager(7)": 5,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(8) exits state \u0027Idle\u0027.",
+      "id": "Robot(8)",
+      "state": "Idle",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Robot(8)": 8,
+        "ObligationManager(7)": 5,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(8) enters state \u0027Moving\u0027.",
+      "id": "Robot(8)",
+      "state": "Moving",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(8)": 9,
+        "ObligationManager(7)": 5,
+        "FleetSystem(2)": 4
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Clock(10)\u0027 in state \u0027Ticking\u0027 sent event \u0027eContinue\u0027 to \u0027Clock(10)\u0027.",
+      "event": "eContinue",
+      "state": "Ticking",
+      "payload": "null",
+      "sender": "Clock(10)",
+      "target": "Clock(10)",
+      "isTargetHalted": false,
+      "clock": {
+        "Clock(10)": 13
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Robot(9)\u0027 in state \u0027Moving\u0027 sent event \u0027eAccessRequest with payload (\u003Cagent:2, agentRef:Robot(9), resource:2, \u003E)\u0027 to \u0027ResourceGuard(5)\u0027.",
+      "event": "eAccessRequest",
+      "state": "Moving",
+      "payload": {
+        "agent": 2,
+        "agentRef": "Robot(9)",
+        "resource": 2
+      },
+      "sender": "Robot(9)",
+      "target": "ResourceGuard(5)",
+      "isTargetHalted": false,
+      "clock": {
+        "Robot(9)": 10,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027AdaptationCoordinator(6)\u0027 in state \u0027Committing\u0027 sent event \u0027eNormCommit with payload (\u003Cver:1, closed:(\u003C1\u003E), \u003E)\u0027 to \u0027ResourceGuard(3)\u0027.",
+      "event": "eNormCommit",
+      "state": "Committing",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          1
+        ]
+      },
+      "sender": "AdaptationCoordinator(6)",
+      "target": "ResourceGuard(3)",
+      "isTargetHalted": false,
+      "clock": {
+        "AdaptationCoordinator(6)": 12,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(3)\u0027 dequeued event \u0027eNormCommit with payload (\u003Cver:1, closed:(\u003C1\u003E), \u003E)\u0027 in state \u0027Open\u0027.",
+      "id": "ResourceGuard(3)",
+      "event": "eNormCommit",
+      "state": "Open",
+      "payload": {
+        "ver": 1,
+        "closed": [
+          1
+        ]
+      },
+      "clock": {
+        "ResourceGuard(3)": 6,
+        "AdaptationCoordinator(6)": 12,
+        "HumanRequester(11)": 8
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(5)\u0027 dequeued event \u0027eAccessRequest with payload (\u003Cagent:2, agentRef:Robot(9), resource:2, \u003E)\u0027 in state \u0027Open\u0027.",
+      "id": "ResourceGuard(5)",
+      "event": "eAccessRequest",
+      "state": "Open",
+      "payload": {
+        "agent": 2,
+        "agentRef": "Robot(9)",
+        "resource": 2
+      },
+      "clock": {
+        "ResourceGuard(5)": 6,
+        "Robot(9)": 10,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ResourceGuard(5) announced event eResourceEntered with payload \u003Cagent:2, res:2, ver:0, \u003E.",
+      "id": "ResourceGuard(5)",
+      "event": "eResourceEntered",
+      "payload": {
+        "agent": 2,
+        "res": 2,
+        "ver": 0
+      },
+      "clock": {
+        "ResourceGuard(5)": 7,
+        "Robot(9)": 10,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "RegimentationSafety is processing event \u0027eResourceEntered with payload (\u003Cagent:2, res:2, ver:0, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eResourceEntered",
+      "state": "Watching",
+      "payload": {
+        "agent": 2,
+        "res": 2,
+        "ver": 0
+      },
+      "sender": "ResourceGuard(5)",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 7,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 7,
+        "Robot(9)": 10,
+        "ObligationManager(7)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "NoStaleAdmission is processing event \u0027eResourceEntered with payload (\u003Cagent:2, res:2, ver:0, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eResourceEntered",
+      "state": "Watching",
+      "payload": {
+        "agent": 2,
+        "res": 2,
+        "ver": 0
+      },
+      "sender": "ResourceGuard(5)",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 4,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8,
+        "ResourceGuard(5)": 7,
+        "Robot(9)": 10,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(5)\u0027 in state \u0027Open\u0027 sent event \u0027eAccessGranted with payload (\u003Cresource:2, version:0, \u003E)\u0027 to \u0027Robot(9)\u0027.",
+      "event": "eAccessGranted",
+      "state": "Open",
+      "payload": {
+        "resource": 2,
+        "version": 0
+      },
+      "sender": "ResourceGuard(5)",
+      "target": "Robot(9)",
+      "isTargetHalted": false,
+      "clock": {
+        "ResourceGuard(5)": 8,
+        "Robot(9)": 10,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027Robot(9)\u0027 dequeued event \u0027eAccessGranted with payload (\u003Cresource:2, version:0, \u003E)\u0027 in state \u0027Moving\u0027.",
+      "id": "Robot(9)",
+      "event": "eAccessGranted",
+      "state": "Moving",
+      "payload": {
+        "resource": 2,
+        "version": 0
+      },
+      "clock": {
+        "Robot(9)": 11,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "GotoState",
+    "details": {
+      "log": "Robot(9) is transitioning from state \u0027Moving\u0027 to state \u0027Moving\u0027.",
+      "id": "Robot(9)",
+      "startState": "Moving",
+      "endState": "Moving",
+      "payload": "null",
+      "clock": {
+        "Robot(9)": 12,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) exits state \u0027Moving\u0027.",
+      "id": "Robot(9)",
+      "state": "Moving",
+      "payload": "null",
+      "isEntry": false,
+      "clock": {
+        "Robot(9)": 13,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "Robot(9) enters state \u0027Moving\u0027.",
+      "id": "Robot(9)",
+      "state": "Moving",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "Robot(9)": 14,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "SendEvent",
+    "details": {
+      "log": "\u0027Robot(9)\u0027 in state \u0027Moving\u0027 sent event \u0027eAccessRequest with payload (\u003Cagent:2, agentRef:Robot(9), resource:1, \u003E)\u0027 to \u0027ResourceGuard(4)\u0027.",
+      "event": "eAccessRequest",
+      "state": "Moving",
+      "payload": {
+        "agent": 2,
+        "agentRef": "Robot(9)",
+        "resource": 1
+      },
+      "sender": "Robot(9)",
+      "target": "ResourceGuard(4)",
+      "isTargetHalted": false,
+      "clock": {
+        "Robot(9)": 15,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "DequeueEvent",
+    "details": {
+      "log": "\u0027ResourceGuard(4)\u0027 dequeued event \u0027eAccessRequest with payload (\u003Cagent:2, agentRef:Robot(9), resource:1, \u003E)\u0027 in state \u0027Open\u0027.",
+      "id": "ResourceGuard(4)",
+      "event": "eAccessRequest",
+      "state": "Open",
+      "payload": {
+        "agent": 2,
+        "agentRef": "Robot(9)",
+        "resource": 1
+      },
+      "clock": {
+        "ResourceGuard(4)": 6,
+        "Robot(9)": 15,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ResourceGuard(4) announced event eResourceEntered with payload \u003Cagent:2, res:1, ver:0, \u003E.",
+      "id": "ResourceGuard(4)",
+      "event": "eResourceEntered",
+      "payload": {
+        "agent": 2,
+        "res": 1,
+        "ver": 0
+      },
+      "clock": {
+        "ResourceGuard(4)": 7,
+        "Robot(9)": 15,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "RegimentationSafety is processing event \u0027eResourceEntered with payload (\u003Cagent:2, res:1, ver:0, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eResourceEntered",
+      "state": "Watching",
+      "payload": {
+        "agent": 2,
+        "res": 1,
+        "ver": 0
+      },
+      "sender": "ResourceGuard(4)",
+      "monitor": "RegimentationSafety",
+      "clock": {
+        "RegimentationSafety": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(5)": 8,
+        "Robot(9)": 15,
+        "ObligationManager(7)": 8,
+        "ResourceGuard(4)": 7
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "NoStaleAdmission is processing event \u0027eResourceEntered with payload (\u003Cagent:2, res:1, ver:0, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eResourceEntered",
+      "state": "Watching",
+      "payload": {
+        "agent": 2,
+        "res": 1,
+        "ver": 0
+      },
+      "sender": "ResourceGuard(4)",
+      "monitor": "NoStaleAdmission",
+      "clock": {
+        "NoStaleAdmission": 5,
+        "AdaptationCoordinator(6)": 11,
+        "HumanRequester(11)": 8,
+        "ResourceGuard(5)": 8,
+        "Robot(9)": 15,
+        "ObligationManager(7)": 8,
+        "FleetSystem(2)": 5,
+        "ResourceGuard(4)": 7
+      }
+    }
+  },
+  {
+    "type": "AssertionFailure",
+    "details": {
+      "log": "Assertion Failed: ..\\Common\\Specs.p:54:7 agent 2 admitted to resource 1, closed by committed norm set v1 (guard still on v0)",
+      "error": "Assertion Failed: ..\\Common\\Specs.p:54:7 agent 2 admitted to resource 1, closed by committed norm set v1 (guard still on v0)",
+      "payload": "null"
+    }
+  },
+  {
+    "type": "StrategyDescription",
+    "details": {
+      "log": "Found bug using \u0027random\u0027 strategy.",
+      "payload": "null",
+      "strategy": "random",
+      "strategyDescription": "random[seed \u002742\u0027]"
+    }
+  }
+]

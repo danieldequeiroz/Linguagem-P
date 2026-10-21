@@ -638,7 +638,7 @@ spec RegimentationSafety observes eResourceEntered, eHumanEntered /* … */ {
 
 *Figure 12 · design-time and run-time checking share one set of monitors*
 
-Design-time and run-time checking therefore share most of their definition of correctness, but not all of it. L1 and L2 are checked only by the checker, and R1 and R2 only by PObserve ([Section 5.6](#56-common-pitfalls)). The run-time monitors are an adequate substitute for the liveness monitors only if this is argued, in one of two ways: by showing that R1 implies L1 under the stated latency of the obligation manager (an obligation due at tick d is resolved by tick d + 1), and that R2 implies L2 under a stated maximum drain time; or by adding an announcement emitted *after* the obligation manager has processed a tick (for instance `eTickProcessed`), so that R1 and R2 can also be checked against the model.
+Design-time and run-time checking therefore share most of their definition of correctness, but not all of it. L1, L2 and L3 are checked only by the checker, and R1 and R2 only by PObserve ([Section 5.6](#56-common-pitfalls)). The run-time monitors are an adequate substitute for the liveness monitors only if this is argued, in one of two ways: by showing that R1 implies L1 under the stated latency of the obligation manager (an obligation due at tick d is resolved by tick d + 1), and that R2 implies L2 under a stated maximum start-to-commit duration; or by adding an announcement emitted *after* the obligation manager has processed a tick (for instance `eTickProcessed`), so that R1 and R2 can also be checked against the model.
 
 PObserve reports assertion failures but not hot states that remain open at the end of a finite log. Liveness properties are therefore reformulated as **bounded-response** properties for run-time checking; e.g., *"resolved within 1 tick of the deadline"*.
 
@@ -761,7 +761,7 @@ The figure also illustrates the effect of a design correction. The two-phase pro
 - **Generated classes.** `p compile --mode pobserve` names tuple classes after their abbreviated field names; e.g., `(agent, res, ver)` yields `PTuple_agent_res_ver`. The generated `PTypes.java` should be inspected before the parser is written.
 - **Execution modes.** JUnit tests are suited to continuous integration on recorded logs, whereas the CLI is suited to on-demand checking of production logs.
 
-**Clock skew and causal order.** The log of the cell merges lines from several sources: the cell controller (PLC), the organizational engine, and the door switch or light curtain. Each source timestamps its lines with its own clock, so the timestamp order of the merged log coincides with the causal order of the events only if the clocks are synchronized more precisely than the shortest interval between causally related events. A skew of a few milliseconds can therefore swap a `HUMAN_ENTER` and a `LEAVE`, producing a false S1 violation or hiding a genuine one. Three measures mitigate the problem: synchronizing the clocks (NTP or, preferably, PTP) and recording the accuracy achieved; logging causally related events from a single source wherever possible; and relying on logical information that does not depend on clocks. The version number `Ver` of the norm set is such a logical clock: S2 compares the version under which an agent was admitted with the committed version, so its verdict does not depend on the timestamps of the two lines. Properties that relate events from different sources without such a field, such as S1 and R3, inherit the clock accuracy as a threat to validity ([Section 7.7](#77-modeling-assumptions-and-threats-to-validity)).
+**Clock skew and causal order.** The log of the cell merges lines from several sources: the cell controller (PLC), the organizational engine, and the door switch or light curtain. Each source timestamps its lines with its own clock, so the timestamp order of the merged log coincides with the causal order of the events only if the clocks are synchronized more precisely than the shortest interval between causally related events. A skew of a few milliseconds can therefore swap a `HUMAN_ENTER` and a `LEAVE`, producing a false S1 violation or hiding a genuine one. Three measures mitigate the problem: synchronizing the clocks (NTP or, preferably, PTP) and recording the accuracy achieved; logging causally related events from a single source wherever possible; and relying on logical information that does not depend on clocks. The version number `Ver` of the norm set is such a logical clock: the versions order the commits independently of their timestamps, and the version recorded with each admission identifies the norm set under which the agent was admitted. S2 itself is a closure property: it checks each admission against the resources closed by the most recently committed norm set, not against its version number, so an admission recorded under a version that has not yet been committed reveals a reordering of the merged log independently of the timestamps. Properties that relate events from different sources without such a field, such as S1 and R3, inherit the clock accuracy as a threat to validity ([Section 7.7](#77-modeling-assumptions-and-threats-to-validity)).
 
 **Learning path (days 1–7):**
 
@@ -815,7 +815,7 @@ For every monitor, the project must therefore provide (a) a **mutant** of the mo
 | S4 | two technicians without tracking of lock-out holders (E4) |
 | L1 | the deadline check is removed from the obligation manager and the far-future tick is disabled |
 | L2 | an agent that never releases the envelope (E3) |
-| R1 | a log from which a `SANCTION` line has been deleted |
+| R1 | log mutant (a logging defect, not a system fault): a log from which an existing `SANCTION` line has been deleted |
 | R2 | a log in which a `COMMIT` line has been delayed beyond the bound |
 | R3 | a `HumanRequester` that enters without waiting for the commit; a log with `HUMAN_ENTER` before `COMMIT` |
 
@@ -919,8 +919,9 @@ A starter kit containing draft versions of all three parts is provided ([Section
 | S4 | to be written in E4: no committed norm set opens a resource while a person is inside | safety | regimented after the fix | checker + PObserve | one technician: holds / holds; two technicians, starter kit: **violated** / **violated**; after the fix: holds |
 | L1 | `EveryObligationResolved`: every obligation is eventually fulfilled or sanctioned | liveness (hot state) | sanctioned | checker | holds / holds (see [Section 5.11](#511-sanity-and-vacuity-checks) on vacuity) |
 | L2 | `AdaptationCompletes`: every adaptation eventually commits | liveness (hot state) | adaptation | checker | holds / holds, provided that agents release the envelope (fails in E3) |
+| L3 | `AdaptationTerminates`: every started adaptation eventually commits or is explicitly aborted, with the version of the start | liveness (hot state) | adaptation | checker | holds / holds (the starter kit never aborts; L3 exists for variants with an abort path, E8, in which L2 fails by design) |
 | R1 | `ObligationDeadlineRespected`: resolved no later than tick Due + 1 | bounded response | sanctioned | PObserve | holds / holds |
-| R2 | `AdaptationBoundedTime`: commits within B ticks of the start (B = 5 in the starter kit, to be calibrated) | bounded response | adaptation | PObserve | holds / holds if B is at least the maximum drain time |
+| R2 | `AdaptationBoundedTime`: commits within B ticks of the start (B = 5 in the starter kit, to be calibrated) | bounded response | adaptation | PObserve | holds / holds if B is at least the maximum observed start-to-commit duration |
 | R3 | `LockoutBeforeEntry`: a person enters only a locked-out resource | safety (procedure) | monitored | checker + PObserve | holds / holds (by construction in the model; [Section 5.11](#511-sanity-and-vacuity-checks)) |
 
 The expected outcomes are **hypotheses** derived from the design. A sample-log simulator agrees with them, but they have not yet been confirmed with `p check`; their confirmation or refutation is part of the project.
@@ -936,7 +937,7 @@ The expected outcomes are **hypotheses** derived from the design. A sample-log s
 | E5 | Deadline pressure | `due` reduced from 4–6 to 2 | more sanctions; S3 and L1 still hold | sanction counts reported per setting; no violation | 10,000 per setting | counts, runs |
 | E6 | Scale | 3–4 agents, larger `maxTicks` | checker time per schedule grows with the configuration | schedules per second reported per configuration | 1,000 per configuration | timing table |
 | E7 | Sanctions during a lock-out (optional) | a monitor stating that no obligation is sanctioned whose agent was denied access during a lock-out within the obligation's active period | the monitor fails under the starter kit's sanction policy | a trace showing the denial and the sanction; a remedy discussed or modeled | 10,000 | trace, policy discussion |
-| E8 | Cancelling a prepare (optional) | the technician withdraws before the commit; an abort message is added | without abort, the lock-out is committed although no longer needed; with abort, S1–S4 still hold and the envelope reopens | abort path modeled and checked | 10,000 | model change, results |
+| E8 | Cancelling a prepare (optional) | the technician withdraws before the commit; an abort message is added | without abort, the lock-out is committed although no longer needed; with abort, S1–S4 and L3 still hold and the envelope reopens (L2 fails by design for an aborted change) | abort path modeled and checked | 10,000 | model change, results |
 
 Before each run, the team records its own prediction in the experiment log (ASSIGNMENT.md); the design hypotheses above do not replace that prediction. A result that contradicts a hypothesis is a finding, not a failure, provided it is explained.
 
@@ -955,9 +956,9 @@ Each line is prefixed by a UTC timestamp with microsecond precision. `Site` is t
 
 - the two-phase sample log passes every safety monitor;
 - the naive sample log fails S1 and S2;
-- **system faults (true positives):** R1 and R2 detect faults injected into the regulated system, namely a deleted `SANCTION` line (an obligation that is never resolved) and a delayed `COMMIT`;
-- **log defects (false results):** the effect of at least two defects of the logging itself, such as a missing `LEAVE` or a duplicate `COMMIT` (INSTRUCTIONS §3.9), is reported together with an explanation of why the resulting verdict is wrong;
-- the bound B of R2 is calibrated from data, since R2 holds on a log only if B is at least the maximum drain time observed.
+- **system faults (true positives):** R1 and R2 detect faults injected into the regulated system, namely a mutation of the simulator or model that suppresses the actual sanction of an overdue obligation while ticks and all other events are still recorded faithfully (R1 must report it), and a delayed `COMMIT`;
+- **log defects (false results):** the effect of at least two defects of the logging itself, such as a missing `LEAVE` or a duplicate `COMMIT` (INSTRUCTIONS §3.9), is reported together with an explanation of why the resulting verdict is wrong. The post-processing deletion of an existing `SANCTION` line is such a defect: R1 may report the same overdue obligation as for the suppressed sanction above, but the ground truth differs. Both the original and the modified logs are kept, and the report explains the different causes despite their identical observable prefixes;
+- the bound B of R2 is calibrated from data by measuring the start-to-commit duration of each adaptation (from `ADAPT_START` to `COMMIT`, protocol delay included), not the drain time alone; R2 holds on a log only if B is at least the maximum observed start-to-commit duration. The observed maximum is an empirical value, not a bound valid for all executions: in the independent evaluation of 21 October 2026, 9 of 5,180 completed adaptations exceeded 5 ticks, with a maximum of 8 ([python-verification.json](https://github.com/perkusic/P-Language/blob/main/reviews/evaluation-2026-10-21/python-verification.json)).
 
 **Instrumentation (stretch goal).** The log is emitted from a small JaCaMo implementation of the cell using the `RegulationLog.java` helper, and PObserve is run on that log.
 
@@ -981,14 +982,17 @@ Each property is traced to the norm it protects, its temporal form, its class, i
 | Norm ([Section 6](#6-the-system-a-regulated-manufacturing-cell)) | Property | Temporal form | Class | Enforcement | Checked by | Test case | Log events |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | at most one agent; no agent with a person | S1 | G(occupancy ≤ capacity) ∧ G ¬(agentIn ∧ personIn) | safety | regimented | checker, PObserve | `tcCellTwoPhase`, `tcCellNaive` | `CONFIG`, `ENTER`, `LEAVE`, `HUMAN_ENTER`, `HUMAN_LEAVE` |
-| admissions follow the committed norm set | S2 | G(enter(r, v) → r ∉ closed(committed) ∧ v = version(committed)); versions increasing | safety | regimented | checker, PObserve | both | `ENTER`, `COMMIT` |
+| admissions follow the committed norm set | S2 | G(enter(r, v) → r ∉ closed(committed)); versions committed in increasing order | safety | regimented | checker, PObserve | both | `ENTER`, `COMMIT` |
 | one outcome per job | S3 | G(fulfilled(o) → G ¬sanctioned(o)), and conversely | safety | integrity | checker, PObserve | both | `FULFILLED`, `SANCTION` |
 | reopen only when no person is inside | S4 | G(commit(v) ∧ r ∉ closed(v) → ¬personIn(r)) | safety | regimented after the fix | checker, PObserve | two-technician test (E4) | `COMMIT`, `HUMAN_ENTER`, `HUMAN_LEAVE` |
 | report before the deadline | L1 | G(created(o) → F resolved(o)) | liveness | sanctioned | checker | both | — |
 | report before the deadline | R1 | G(created(o, d) → resolved(o) by tick d + 1) | bounded response | sanctioned | PObserve | sample logs | `OBLIGATION`, `FULFILLED`, `SANCTION`, `TICK` |
 | lock-out eventually installed | L2 | G(started → F committed) | liveness | adaptation | checker | both; E3 | — |
+| lock-out eventually installed or withdrawn | L3 | G(started(v) → F (committed(v) ∨ aborted(v))) | liveness | adaptation | checker | both; E8 | — |
 | lock-out installed in bounded time | R2 | G(started at t → committed by t + B) | bounded response | adaptation | PObserve | sample logs | `ADAPT_START`, `COMMIT`, `TICK` |
 | person enters only after the commit | R3 | G(personEnters(r) → r ∈ closed(committed)) | safety | monitored | checker, PObserve | both | `HUMAN_ENTER`, `COMMIT` |
+
+S2 is a closure property, not a requirement of strict version equality: an admission recorded under an older version is accepted as long as the committed norm set does not close the resource concerned. The independent evaluation of 21 October 2026 confirmed this reading with the probe `tcStaleOpenZone` ([probe-stale.txt](https://github.com/perkusic/P-Language/blob/main/reviews/evaluation-2026-10-21/probe-stale.txt)). A property requiring every admission to carry the committed version would be a separate, stronger requirement and would need its own justification in the protocol. L3 complements L2 for variants with an abort path (experiment E8): L2 fails by design when a prepared change is aborted, whereas L3 requires only that every started adaptation eventually commits or is explicitly aborted under the same version.
 
 ### 7.7 Modeling assumptions and threats to validity
 
@@ -1046,7 +1050,7 @@ The project is carried out in five phases over 45 calendar days, counted from th
 
 | Phase | Days | Activities | Exit criterion (checkpoint) |
 | --- | --- | --- | --- |
-| Background | 1–7 | toolchain; P-Tutorial; reading of Yan et al.; first `p compile` with the errors recorded; mapping of each machine to a regulation capability | D1 submitted; first compilation log recorded |
+| Background | 1–7 | toolchain; P-Tutorial; reading of Yan et al.; first `p compile` with the errors recorded; mapping of each machine to a regulation capability | D1 submitted; first compilation log recorded; toolchain preflight passed: the PObserve Java package builds with a pinned Gradle wrapper, JUnit runs once on the sample logs, and the versions of P, .NET, JDK and Gradle are recorded (the independent evaluation of 21 October 2026 found neither Gradle nor Maven installed and no committed wrapper) |
 | Model | 8–17 | compilation errors fixed; E1, E2 and at least three further experiments, each with a prediction recorded before the run | day 17: P steps of the validation record completed; experiment log with predictions, results and explanations |
 | Verification | 18–28 | E4: two-technician failure (days 18–22); S4, fix and re-verification (days 23–28); mutants for every monitor ([Section 5.11](#511-sanity-and-vacuity-checks)); calibration of schedule counts ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) | D2 submitted |
 | Run time | 29–38 | PObserve package; sample logs; logs of the two-technician scenario; system-fault and log-defect runs; calibration of the R2 bound | D3 submitted |
@@ -1116,6 +1120,8 @@ The `p-regulation` archive is given; its contents are identical to the project f
 | `ManufacturingCell/INSTRUCTIONS.md` | step-by-step commands for both parts, log contract, validation record | written; commands not yet validated |
 | `tools/simulate_logs.py` | generates two-phase / naive logs and previews monitor results | tested |
 | `tools/instrumentation/RegulationLog.java` | logging helper for JaCaMo | compiles |
+
+*Note.* Independent evaluation, 21 October 2026 (P 3.1.0.0, .NET SDK 8.0.426): `p compile` succeeds with no warnings; `tcCellNaive` fails S1 on schedule 2 as intended; `tcCellTwoPhase`: no bug in 5,370 schedules within a 30-second run (not the 100,000-schedule acceptance run); `p compile --mode pobserve` generates the Java classes; Java build, JUnit and PObserve replay not yet run. Evidence: [reviews/evaluation-2026-10-21](https://github.com/perkusic/P-Language/tree/main/reviews/evaluation-2026-10-21).
 
 **Software environment.** The following tools are required:
 

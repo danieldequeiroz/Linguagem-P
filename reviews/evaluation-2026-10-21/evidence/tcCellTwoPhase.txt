@@ -1,0 +1,54 @@
+.. Searching for a P project file *.pproj locally in the current folder
+.. Found P project file: C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\ProjectManufacturingCell2026\ManufacturingCell\ManufacturingCell.pproj
+.. Searching for a P compiled file locally in folder ./PGenerated/
+.. Found a P compiled file: ./PGenerated/PChecker\net8.0\ManufacturingCell.dll
+.. Checking ./PGenerated/PChecker\net8.0\ManufacturingCell.dll
+.. Running test cases with prefix 'tcCellTwoPhase':
+tcCellTwoPhase
+.. Test case :: tcCellTwoPhase
+... Checker is using 'random' strategy (seed:42).
+..... Schedule #1
+..... Schedule #2
+..... Schedule #3
+..... Schedule #4
+..... Schedule #5
+..... Schedule #6
+..... Schedule #7
+..... Schedule #8
+..... Schedule #9
+..... Schedule #10
+..... Schedule #20
+..... Schedule #30
+..... Schedule #40
+..... Schedule #50
+..... Schedule #60
+..... Schedule #70
+..... Schedule #80
+..... Schedule #90
+..... Schedule #100
+..... Schedule #200
+..... Schedule #300
+..... Schedule #400
+..... Schedule #500
+..... Schedule #600
+..... Schedule #700
+..... Schedule #800
+..... Schedule #900
+..... Schedule #1000
+..... Schedule #2000
+..... Schedule #3000
+..... Schedule #4000
+..... Schedule #5000
+... Emitting coverage report:
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcCellTwoPhase-output\BugFinding\ManufacturingCell.coverage.txt
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcCellTwoPhase-output\BugFinding\ManufacturingCell.sci
+... Checking statistics:
+..... Found 0 bugs.
+... Scheduling statistics:
+..... Explored 5370 schedules
+..... Explored 201 timelines
+..... Number of scheduling points in terminating schedules: 112 (min), 116 (avg), 132 (max).
+..... Writing C:\Users\Angel\P-Language\reviews\evaluation-2026-10-21\sandbox\tcCellTwoPhase-output\BugFinding\ManufacturingCell_pchecker_summary.txt
+... Elapsed 30.011481 sec.
+. Done
+~~ [PTool]: Thanks for using P! ~~

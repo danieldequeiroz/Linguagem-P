@@ -1,0 +1,135 @@
+[
+  {
+    "type": "CreateMonitor",
+    "details": {
+      "log": "SanctionsReflectMisconduct was created.",
+      "payload": "null",
+      "monitor": "SanctionsReflectMisconduct",
+      "clock": {
+        "SanctionsReflectMisconduct": 1
+      }
+    }
+  },
+  {
+    "type": "MonitorStateTransition",
+    "details": {
+      "log": "SanctionsReflectMisconduct enters state \u0027Watching\u0027.",
+      "state": "Watching",
+      "payload": "null",
+      "isEntry": true,
+      "monitor": "SanctionsReflectMisconduct",
+      "clock": {
+        "SanctionsReflectMisconduct": 2
+      }
+    }
+  },
+  {
+    "type": "CreateStateMachine",
+    "details": {
+      "log": "ProbeAbandonThenSanction(1) was created by task \u00272\u0027.",
+      "id": "ProbeAbandonThenSanction(1)",
+      "payload": "null",
+      "clock": {
+        "ProbeAbandonThenSanction(1)": 1
+      }
+    }
+  },
+  {
+    "type": "StateTransition",
+    "details": {
+      "log": "ProbeAbandonThenSanction(1) enters state \u0027Init\u0027.",
+      "id": "ProbeAbandonThenSanction(1)",
+      "state": "Init",
+      "payload": "null",
+      "isEntry": true,
+      "clock": {
+        "ProbeAbandonThenSanction(1)": 2
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ProbeAbandonThenSanction(1) announced event eTaskAbandoned with payload \u003Cid:0, agent:1, where:1, \u003E.",
+      "id": "ProbeAbandonThenSanction(1)",
+      "event": "eTaskAbandoned",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "where": 1
+      },
+      "clock": {
+        "ProbeAbandonThenSanction(1)": 3
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "SanctionsReflectMisconduct is processing event \u0027eTaskAbandoned with payload (\u003Cid:0, agent:1, where:1, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eTaskAbandoned",
+      "state": "Watching",
+      "payload": {
+        "id": 0,
+        "agent": 1,
+        "where": 1
+      },
+      "sender": "ProbeAbandonThenSanction(1)",
+      "monitor": "SanctionsReflectMisconduct",
+      "clock": {
+        "SanctionsReflectMisconduct": 3,
+        "ProbeAbandonThenSanction(1)": 3
+      }
+    }
+  },
+  {
+    "type": "Announce",
+    "details": {
+      "log": "ProbeAbandonThenSanction(1) announced event eSanctionApplied with payload \u003Cid:0, agent:1, \u003E.",
+      "id": "ProbeAbandonThenSanction(1)",
+      "event": "eSanctionApplied",
+      "payload": {
+        "id": 0,
+        "agent": 1
+      },
+      "clock": {
+        "ProbeAbandonThenSanction(1)": 4
+      }
+    }
+  },
+  {
+    "type": "MonitorProcessEvent",
+    "details": {
+      "log": "SanctionsReflectMisconduct is processing event \u0027eSanctionApplied with payload (\u003Cid:0, agent:1, \u003E)\u0027 in state \u0027Watching\u0027.",
+      "event": "eSanctionApplied",
+      "state": "Watching",
+      "payload": {
+        "id": 0,
+        "agent": 1
+      },
+      "sender": "ProbeAbandonThenSanction(1)",
+      "monitor": "SanctionsReflectMisconduct",
+      "clock": {
+        "SanctionsReflectMisconduct": 4,
+        "ProbeAbandonThenSanction(1)": 4
+      }
+    }
+  },
+  {
+    "type": "AssertionFailure",
+    "details": {
+      "log": "Assertion Failed: ..\\..\\Projects\\ProjectRobot2026\\MobileRobots\\PSpec\\FleetSpecs.p:39:7 obligation 0 of robot 1 sanctioned after the robot abandoned it following repeated access denials",
+      "error": "Assertion Failed: ..\\..\\Projects\\ProjectRobot2026\\MobileRobots\\PSpec\\FleetSpecs.p:39:7 obligation 0 of robot 1 sanctioned after the robot abandoned it following repeated access denials",
+      "payload": "null"
+    }
+  },
+  {
+    "type": "StrategyDescription",
+    "details": {
+      "log": "Found bug using \u0027random\u0027 strategy.",
+      "payload": "null",
+      "strategy": "random",
+      "strategyDescription": "random[seed \u002742\u0027]"
+    }
+  }
+]

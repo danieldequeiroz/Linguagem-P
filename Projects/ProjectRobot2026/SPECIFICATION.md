@@ -60,6 +60,7 @@ The project instantiates one cell of the conceptual grid proposed by [Yan, Nardi
 | S3 | no delivery both fulfilled and sanctioned | safety (organizational integrity) |
 | L1 | every obligation is eventually fulfilled or sanctioned | liveness |
 | L2 | every adaptation eventually commits | liveness |
+| L3 | every adaptation is eventually committed or explicitly aborted | liveness |
 | R1 | every obligation is resolved by tick Due + 1 | bounded response (run time) |
 | R2 | every adaptation commits within 5 ticks | bounded response (run time) |
 | R3 | a person enters only a zone that the committed norm set closes | safety (procedure) |
@@ -342,7 +343,7 @@ The reduction also clarifies *whose* behavior a given property specifies ([Figur
 - **For the robots, norms are deontic.** A robot may miss a deadline. The specification must therefore not reject such a trace; instead, it must determine the consequences. Requiring G ¬V would be inappropriate, because it would convert every norm into a regimented constraint and eliminate the autonomy that characterizes an open MAS.
 - **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit a robot to a zone that the committed norm set closes, and must complete every adaptation. These are G and F properties that must hold on every run; a run that violates them reveals a defect.
 
-Accordingly, the P monitors never assert that robots behave correctly. They assert that the *regulation* behaves correctly, irrespective of the robots' behavior: S1 and S2 address regimented norms, which the regulator enforces by blocking; S3 concerns the integrity of the organization's records; R3 addresses a procedural norm that can only be monitored; L1 and R1 address sanctioned norms, to which the regulator must respond; L2 and R2 address the adaptation itself, which must terminate; and F1 addresses the sanction fairness of the responses. Table 7.2 states the enforcement mechanism of each property.
+Accordingly, the P monitors never assert that robots behave correctly. They assert that the *regulation* behaves correctly, irrespective of the robots' behavior: S1 and S2 address regimented norms, which the regulator enforces by blocking; S3 concerns the integrity of the organization's records; R3 addresses a procedural norm that can only be monitored; L1 and R1 address sanctioned norms, to which the regulator must respond; L2, L3 and R2 address the adaptation itself, which must terminate by a commit or an explicit abort (L3) and, unless aborted, be installed (L2) within a bound (R2); and F1 addresses the sanction fairness of the responses. Table 7.2 states the enforcement mechanism of each property.
 
 #### Kinds of norms as temporal patterns
 
@@ -519,7 +520,7 @@ Two observations indicate that this is more than a matter of policy detail:
 
 **The property class of sanction fairness.** The intended property, *a robot is sanctioned only if it could have complied*, is counterfactual: it compares the actual run with alternative runs in which the robot might have acted differently. Such properties relate several traces (they are hyperproperty-like, or causal) and cannot be decided by observing a single trace. F1 is a safety property over single traces that approximates the intended one: it flags a sanction on an obligation whose task the robot abandoned after repeated denials. Every flagged case is a candidate for an unfair sanction, but the approximation is incomplete in two respects. First, it establishes neither that the robot could not have complied nor whether the denials were caused by the regulation or by traffic; the refined, cause-aware monitor of phase 3 narrows this gap by recording the cause of each denial. Second, it depends on the order of events, as described next. In the terms of [Section 3.2](#32-deontic-logic-in-brief), F1 is a run-time check of an approximation of *ought implies can*.
 
-**Order sensitivity of F1.** F1 flags a sanction only if the abandonment of the same obligation was observed earlier. If the deadline passes while the robot is still retrying, the sanction precedes the abandonment and F1 remains silent, although the situation is essentially the same ([Figure 11](#figure-11)). At run time, the two events are recorded by different nodes (the robot and the fleet manager) with different clocks, so that clock skew can reverse their order in the merged log and change the verdict ([Section 5.12](#512-clock-skew-and-causal-order)). Students either refine the monitor so that it correlates abandonment and sanction on the obligation identifier regardless of their order, or report the resulting false negatives as a threat to validity.
+**Order sensitivity of F1.** F1 flags a sanction only if the abandonment of the same obligation was observed earlier. If the deadline passes while the robot is still retrying, the sanction precedes the abandonment and F1 remains silent, although the situation is essentially the same ([Figure 11](#figure-11)). At run time, the two events are recorded by different nodes (the robot and the fleet manager) with different clocks, so that clock skew can reverse their order in the merged log and change the verdict ([Section 5.12](#512-clock-skew-and-causal-order)). Students either refine the monitor so that it correlates abandonment and sanction on the obligation identifier regardless of their order, or report the resulting false negatives as a threat to validity. A refined monitor is accepted only if it flags both orders on the two probe traces of the independent evaluation (abandonment before sanction, and sanction before abandonment; reviews/evaluation-2026-10-21). Counts of flagged sanctions are counts of candidates under the chosen monitor, not counts of all unfair sanctions: in 500 simulator runs, F1 was violated in every run, and 3,468 of 4,479 sanctions were flagged when abandonment and sanction are correlated on the obligation identifier, against 4,255 with the earlier correlation on the agent.
 
 <a id="figure-11"></a>
 
@@ -634,11 +635,11 @@ The two models differ in one significant respect: in a normative MAS, the adapta
 
 The **transition window** is the interval between the decision to change the norms and the moment at which every regulator applies the change. Three hazards arise within it:
 
-1. **Stale admission.** A controller still operating under the previous norm set admits a robot into a zone that the new set closes (property S2).
+1. **Stale admission.** A controller still operating under the previous norm set admits a robot into a zone that the new set closes (property S2). S2 is a closure property: it requires only that an admitted zone is not closed by the last committed norm set, and it does not require that the admission carry the committed version, because a controller that the change does not affect legitimately admits robots under the previous version while the change propagates (probe tcStaleOpenZone of the independent evaluation, reviews/evaluation-2026-10-21/probe-stale.txt).
 2. **Premature entry.** The person enters before the zone has been drained (properties S1 and R3).
 3. **Lost or reordered updates.** Two adaptations overlap, and controllers apply them in different orders. Version numbers and the serialization of adaptations in the coordinator prevent this hazard.
 
-The remedy is a protocol modeled on **two-phase commit** from distributed databases, reduced to three steps: *prepare* (the affected controller stops admitting robots), *drain* (it waits until its zone is empty) and *commit* (the new norm set takes effect everywhere). It is therefore more precisely a **prepare–drain–commit barrier**: unlike classical two-phase commit, the participants do not vote, and there is no abort path. Two kinds of blocking must be distinguished. In classical two-phase commit, blocking arises when the coordinator fails after the participants have prepared, leaving them uncertain about the outcome; the starter kit does not model coordinator failure. In the fleet, blocking arises instead when a participant cannot complete its prepare phase: the controller of zone 1 waits for a robot that cannot leave because the next zone is held by another robot. Whether this can occur is the subject of liveness property L2. The protocol is also an instance of the quiescence-based approach to dynamic reconfiguration of [Kramer and Magee](https://doi.org/10.1109/32.60317), in which a component is changed only after it has been brought to a quiescent state, here an empty zone. A variant with a timeout and an abort path, in which the coordinator cancels the adaptation if the zone does not drain in time, is evaluated in experiment E9.
+The remedy is a protocol modeled on **two-phase commit** from distributed databases, reduced to three steps: *prepare* (the affected controller stops admitting robots), *drain* (it waits until its zone is empty) and *commit* (the new norm set takes effect everywhere). It is therefore more precisely a **prepare–drain–commit barrier**: unlike classical two-phase commit, the participants do not vote, and there is no abort path. Two kinds of blocking must be distinguished. In classical two-phase commit, blocking arises when the coordinator fails after the participants have prepared, leaving them uncertain about the outcome; the starter kit does not model coordinator failure. In the fleet, blocking arises instead when a participant cannot complete its prepare phase: the controller of zone 1 waits for a robot that cannot leave because the next zone is held by another robot. Whether this can occur is the subject of liveness property L2. The protocol is also an instance of the quiescence-based approach to dynamic reconfiguration of [Kramer and Magee](https://doi.org/10.1109/32.60317), in which a component is changed only after it has been brought to a quiescent state, here an empty zone. A variant with a timeout and an abort path, in which the coordinator cancels the adaptation if the zone does not drain in time, is evaluated in experiment E9. For this variant, property L3 (AdaptationTerminates) requires that every started adaptation be committed or explicitly aborted (log event ADAPT\_ABORT); L2 remains the stronger requirement that the change be installed, and it fails by design for an aborted change.
 
 ### 4.6 The inconsistency window
 
@@ -1034,8 +1035,9 @@ A starter kit containing draft versions of all three parts is provided ([Section
 | S3 | `NoDoubleOutcome`: a delivery is never both fulfilled and sanctioned | safety (integrity) | by construction | checker + PObserve | holds / holds |
 | L1 | `EveryObligationResolved`: every delivery eventually fulfilled or sanctioned | liveness (hot state) | sanctioned | checker | holds / holds, possibly vacuously ([Section 5.11](#511-vacuity-and-sanity-checks)) |
 | L2 | `AdaptationCompletes`: every closure eventually commits | liveness (hot state) | protocol | checker | holds / holds, with parking |
+| L3 | `AdaptationTerminates`: every adaptation eventually commits or is explicitly aborted | liveness (hot state) | protocol | checker | holds / holds; in E9, holds where L2 fails by design |
 | R1 | `ObligationDeadlineRespected`: resolved by tick Due + 1 | bounded response | sanctioned | PObserve | holds / holds |
-| R2 | `AdaptationBoundedTime`: commits within 5 ticks | bounded response | protocol | PObserve | holds if the bound is at least the maximum drain time / holds |
+| R2 | `AdaptationBoundedTime`: commits within 5 ticks | bounded response | protocol | PObserve | holds if the bound is at least the maximum start-to-commit time, including protocol delay (at most 3 ticks in 500 simulator runs, an empirical value, not a bound) / holds |
 | R3 | `LockoutBeforeEntry`: a person enters only a closed zone | safety (procedure) | monitored | checker + PObserve | holds / holds, by construction of the picker model ([Section 5.11](#511-vacuity-and-sanity-checks)) |
 | F1 | `SanctionsReflectMisconduct`: no obligation is sanctioned after the robot abandoned it following repeated access denials | safety (approximation of sanction fairness) | monitored | checker + PObserve | **violated** / **violated** |
 
@@ -1046,7 +1048,7 @@ The expected outcomes are **hypotheses** derived from the design. They are consi
 | # | Experiment and change to the model | Question | Prediction | Acceptance criterion | Min. `-s` | Evidence |
 | --- | --- | --- | --- | --- | --- | --- |
 | E0 | Monitor sanity: one mutant per monitor ([Section 5.11](#511-vacuity-and-sanity-checks)) | Can each monitor fail? | each mutant violates its monitor | every monitor fails on its mutant; event coverage reported | 10,000 | mutants, traces, coverage table |
-| E1 | Baseline, prepare–drain–commit: no change | Do S1–S3, L1, L2 and R3 hold? | no violation | no violation; N justified by calibration ([Section 5.9](#59-what-n-schedules-guarantee)) | 100,000 | command, seeds, versions, output |
+| E1 | Baseline, prepare–drain–commit: no change | Do S1–S3, L1–L3 and R3 hold? | no violation | no violation; N justified by calibration ([Section 5.9](#59-what-n-schedules-guarantee)) | 100,000 | command, seeds, versions, output |
 | E2 | Baseline, naive: `twoPhase = false` | Which monitor fails first, and in which zone? | S1 or S2 in zone 1 | violation found and explained with the template of [Section 7.8](#78-reporting-a-counterexample) | 10,000 | trace and explanation |
 | E3 | Sanction fairness: test `tcFleetSanctionFairness` | Which situations produce flagged sanctions? | F1 violated after closures and after head-on conflicts | each flagged trace attributed to a cause | 10,000 | traces for both causes, or an argument that one cannot occur |
 | E4 | Block every controller during prepare: remove the "unaffected controller acks at once" branch | Does draining depend on parking? Does anything deadlock? | L2 holds only with parking | prediction confirmed or refuted with a trace | 10,000 | trace or run summary |
@@ -1054,7 +1056,7 @@ The expected outcomes are **hypotheses** derived from the design. They are consi
 | E6 | Traffic norm (remedy 1): one travel direction at a time | Do flagged sanctions then follow only closures? | traffic-caused cases disappear | refined monitor reports no traffic-caused case; all safety monitors hold | 10,000 | refined-monitor output; safety results |
 | E7 | Excusing obligations (remedy 2): deadlines suspended while the regulation blocks a robot, and obligations abandoned because of a closure excused | Does F1 hold for regulation-caused cases, and at what cost? | suspension alone: F1 still fails; with excusal: no regulation-caused case | refined monitor reports no regulation-caused case; safety monitors and L1 hold | 10,000 | outputs before and after; cost in L1 (checker) and in sanction counts (PObserve) |
 | E8 | Scale: 3–4 robots or 4–5 zones | Where does exploration stop scaling? | run time grows rapidly | run times reported per size | as feasible | table of sizes and times |
-| E9 | Prepare timeout and abort: the coordinator aborts if the zone does not drain within k ticks | Does L2 hold without parking, and are S1 and S2 preserved? | L2 holds; the picker may be refused | prediction confirmed or refuted | 10,000 | traces and discussion |
+| E9 | Prepare timeout and abort: the coordinator aborts if the zone does not drain within k ticks | Does every adaptation terminate without parking (L3), and are S1 and S2 preserved? | L3 holds; L2 fails by design for an aborted change, which is not installed; S1 and S2 preserved; the picker is refused | prediction confirmed or refuted; acceptance cases: a timeout followed by `ADAPT_ABORT` satisfies L3; a prepare that is neither committed nor aborted violates L3; an aborted prepare never admits the picker and leaves no controller blocked | 10,000 | traces and discussion |
 
 Predictions are recorded before each run. The identifiers E0–E9 are also used in the assignment and in the instructions.
 
@@ -1065,7 +1067,7 @@ Predictions are recorded before each run. The identifiers E0–E9 are also used 
 **Log contract.** Each regulation event is recorded as one log line:
 
 - `Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=0`;
-- in addition, `CONFIG` (all zones: `Capacity=0:1;1:1;2:1`), `TICK`, `OBLIGATION`, `FULFILLED`, `SANCTION`, `LEAVE`, `ADAPT_START`, `COMMIT`, `HUMAN_ENTER` and `HUMAN_LEAVE`;
+- in addition, `CONFIG` (all zones: `Capacity=0:1;1:1;2:1`), `TICK`, `OBLIGATION`, `FULFILLED`, `SANCTION`, `LEAVE`, `ADAPT_START`, `COMMIT`, `HUMAN_ENTER` and `HUMAN_LEAVE`; in experiment E9 only, `ADAPT_ABORT` (`Ver`), for which the parser must be extended;
 - `ABANDON` (`Id, Agent, Where`), emitted by a robot when it abandons its task.
 
 Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serves as the partition key.
@@ -1077,7 +1079,7 @@ Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serv
 - the prepare–drain–commit sample log satisfies every safety monitor;
 - the naive sample log violates S1 and S2;
 - both logs violate F1;
-- **injected system faults** (true positives): R1 detects a deleted `SANCTION` line, and R2 detects a delayed `COMMIT`;
+- **injected system faults** (true positives): the simulator or the model is mutated so that the fleet manager does not apply a due sanction while ticks continue to be recorded, which R1 detects, and the coordinator is delayed so that `COMMIT` is late, which R2 detects. Deleting an existing `SANCTION` line from a log afterwards is a log defect, not a system fault: it may produce the same R1 verdict, but the ground truth differs, because the sanction was applied. Both the original and the modified log are kept, and the difference is explained;
 - **injected log defects** (false results): at least two defects from `MobileRobots/INSTRUCTIONS.md`, section 3.6, such as a missing `LEAVE` or a duplicate `COMMIT`, are injected, and the resulting false verdicts are explained.
 
 **Instrumentation (stretch goal).** The log is emitted from a ROS 2 simulation of the corridor (e.g., three zones in Gazebo or in a 2D simulator) using the `regulation_log.py` helper. The output is written to a dedicated file rather than through the ROS logger, whose prefix the parser does not accept. PObserve is then run on the resulting log.
@@ -1121,10 +1123,11 @@ The following table traces each norm of [Section 6](#6-the-system-robots-in-a-sh
 | Norm ([Section 6](#6-the-system-robots-in-a-shared-corridor)) | Property | Formula (informal) | Class | Enforcement | Design time | Run time | Test case | Log events |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | One robot per zone; no robot with a person | S1 | G ¬(occupancy > capacity ∨ (robot ∧ person in the same zone)) | safety | regimented | checker | PObserve | `tcFleetTwoPhase`, `tcFleetNaive` | CONFIG, ENTER, LEAVE, HUMAN\_ENTER, HUMAN\_LEAVE |
-| No admission under a superseded norm set; versions in order | S2 | G(admitted(z) → z not closed by the last committed norm set) ∧ commits in version order | safety | regimented | checker | PObserve | `tcFleetNaive` | ENTER, COMMIT |
+| No admission to a zone that the committed norm set closes; versions in order | S2 | G(admitted(z) → z not closed by the last committed norm set) ∧ commits in version order | safety | regimented | checker | PObserve | `tcFleetNaive` | ENTER, COMMIT |
 | Fulfilled or sanctioned, never both | S3 | G ¬(fulfilled(o) ∧ sanctioned(o)) | safety | by construction | checker | PObserve | all | FULFILLED, SANCTION |
 | Report before the deadline | L1, R1 | G(created → F resolved); G(created → F≤(Due+1) resolved) | liveness; bounded response | sanctioned | L1 | R1 | all | OBLIGATION, FULFILLED, SANCTION, TICK |
 | A requested closure is eventually installed | L2, R2 | G(started → F committed); within 5 ticks | liveness; bounded response | protocol | L2 | R2 | `tcFleetTwoPhase` | ADAPT\_START, COMMIT, TICK |
+| A requested closure is eventually committed or explicitly aborted | L3 | G(started → F(committed ∨ aborted)) | liveness | protocol | L3 | — | `tcFleetTwoPhase`; E9 variant | ADAPT\_START, COMMIT, ADAPT\_ABORT |
 | A person enters only after the commit | R3 | G(person enters z → z closed by the committed norm set) | safety | monitored | checker | PObserve | `tcFleetTwoPhase` | HUMAN\_ENTER, COMMIT |
 | Sanction only own non-compliance | F1 | G ¬(sanctioned(o) ∧ o abandoned earlier) | safety (approximation) | monitored | checker | PObserve | `tcFleetSanctionFairness` | ABANDON, SANCTION |
 
@@ -1139,8 +1142,9 @@ The following table traces each norm of [Section 6](#6-the-system-robots-in-a-sh
 | `eSanctionApplied` | SANCTION | Id, Agent | S3, L1, R1, F1 |
 | `eResourceEntered` | ENTER | Agent, Res, Ver | S1, S2 |
 | `eResourceLeft` | LEAVE | Agent, Res | S1 |
-| `eAdaptationStarted` | ADAPT\_START | Ver | L2, R2 |
-| `eNormCommitted` | COMMIT | Ver, Closed | S2, L2, R2, R3 |
+| `eAdaptationStarted` | ADAPT\_START | Ver | L2, L3, R2 |
+| `eNormCommitted` | COMMIT | Ver, Closed | S2, L2, L3, R2, R3 |
+| `eAdaptationAborted` | ADAPT\_ABORT | Ver | L3 (E9 only) |
 | `eHumanEntered`, `eHumanLeft` | HUMAN\_ENTER, HUMAN\_LEAVE | Res | S1; R3 (entry only) |
 | `eTaskAbandoned` | ABANDON | Id, Agent, Where | F1 |
 
@@ -1185,7 +1189,7 @@ The verification phase constitutes the core of the project. If the modeling work
 
 | Phase | Days | Activities | Deliverable or checkpoint | Exit criterion |
 | --- | --- | --- | --- | --- |
-| 1 Background | 1–7 | toolchain; `P-Tutorial`; [Sections 2](#2-background-multi-agent-systems)–5; first `p compile`, with the errors recorded | **D1** (day 7): background note, 2–3 pages, with the fleet placed in the unified-view grid and a one-page mapping of each machine to a regulation capability, stating which responsibilities are distributed and which centralized | note submitted; toolchain versions recorded |
+| 1 Background | 1–7 | toolchain; `P-Tutorial`; [Sections 2](#2-background-multi-agent-systems)–5; first `p compile`, with the errors recorded | **D1** (day 7): background note, 2–3 pages, with the fleet placed in the unified-view grid and a one-page mapping of each machine to a regulation capability, stating which responsibilities are distributed and which centralized | note submitted; toolchain versions recorded; toolchain preflight passed: the PObserve Java package builds with a Gradle wrapper pinned in the repository, and its JUnit tests run once on the sample logs |
 | 2 Model | 8–17 | compile errors fixed; modeling decisions justified; E0–E2 and at least three of E3–E5 and E9, each with a prediction recorded before the run | **Checkpoint** (day 17): validation record for the P steps; experiment log with change, prediction, result and explanation | project compiles; E0 shows that every monitor can fail; E1 and E2 recorded |
 | 3 Verification | 18–28 | analysis (days 18–22): denial causes recorded in `eTaskAbandoned`, refined cause-aware monitor; remedy (days 23–28): E6 or E7 | **D2** (day 28): verified model with the refined monitor, counterexample traces for both causes (or an argument that one cannot occur), all safety monitors still holding, the result of the remedy and the justification of the schedule count ([Section 5.9](#59-what-n-schedules-guarantee)) | the Must requirements of [Section 7.5](#75-requirements) that concern the model are met |
 | 4 Run time | 29–38 | PObserve package; logs with denial causes and remedy from the extended simulator; sanction counts by cause before and after the remedy; injection of system faults and log defects ([Section 7.4](#74-run-time-part-pobserve)) | **D3** (day 38): PObserve package, verdicts for every log, counts of flagged sanctions by cause before and after the remedy | JUnit tests pass on the sample logs; every log has a recorded verdict |
@@ -1222,18 +1226,20 @@ The `p-regulation` starter kit is given in the project folder of the repository;
 
 | Path | Content | Status |
 | --- | --- | --- |
-| `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
-| `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, system configuration, fairness monitor, test cases | draft, not yet compiled |
-| `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API and exercised only with stand-ins for the generated classes; not yet built with p compile --mode pobserve; JUnit not yet run |
-| `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | written; not yet validated with P or PObserve |
+| `Common/*.p` | shared model machines and monitors | compiles with P 3.1.0.0, without warnings (21 October 2026); the L3 monitor added afterwards is not yet compiled |
+| `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, system configuration, fairness monitor, test cases | compiles with P 3.1.0.0 (21 October 2026); the three test cases run as expected (see below) |
+| `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API; Java classes generated with `p compile --mode pobserve`; Java build, JUnit and PObserve replay not yet run |
+| `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | P steps run in the independent evaluation; Java and PObserve steps not yet validated |
 | `tools/simulate_logs.py` | generates two-phase / naive fleet logs and previews monitor results | tested |
 | `tools/instrumentation/regulation_log.py` | logging helper for ROS 2 / Python | tested |
+
+**Independent evaluation, 21 October 2026** (P 3.1.0.0, .NET SDK 8.0.426, OpenJDK 17.0.20.8). `p compile` succeeds without warnings. `tcFleetNaive` violates S2 on the first schedule (robot 2 is admitted under v0 to zone 1, which v1 closes). `tcFleetSanctionFairness` violates F1 on the first schedule, as intended. `tcFleetTwoPhase` reports no bug in 3,442 schedules within a 30-second run; this is not the 100,000-schedule acceptance run of experiment E1. `p compile --mode pobserve` generates the Java classes; the Java build, the JUnit tests and the PObserve replay have not yet been run, because neither Gradle nor Maven was installed and no wrapper is committed. Evidence: [reviews/evaluation-2026-10-21](https://github.com/perkusic/P-Language/tree/main/reviews/evaluation-2026-10-21).
 
 **Required environment:**
 
 - .NET SDK 8.0, followed by `dotnet tool install --global P`;
 - Java 17 or later;
-- Gradle 8.x;
+- Gradle 8.x, through a Gradle wrapper pinned in the repository (committed in week 1; the independent evaluation found neither Gradle nor Maven installed and no wrapper);
 - Python 3;
 - optionally, ROS 2 for the instrumentation stretch goal.
 

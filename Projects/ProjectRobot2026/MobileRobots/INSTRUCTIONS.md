@@ -9,7 +9,7 @@ Two robots deliver through a narrow corridor in opposite directions:
 
 A human picker needs zone 1, which must first be **closed to robots** (adaptation). A robot keeps its zone until the next one is granted. After 3 denials it parks in a side bay and abandons the delivery, and the organization then sanctions it.
 
-> **Verification status.** Nothing in this guide has been confirmed by running P or PObserve yet. The P files have not been compiled, and the Java parser has not been built (it depends on classes that `p compile --mode pobserve` generates). Every "expected" result below is a hypothesis. The only results actually produced so far come from the Python mirror of the monitors (`tools/simulate_logs.py --check`), recorded in section 5. Fill in the validation record there as you confirm each step.
+> **Verification status.** The independent evaluation of 21 October 2026 (`reviews/evaluation-2026-10-21`) compiled the P files and ran the first schedules of the three test cases (section 5). The Java parser has not been built and PObserve has not been run. Every other "expected" result below is a hypothesis. The only results actually produced so far come from the Python mirror of the monitors (`tools/simulate_logs.py --check`), recorded in section 5. Fill in the validation record there as you confirm each step.
 
 Grid cell (Yan et al., COINE 2025): **hybrid (environment + organization + agent)**, with responsibilities split as follows:
 
@@ -124,7 +124,7 @@ So a violation is a *candidate* unfair sanction. To attribute it, log the denial
 
 ### 2.3 Experiments worth running
 
-The experiment ids match section 7.3 of the specification, which also defines E0 (one mutant per monitor, to show that every monitor can fail; run it before trusting any "no bug found") and E9 (prepare timeout and abort). Write your prediction before each run.
+The experiment ids match section 7.3 of the specification, which also defines E0 (one mutant per monitor, to show that every monitor can fail; run it before trusting any "no bug found") and E9 (prepare timeout and abort). For E9, the coordinator announces an abort with `eAdaptationAborted` (log `ADAPT_ABORT, Ver`); the monitor `AdaptationTerminates` (L3) accepts a commit or an abort, while `AdaptationCompletes` (L2) fails by design for an aborted change. Acceptance cases: a timeout followed by an abort satisfies L3; a prepare neither committed nor aborted violates L3; an aborted prepare never admits the picker and leaves no controller blocked. Write your prediction before each run.
 
 | # | Change | Where | What to look for |
 |---|---|---|---|
@@ -154,6 +154,7 @@ Every component that takes part in regulation writes one line per event:
 | `FULFILLED` / `SANCTION` | `Id, Agent` | `eObligationFulfilled` / `eSanctionApplied` |
 | `ENTER` / `LEAVE` | `Agent, Res, Ver` / `Agent, Res` | `eResourceEntered` / `eResourceLeft` |
 | `ADAPT_START` | `Ver` | `eAdaptationStarted` |
+| `ADAPT_ABORT` | `Ver` (E9 only; extend the parser) | `eAdaptationAborted` |
 | `COMMIT` | `Ver, Closed=1` (`-` if none) | `eNormCommitted` |
 | `HUMAN_ENTER` / `HUMAN_LEAVE` | `Res` | `eHumanEntered` / `eHumanLeft` |
 
@@ -238,7 +239,7 @@ The run-time results are only as good as the log. The monitors assume:
 
 **The two bounds:**
 - `ObligationDeadlineRespected` uses a grace of **1 tick**. The obligation manager sanctions at the first tick where `now > Due`, and logs the `SANCTION` *after* that `TICK` line. So an obligation due at tick *d* is resolved by tick *d+1* at the latest, and the monitor complains at tick *d+2*. One tick is the smallest grace that does not raise false alarms; in 500 simulated runs every sanction came exactly one tick after its due time. Raise it if your engine checks deadlines less often than every tick.
-- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining zone 1 takes as long as a robot stays in it, and a blocked robot gives up after 3 denials. In 500 simulated two-phase fleet runs, the longest adaptation took 3 ticks. Set it from your domain (maximum dwell time in a zone plus the controllers' reaction time) and record why.
+- `AdaptationBoundedTime` allows **5 ticks** from `ADAPT_START` to `COMMIT`. This is a design choice, not derived from the model: draining zone 1 takes as long as a robot stays in it, and a blocked robot gives up after 3 denials. In 500 simulated two-phase fleet runs, the longest adaptation, measured from `ADAPT_START` to `COMMIT` and so including protocol delay, took 3 ticks; this is an empirical value, not a bound. Set it from your domain (maximum dwell time in a zone plus the controllers' reaction time) and record why.
 
 **Bounded monitors need later ticks.** Both bounded monitors check only when a `TICK` arrives. If the log ends before tick *d+2* (or 5 ticks after `ADAPT_START`), an unresolved obligation or adaptation is simply not reported. A clean result on a log that stops early does not show that work completed.
 
@@ -301,17 +302,18 @@ wrote 215 lines to src/test/resources/fleet_naive.log
 
 The simulator is deterministic for a given seed, so these commands reproduce the committed sample logs byte for byte.
 
-Across 500 simulated two-phase runs (seeds 0–499, 60 ticks), there were 4,479 sanctions. An earlier version of the fairness monitor, which flagged any sanction against a robot that had *ever* abandoned a task, flagged 4,255 of them. The current monitor, which matches the obligation id, flags 3,468. The 787 difference were sanctions on later obligations unrelated to the abandoned task.
+Across 500 simulated two-phase runs (seeds 0–499, 60 ticks), there were 4,479 sanctions. An earlier version of the fairness monitor, which flagged any sanction against a robot that had *ever* abandoned a task, flagged 4,255 of them. The current monitor, which matches the obligation id, flags 3,468. The 787 difference were sanctions on later obligations unrelated to the abandoned task. F1 was violated in all 500 runs. These are counts of candidates flagged by an order-sensitive monitor, not counts of all unfair sanctions: a sanction recorded before the abandonment is not flagged (probes `probe-abandon-first.txt` and `probe-sanction-first.txt` in `reviews/evaluation-2026-10-21`; a refined monitor must flag both).
 
-**Still to do:**
+**P and PObserve steps** (rows marked "independent evaluation" were run by the reviewer, not by the students; repeat them and add your own versions and results):
 
 | Step | Command | Tool versions | Seed / schedules | Actual result |
 |---|---|---|---|---|
-| Compile the model | `p compile` | | — | |
-| Two-phase design (E1) | `p check -tc tcFleetTwoPhase -s 100000` | | | |
-| Naive design (E2) | `p check -tc tcFleetNaive -s 10000` | | | |
-| Fairness (E3) | `p check -tc tcFleetSanctionFairness -s 10000` | | | |
-| PObserve package build and JUnit | `./gradlew build` | | — | |
+| Compile the model | `p compile` | P 3.1.0.0, .NET SDK 8.0.426 | — | succeeds, no warnings (independent evaluation, 2026-10-21; before L3 was added) |
+| Compile for PObserve | `p compile --mode pobserve` | P 3.1.0.0 | — | Java classes generated (independent evaluation, 2026-10-21) |
+| Two-phase design (E1) | `p check -tc tcFleetTwoPhase -s 100000` | P 3.1.0.0 | 30-second run, 3,442 schedules | no bug (independent evaluation, 2026-10-21); the 100,000-schedule run is still to do |
+| Naive design (E2) | `p check -tc tcFleetNaive -s 10000` | P 3.1.0.0 | schedule 1 | S2 fails: robot 2 admitted under v0 to zone 1, closed by v1 (independent evaluation, 2026-10-21) |
+| Fairness (E3) | `p check -tc tcFleetSanctionFairness -s 10000` | P 3.1.0.0 | schedule 1 | F1 fails, as intended (independent evaluation, 2026-10-21) |
+| PObserve package build and JUnit | `./gradlew build` (pinned wrapper) | OpenJDK 17.0.20.8 | — | not run: Gradle and Maven absent, no wrapper committed |
 | PObserve CLI on both sample logs | `./run_pobserve.sh <log>` | | — | |
 
 For each failing check, keep the trace (`.txt` and `.schedule`) from `PCheckerOutput/BugFinding/` and note the seed that reproduces it.

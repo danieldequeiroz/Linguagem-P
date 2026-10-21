@@ -1,0 +1,10 @@
+<Project>
+  <ProjectName>MonitorProbes</ProjectName>
+  <InputFiles>
+    <PFile>../../Projects/ProjectRobot2026/Common/MonitorEvents.p</PFile>
+    <PFile>../../Projects/ProjectRobot2026/Common/Specs.p</PFile>
+    <PFile>../../Projects/ProjectRobot2026/MobileRobots/PSpec/FleetSpecs.p</PFile>
+    <PFile>MonitorProbes.p</PFile>
+  </InputFiles>
+  <OutputDir>probe-generated</OutputDir>
+</Project>

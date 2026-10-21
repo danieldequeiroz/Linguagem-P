@@ -33,5 +33,8 @@ event eResourceEntered: tEnter;
 event eResourceLeft: tLeave;
 event eAdaptationStarted: int;             // pending norm-set version
 event eNormCommitted: tNormSet;
+// Announced by a coordinator that abandons a prepared change (experiment E8:
+// prepare timeout and abort). The starter-kit coordinator never aborts.
+event eAdaptationAborted: int;             // aborted norm-set version
 event eHumanEntered: int;                  // resource id
 event eHumanLeft: int;

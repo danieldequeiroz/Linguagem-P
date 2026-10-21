@@ -1,0 +1,134 @@
+<TestLog> Running test 'tcCellNaive'.
+<CreateLog> PImplementation.RegimentationSafety was created.
+<MonitorLog> PImplementation.RegimentationSafety enters state 'Init'.
+<CreateLog> PImplementation.NoStaleAdmission was created.
+<MonitorLog> PImplementation.NoStaleAdmission enters state 'Watching'.
+<CreateLog> PImplementation.NoDoubleOutcome was created.
+<MonitorLog> PImplementation.NoDoubleOutcome enters state 'Watching'.
+<CreateLog> PImplementation.EveryObligationResolved was created.
+<MonitorLog> PImplementation.EveryObligationResolved enters cold state 'NoneOpen'.
+<CreateLog> PImplementation.AdaptationCompletes was created.
+<MonitorLog> PImplementation.AdaptationCompletes enters cold state 'Idle'.
+<CreateLog> PImplementation.LockoutBeforeEntry was created.
+<MonitorLog> PImplementation.LockoutBeforeEntry enters state 'Watching'.
+<CreateLog> TestCellNaive(1) was created by task '38'.
+<StateLog> TestCellNaive(1) enters state 'Init'.
+<CreateLog> ManufacturingSystem(2) was created by TestCellNaive(1).
+<StateLog> ManufacturingSystem(2) enters state 'Init'.
+<AnnounceLog> 'ManufacturingSystem(2)' announced event 'eMonitorConfig' with payload (<0->1>).
+<MonitorLog> RegimentationSafety is processing event 'eMonitorConfig with payload ((<0->1>))' in state 'Init'.
+<MonitorLog> Monitor 'RegimentationSafety' raised event 'GotoStateEvent' in state 'Init'.
+<MonitorLog> PImplementation.RegimentationSafety exits state 'Init'.
+<MonitorLog> PImplementation.RegimentationSafety enters state 'Watching'.
+<CreateLog> ResourceGuard(3) was created by ManufacturingSystem(2).
+<StateLog> ResourceGuard(3) enters state 'Init'.
+<GotoLog> ResourceGuard(3) is transitioning from state 'Init' to state 'PImplementation.ResourceGuard.Open'.
+<StateLog> ResourceGuard(3) exits state 'Init'.
+<StateLog> ResourceGuard(3) enters state 'Open'.
+<CreateLog> AdaptationCoordinator(4) was created by ManufacturingSystem(2).
+<CreateLog> ObligationManager(5) was created by ManufacturingSystem(2).
+<StateLog> AdaptationCoordinator(4) enters state 'Init'.
+<GotoLog> AdaptationCoordinator(4) is transitioning from state 'Init' to state 'PImplementation.AdaptationCoordinator.Stable'.
+<StateLog> AdaptationCoordinator(4) exits state 'Init'.
+<StateLog> AdaptationCoordinator(4) enters state 'Stable'.
+<StateLog> ObligationManager(5) enters state 'Active'.
+<CreateLog> CellAgent(6) was created by ManufacturingSystem(2).
+<CreateLog> CellAgent(7) was created by ManufacturingSystem(2).
+<StateLog> CellAgent(6) enters state 'Init'.
+<GotoLog> CellAgent(6) is transitioning from state 'Init' to state 'PImplementation.CellAgent.Idle'.
+<StateLog> CellAgent(6) exits state 'Init'.
+<StateLog> CellAgent(6) enters state 'Idle'.
+<StateLog> CellAgent(7) enters state 'Init'.
+<GotoLog> CellAgent(7) is transitioning from state 'Init' to state 'PImplementation.CellAgent.Idle'.
+<StateLog> CellAgent(7) exits state 'Init'.
+<StateLog> CellAgent(7) enters state 'Idle'.
+<SendLog> 'ManufacturingSystem(2)' in state 'Init' sent event 'eAssignTask with payload (<agent:1, agentRef:CellAgent(6), task:100, due:4, >)' to 'ObligationManager(5)'.
+<SendLog> 'ManufacturingSystem(2)' in state 'Init' sent event 'eAssignTask with payload (<agent:2, agentRef:CellAgent(7), task:200, due:6, >)' to 'ObligationManager(5)'.
+<CreateLog> Clock(8) was created by ManufacturingSystem(2).
+<CreateLog> HumanRequester(9) was created by ManufacturingSystem(2).
+<DequeueLog> 'ObligationManager(5)' dequeued event 'eAssignTask with payload (<agent:1, agentRef:CellAgent(6), task:100, due:4, >)' in state 'Active'.
+<AnnounceLog> 'ObligationManager(5)' announced event 'eObligationCreated' with payload <id:0, agent:1, task:100, due:4, >.
+<MonitorLog> EveryObligationResolved is processing event 'eObligationCreated with payload (<id:0, agent:1, task:100, due:4, >)' in state 'NoneOpen'.
+<MonitorLog> Monitor 'EveryObligationResolved' raised event 'GotoStateEvent' in state 'NoneOpen'.
+<MonitorLog> PImplementation.EveryObligationResolved exits cold state 'NoneOpen'.
+<MonitorLog> PImplementation.EveryObligationResolved enters hot state 'SomeOpen'.
+<StateLog> Clock(8) enters state 'Init'.
+<GotoLog> Clock(8) is transitioning from state 'Init' to state 'PImplementation.Clock.Ticking'.
+<StateLog> Clock(8) exits state 'Init'.
+<StateLog> Clock(8) enters state 'Ticking'.
+<SendLog> 'Clock(8)' in state 'Ticking' sent event 'eTick with payload (1)' to 'ObligationManager(5)'.
+<SendLog> 'ObligationManager(5)' in state 'Active' sent event 'eObligationNotice with payload (<id:0, agent:1, task:100, due:4, >)' to 'CellAgent(6)'.
+<StateLog> HumanRequester(9) enters state 'Init'.
+<DequeueLog> 'ObligationManager(5)' dequeued event 'eAssignTask with payload (<agent:2, agentRef:CellAgent(7), task:200, due:6, >)' in state 'Active'.
+<AnnounceLog> 'ObligationManager(5)' announced event 'eObligationCreated' with payload <id:1, agent:2, task:200, due:6, >.
+<MonitorLog> EveryObligationResolved is processing event 'eObligationCreated with payload (<id:1, agent:2, task:200, due:6, >)' in state 'SomeOpen'.
+<SendLog> 'ObligationManager(5)' in state 'Active' sent event 'eObligationNotice with payload (<id:1, agent:2, task:200, due:6, >)' to 'CellAgent(7)'.
+<DequeueLog> 'CellAgent(6)' dequeued event 'eObligationNotice with payload (<id:0, agent:1, task:100, due:4, >)' in state 'Idle'.
+<GotoLog> CellAgent(6) is transitioning from state 'Idle' to state 'PImplementation.CellAgent.Requesting'.
+<StateLog> CellAgent(6) exits state 'Idle'.
+<StateLog> CellAgent(6) enters state 'Requesting'.
+<SendLog> 'CellAgent(6)' in state 'Requesting' sent event 'eAccessRequest with payload (<agent:1, agentRef:CellAgent(6), resource:0, >)' to 'ResourceGuard(3)'.
+<SendLog> 'Clock(8)' in state 'Ticking' sent event 'eContinue' to 'Clock(8)'.
+<SendLog> 'HumanRequester(9)' in state 'Init' sent event 'eContinue' to 'HumanRequester(9)'.
+<GotoLog> HumanRequester(9) is transitioning from state 'Init' to state 'PImplementation.HumanRequester.Outside'.
+<StateLog> HumanRequester(9) exits state 'Init'.
+<StateLog> HumanRequester(9) enters state 'Outside'.
+<DequeueLog> 'ResourceGuard(3)' dequeued event 'eAccessRequest with payload (<agent:1, agentRef:CellAgent(6), resource:0, >)' in state 'Open'.
+<AnnounceLog> 'ResourceGuard(3)' announced event 'eResourceEntered' with payload <agent:1, res:0, ver:0, >.
+<MonitorLog> RegimentationSafety is processing event 'eResourceEntered with payload (<agent:1, res:0, ver:0, >)' in state 'Watching'.
+<MonitorLog> NoStaleAdmission is processing event 'eResourceEntered with payload (<agent:1, res:0, ver:0, >)' in state 'Watching'.
+<SendLog> 'ResourceGuard(3)' in state 'Open' sent event 'eAccessGranted with payload (<resource:0, version:0, >)' to 'CellAgent(6)'.
+<DequeueLog> 'HumanRequester(9)' dequeued event 'eContinue' in state 'Outside'.
+<SendLog> 'HumanRequester(9)' in state 'Outside' sent event 'eAdaptationTriggered with payload (<resource:0, close:True, requester:HumanRequester(9), >)' to 'AdaptationCoordinator(4)'.
+<GotoLog> HumanRequester(9) is transitioning from state 'Outside' to state 'PImplementation.HumanRequester.WaitingForLock'.
+<StateLog> HumanRequester(9) exits state 'Outside'.
+<StateLog> HumanRequester(9) enters state 'WaitingForLock'.
+<DequeueLog> 'ObligationManager(5)' dequeued event 'eTick with payload (1)' in state 'Active'.
+<DequeueLog> 'Clock(8)' dequeued event 'eContinue' in state 'Ticking'.
+<GotoLog> Clock(8) is transitioning from state 'Ticking' to state 'PImplementation.Clock.Ticking'.
+<StateLog> Clock(8) exits state 'Ticking'.
+<StateLog> Clock(8) enters state 'Ticking'.
+<SendLog> 'Clock(8)' in state 'Ticking' sent event 'eTick with payload (2)' to 'ObligationManager(5)'.
+<DequeueLog> 'ObligationManager(5)' dequeued event 'eTick with payload (2)' in state 'Active'.
+<DequeueLog> 'CellAgent(7)' dequeued event 'eObligationNotice with payload (<id:1, agent:2, task:200, due:6, >)' in state 'Idle'.
+<GotoLog> CellAgent(7) is transitioning from state 'Idle' to state 'PImplementation.CellAgent.Requesting'.
+<StateLog> CellAgent(7) exits state 'Idle'.
+<StateLog> CellAgent(7) enters state 'Requesting'.
+<SendLog> 'CellAgent(7)' in state 'Requesting' sent event 'eAccessRequest with payload (<agent:2, agentRef:CellAgent(7), resource:0, >)' to 'ResourceGuard(3)'.
+<DequeueLog> 'CellAgent(6)' dequeued event 'eAccessGranted with payload (<resource:0, version:0, >)' in state 'Requesting'.
+<GotoLog> CellAgent(6) is transitioning from state 'Requesting' to state 'PImplementation.CellAgent.Working'.
+<StateLog> CellAgent(6) exits state 'Requesting'.
+<StateLog> CellAgent(6) enters state 'Working'.
+<DequeueLog> 'ResourceGuard(3)' dequeued event 'eAccessRequest with payload (<agent:2, agentRef:CellAgent(7), resource:0, >)' in state 'Open'.
+<DequeueLog> 'AdaptationCoordinator(4)' dequeued event 'eAdaptationTriggered with payload (<resource:0, close:True, requester:HumanRequester(9), >)' in state 'Stable'.
+<AnnounceLog> 'AdaptationCoordinator(4)' announced event 'eAdaptationStarted' with payload 1.
+<MonitorLog> AdaptationCompletes is processing event 'eAdaptationStarted with payload (1)' in state 'Idle'.
+<MonitorLog> PImplementation.AdaptationCompletes exits cold state 'Idle'.
+<MonitorLog> PImplementation.AdaptationCompletes enters hot state 'InProgress'.
+<GotoLog> AdaptationCoordinator(4) is transitioning from state 'Stable' to state 'PImplementation.AdaptationCoordinator.Committing'.
+<StateLog> AdaptationCoordinator(4) exits state 'Stable'.
+<StateLog> AdaptationCoordinator(4) enters state 'Committing'.
+<AnnounceLog> 'AdaptationCoordinator(4)' announced event 'eNormCommitted' with payload <ver:1, closed:(<0>), >.
+<MonitorLog> NoStaleAdmission is processing event 'eNormCommitted with payload (<ver:1, closed:(<0>), >)' in state 'Watching'.
+<MonitorLog> AdaptationCompletes is processing event 'eNormCommitted with payload (<ver:1, closed:(<0>), >)' in state 'InProgress'.
+<MonitorLog> PImplementation.AdaptationCompletes exits hot state 'InProgress'.
+<MonitorLog> PImplementation.AdaptationCompletes enters cold state 'Idle'.
+<MonitorLog> LockoutBeforeEntry is processing event 'eNormCommitted with payload (<ver:1, closed:(<0>), >)' in state 'Watching'.
+<SendLog> 'ResourceGuard(3)' in state 'Open' sent event 'eAccessDenied with payload (0)' to 'CellAgent(7)'.
+<SendLog> 'AdaptationCoordinator(4)' in state 'Committing' sent event 'eNormCommit with payload (<ver:1, closed:(<0>), >)' to 'ResourceGuard(3)'.
+<SendLog> 'AdaptationCoordinator(4)' in state 'Committing' sent event 'eAdaptationDone with payload (<ver:1, closed:(<0>), >)' to 'HumanRequester(9)'.
+<GotoLog> AdaptationCoordinator(4) is transitioning from state 'Committing' to state 'PImplementation.AdaptationCoordinator.Stable'.
+<StateLog> AdaptationCoordinator(4) exits state 'Committing'.
+<StateLog> AdaptationCoordinator(4) enters state 'Stable'.
+<DequeueLog> 'HumanRequester(9)' dequeued event 'eAdaptationDone with payload (<ver:1, closed:(<0>), >)' in state 'WaitingForLock'.
+<AnnounceLog> 'HumanRequester(9)' announced event 'eHumanEntered' with payload 0.
+<MonitorLog> RegimentationSafety is processing event 'eHumanEntered with payload (0)' in state 'Watching'.
+<ErrorLog> Assertion Failed: ..\Common\Specs.p:32:7 human entered resource 0 while agents were inside
+<StrategyLog> Found bug using 'random' strategy.
+<StrategyLog> Checking statistics:
+<StrategyLog> Found 1 bug.
+<StrategyLog> Scheduling statistics:
+<StrategyLog> Explored 2 schedules
+<StrategyLog> Explored 2 timelines
+<StrategyLog> Found 50.00% buggy schedules.
+<StrategyLog> Number of scheduling points in terminating schedules: 46 (min), 77 (avg), 108 (max).

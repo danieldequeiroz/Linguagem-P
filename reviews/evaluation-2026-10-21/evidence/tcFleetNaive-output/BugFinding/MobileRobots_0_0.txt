@@ -1,0 +1,140 @@
+<TestLog> Running test 'tcFleetNaive'.
+<CreateLog> PImplementation.RegimentationSafety was created.
+<MonitorLog> PImplementation.RegimentationSafety enters state 'Init'.
+<CreateLog> PImplementation.NoStaleAdmission was created.
+<MonitorLog> PImplementation.NoStaleAdmission enters state 'Watching'.
+<CreateLog> PImplementation.NoDoubleOutcome was created.
+<MonitorLog> PImplementation.NoDoubleOutcome enters state 'Watching'.
+<CreateLog> PImplementation.EveryObligationResolved was created.
+<MonitorLog> PImplementation.EveryObligationResolved enters cold state 'NoneOpen'.
+<CreateLog> PImplementation.AdaptationCompletes was created.
+<MonitorLog> PImplementation.AdaptationCompletes enters cold state 'Idle'.
+<CreateLog> PImplementation.LockoutBeforeEntry was created.
+<MonitorLog> PImplementation.LockoutBeforeEntry enters state 'Watching'.
+<CreateLog> TestFleetNaive(1) was created by task '2'.
+<StateLog> TestFleetNaive(1) enters state 'Init'.
+<CreateLog> FleetSystem(2) was created by TestFleetNaive(1).
+<StateLog> FleetSystem(2) enters state 'Init'.
+<AnnounceLog> 'FleetSystem(2)' announced event 'eMonitorConfig' with payload (<0->1>, <1->1>, <2->1>).
+<MonitorLog> RegimentationSafety is processing event 'eMonitorConfig with payload ((<0->1>, <1->1>, <2->1>))' in state 'Init'.
+<MonitorLog> Monitor 'RegimentationSafety' raised event 'GotoStateEvent' in state 'Init'.
+<MonitorLog> PImplementation.RegimentationSafety exits state 'Init'.
+<MonitorLog> PImplementation.RegimentationSafety enters state 'Watching'.
+<CreateLog> ResourceGuard(3) was created by FleetSystem(2).
+<CreateLog> ResourceGuard(4) was created by FleetSystem(2).
+<StateLog> ResourceGuard(4) enters state 'Init'.
+<GotoLog> ResourceGuard(4) is transitioning from state 'Init' to state 'PImplementation.ResourceGuard.Open'.
+<StateLog> ResourceGuard(4) exits state 'Init'.
+<StateLog> ResourceGuard(4) enters state 'Open'.
+<StateLog> ResourceGuard(3) enters state 'Init'.
+<GotoLog> ResourceGuard(3) is transitioning from state 'Init' to state 'PImplementation.ResourceGuard.Open'.
+<StateLog> ResourceGuard(3) exits state 'Init'.
+<StateLog> ResourceGuard(3) enters state 'Open'.
+<CreateLog> ResourceGuard(5) was created by FleetSystem(2).
+<StateLog> ResourceGuard(5) enters state 'Init'.
+<GotoLog> ResourceGuard(5) is transitioning from state 'Init' to state 'PImplementation.ResourceGuard.Open'.
+<StateLog> ResourceGuard(5) exits state 'Init'.
+<StateLog> ResourceGuard(5) enters state 'Open'.
+<CreateLog> AdaptationCoordinator(6) was created by FleetSystem(2).
+<CreateLog> ObligationManager(7) was created by FleetSystem(2).
+<StateLog> AdaptationCoordinator(6) enters state 'Init'.
+<GotoLog> AdaptationCoordinator(6) is transitioning from state 'Init' to state 'PImplementation.AdaptationCoordinator.Stable'.
+<StateLog> AdaptationCoordinator(6) exits state 'Init'.
+<StateLog> AdaptationCoordinator(6) enters state 'Stable'.
+<CreateLog> Robot(8) was created by FleetSystem(2).
+<StateLog> ObligationManager(7) enters state 'Active'.
+<CreateLog> Robot(9) was created by FleetSystem(2).
+<StateLog> Robot(8) enters state 'Init'.
+<GotoLog> Robot(8) is transitioning from state 'Init' to state 'PImplementation.Robot.Idle'.
+<StateLog> Robot(8) exits state 'Init'.
+<StateLog> Robot(8) enters state 'Idle'.
+<SendLog> 'FleetSystem(2)' in state 'Init' sent event 'eAssignTask with payload (<agent:1, agentRef:Robot(8), task:10, due:5, >)' to 'ObligationManager(7)'.
+<StateLog> Robot(9) enters state 'Init'.
+<GotoLog> Robot(9) is transitioning from state 'Init' to state 'PImplementation.Robot.Idle'.
+<StateLog> Robot(9) exits state 'Init'.
+<StateLog> Robot(9) enters state 'Idle'.
+<DequeueLog> 'ObligationManager(7)' dequeued event 'eAssignTask with payload (<agent:1, agentRef:Robot(8), task:10, due:5, >)' in state 'Active'.
+<AnnounceLog> 'ObligationManager(7)' announced event 'eObligationCreated' with payload <id:0, agent:1, task:10, due:5, >.
+<MonitorLog> EveryObligationResolved is processing event 'eObligationCreated with payload (<id:0, agent:1, task:10, due:5, >)' in state 'NoneOpen'.
+<MonitorLog> Monitor 'EveryObligationResolved' raised event 'GotoStateEvent' in state 'NoneOpen'.
+<MonitorLog> PImplementation.EveryObligationResolved exits cold state 'NoneOpen'.
+<MonitorLog> PImplementation.EveryObligationResolved enters hot state 'SomeOpen'.
+<SendLog> 'FleetSystem(2)' in state 'Init' sent event 'eAssignTask with payload (<agent:2, agentRef:Robot(9), task:20, due:5, >)' to 'ObligationManager(7)'.
+<CreateLog> Clock(10) was created by FleetSystem(2).
+<CreateLog> HumanRequester(11) was created by FleetSystem(2).
+<StateLog> HumanRequester(11) enters state 'Init'.
+<SendLog> 'HumanRequester(11)' in state 'Init' sent event 'eContinue' to 'HumanRequester(11)'.
+<GotoLog> HumanRequester(11) is transitioning from state 'Init' to state 'PImplementation.HumanRequester.Outside'.
+<StateLog> HumanRequester(11) exits state 'Init'.
+<StateLog> HumanRequester(11) enters state 'Outside'.
+<StateLog> Clock(10) enters state 'Init'.
+<GotoLog> Clock(10) is transitioning from state 'Init' to state 'PImplementation.Clock.Ticking'.
+<StateLog> Clock(10) exits state 'Init'.
+<StateLog> Clock(10) enters state 'Ticking'.
+<SendLog> 'ObligationManager(7)' in state 'Active' sent event 'eObligationNotice with payload (<id:0, agent:1, task:10, due:5, >)' to 'Robot(8)'.
+<SendLog> 'Clock(10)' in state 'Ticking' sent event 'eTick with payload (1)' to 'ObligationManager(7)'.
+<DequeueLog> 'ObligationManager(7)' dequeued event 'eAssignTask with payload (<agent:2, agentRef:Robot(9), task:20, due:5, >)' in state 'Active'.
+<AnnounceLog> 'ObligationManager(7)' announced event 'eObligationCreated' with payload <id:1, agent:2, task:20, due:5, >.
+<MonitorLog> EveryObligationResolved is processing event 'eObligationCreated with payload (<id:1, agent:2, task:20, due:5, >)' in state 'SomeOpen'.
+<DequeueLog> 'HumanRequester(11)' dequeued event 'eContinue' in state 'Outside'.
+<SendLog> 'Clock(10)' in state 'Ticking' sent event 'eContinue' to 'Clock(10)'.
+<DequeueLog> 'Clock(10)' dequeued event 'eContinue' in state 'Ticking'.
+<GotoLog> Clock(10) is transitioning from state 'Ticking' to state 'PImplementation.Clock.Ticking'.
+<StateLog> Clock(10) exits state 'Ticking'.
+<StateLog> Clock(10) enters state 'Ticking'.
+<SendLog> 'ObligationManager(7)' in state 'Active' sent event 'eObligationNotice with payload (<id:1, agent:2, task:20, due:5, >)' to 'Robot(9)'.
+<DequeueLog> 'ObligationManager(7)' dequeued event 'eTick with payload (1)' in state 'Active'.
+<DequeueLog> 'Robot(9)' dequeued event 'eObligationNotice with payload (<id:1, agent:2, task:20, due:5, >)' in state 'Idle'.
+<GotoLog> Robot(9) is transitioning from state 'Idle' to state 'PImplementation.Robot.Moving'.
+<StateLog> Robot(9) exits state 'Idle'.
+<StateLog> Robot(9) enters state 'Moving'.
+<SendLog> 'Clock(10)' in state 'Ticking' sent event 'eTick with payload (2)' to 'ObligationManager(7)'.
+<SendLog> 'HumanRequester(11)' in state 'Outside' sent event 'eAdaptationTriggered with payload (<resource:1, close:True, requester:HumanRequester(11), >)' to 'AdaptationCoordinator(6)'.
+<GotoLog> HumanRequester(11) is transitioning from state 'Outside' to state 'PImplementation.HumanRequester.WaitingForLock'.
+<StateLog> HumanRequester(11) exits state 'Outside'.
+<StateLog> HumanRequester(11) enters state 'WaitingForLock'.
+<DequeueLog> 'AdaptationCoordinator(6)' dequeued event 'eAdaptationTriggered with payload (<resource:1, close:True, requester:HumanRequester(11), >)' in state 'Stable'.
+<AnnounceLog> 'AdaptationCoordinator(6)' announced event 'eAdaptationStarted' with payload 1.
+<MonitorLog> AdaptationCompletes is processing event 'eAdaptationStarted with payload (1)' in state 'Idle'.
+<MonitorLog> PImplementation.AdaptationCompletes exits cold state 'Idle'.
+<MonitorLog> PImplementation.AdaptationCompletes enters hot state 'InProgress'.
+<GotoLog> AdaptationCoordinator(6) is transitioning from state 'Stable' to state 'PImplementation.AdaptationCoordinator.Committing'.
+<StateLog> AdaptationCoordinator(6) exits state 'Stable'.
+<StateLog> AdaptationCoordinator(6) enters state 'Committing'.
+<AnnounceLog> 'AdaptationCoordinator(6)' announced event 'eNormCommitted' with payload <ver:1, closed:(<1>), >.
+<MonitorLog> NoStaleAdmission is processing event 'eNormCommitted with payload (<ver:1, closed:(<1>), >)' in state 'Watching'.
+<MonitorLog> AdaptationCompletes is processing event 'eNormCommitted with payload (<ver:1, closed:(<1>), >)' in state 'InProgress'.
+<MonitorLog> PImplementation.AdaptationCompletes exits hot state 'InProgress'.
+<MonitorLog> PImplementation.AdaptationCompletes enters cold state 'Idle'.
+<MonitorLog> LockoutBeforeEntry is processing event 'eNormCommitted with payload (<ver:1, closed:(<1>), >)' in state 'Watching'.
+<DequeueLog> 'Robot(8)' dequeued event 'eObligationNotice with payload (<id:0, agent:1, task:10, due:5, >)' in state 'Idle'.
+<GotoLog> Robot(8) is transitioning from state 'Idle' to state 'PImplementation.Robot.Moving'.
+<StateLog> Robot(8) exits state 'Idle'.
+<StateLog> Robot(8) enters state 'Moving'.
+<SendLog> 'Clock(10)' in state 'Ticking' sent event 'eContinue' to 'Clock(10)'.
+<SendLog> 'Robot(9)' in state 'Moving' sent event 'eAccessRequest with payload (<agent:2, agentRef:Robot(9), resource:2, >)' to 'ResourceGuard(5)'.
+<SendLog> 'AdaptationCoordinator(6)' in state 'Committing' sent event 'eNormCommit with payload (<ver:1, closed:(<1>), >)' to 'ResourceGuard(3)'.
+<DequeueLog> 'ResourceGuard(3)' dequeued event 'eNormCommit with payload (<ver:1, closed:(<1>), >)' in state 'Open'.
+<DequeueLog> 'ResourceGuard(5)' dequeued event 'eAccessRequest with payload (<agent:2, agentRef:Robot(9), resource:2, >)' in state 'Open'.
+<AnnounceLog> 'ResourceGuard(5)' announced event 'eResourceEntered' with payload <agent:2, res:2, ver:0, >.
+<MonitorLog> RegimentationSafety is processing event 'eResourceEntered with payload (<agent:2, res:2, ver:0, >)' in state 'Watching'.
+<MonitorLog> NoStaleAdmission is processing event 'eResourceEntered with payload (<agent:2, res:2, ver:0, >)' in state 'Watching'.
+<SendLog> 'ResourceGuard(5)' in state 'Open' sent event 'eAccessGranted with payload (<resource:2, version:0, >)' to 'Robot(9)'.
+<DequeueLog> 'Robot(9)' dequeued event 'eAccessGranted with payload (<resource:2, version:0, >)' in state 'Moving'.
+<GotoLog> Robot(9) is transitioning from state 'Moving' to state 'PImplementation.Robot.Moving'.
+<StateLog> Robot(9) exits state 'Moving'.
+<StateLog> Robot(9) enters state 'Moving'.
+<SendLog> 'Robot(9)' in state 'Moving' sent event 'eAccessRequest with payload (<agent:2, agentRef:Robot(9), resource:1, >)' to 'ResourceGuard(4)'.
+<DequeueLog> 'ResourceGuard(4)' dequeued event 'eAccessRequest with payload (<agent:2, agentRef:Robot(9), resource:1, >)' in state 'Open'.
+<AnnounceLog> 'ResourceGuard(4)' announced event 'eResourceEntered' with payload <agent:2, res:1, ver:0, >.
+<MonitorLog> RegimentationSafety is processing event 'eResourceEntered with payload (<agent:2, res:1, ver:0, >)' in state 'Watching'.
+<MonitorLog> NoStaleAdmission is processing event 'eResourceEntered with payload (<agent:2, res:1, ver:0, >)' in state 'Watching'.
+<ErrorLog> Assertion Failed: ..\Common\Specs.p:54:7 agent 2 admitted to resource 1, closed by committed norm set v1 (guard still on v0)
+<StrategyLog> Found bug using 'random' strategy.
+<StrategyLog> Checking statistics:
+<StrategyLog> Found 1 bug.
+<StrategyLog> Scheduling statistics:
+<StrategyLog> Explored 1 schedule
+<StrategyLog> Explored 1 timeline
+<StrategyLog> Found 100.00% buggy schedules.
+<StrategyLog> Number of scheduling points in terminating schedules: 48 (min), 48 (avg), 48 (max).
