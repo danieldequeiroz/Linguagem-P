@@ -22,7 +22,7 @@ The objective of this project is to build and verify the regulation layer of a s
 
 <a id="figure-1"></a>
 
-![Figure 1 · the problem: closing a corridor zone safely and sanctioning fairly](figures/figure1.png)
+![Figure 1 · the problem: closing a corridor zone safely and sanctioning fairly](figures/figure1.svg)
 
 *Figure 1 · the problem: closing a corridor zone safely and sanctioning fairly*
 
@@ -92,7 +92,7 @@ Most MAS platforms adopt the belief–desire–intention (BDI) model, in which a
 
 <a id="figure-2"></a>
 
-![Figure 2 · MAOP dimensions and JaCaMo technologies, with the fleet's components](figures/figure2.png)
+![Figure 2 · MAOP dimensions and JaCaMo technologies, with the fleet's components](figures/figure2.svg)
 
 *Figure 2 · MAOP dimensions and JaCaMo technologies, with the fleet's components*
 
@@ -121,7 +121,7 @@ A BDI agent repeats a **reasoning cycle** ([Figure 3](#figure-3)):
 
 <a id="figure-3"></a>
 
-![Figure 3 · the BDI reasoning cycle](figures/figure3.png)
+![Figure 3 · the BDI reasoning cycle](figures/figure3.svg)
 
 *Figure 3 · the BDI reasoning cycle*
 
@@ -299,7 +299,7 @@ For readers familiar with temporal logics such as LTL and CTL, the semantics of 
 
 <a id="figure-4"></a>
 
-![Figure 4 · the box of temporal logic and the box of deontic logic](figures/figure4.png)
+![Figure 4 · the box of temporal logic and the box of deontic logic](figures/figure4.svg)
 
 *Figure 4 · the box of temporal logic and the box of deontic logic*
 
@@ -336,7 +336,7 @@ The reduction also clarifies *whose* behavior a given property specifies ([Figur
 
 <a id="figure-5"></a>
 
-![Figure 5 · one trace read deontically (robots) and temporally (regulator)](figures/figure5.png)
+![Figure 5 · one trace read deontically (robots) and temporally (regulator)](figures/figure5.svg)
 
 *Figure 5 · one trace read deontically (robots) and temporally (regulator)*
 
@@ -375,7 +375,7 @@ Each norm instance evolves according to a small state machine. The monitors of [
 
 <a id="figure-6"></a>
 
-![Figure 6 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure6.png)
+![Figure 6 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure6.svg)
 
 *Figure 6 · lifecycle of an obligation instance, with the P events that mark each state*
 
@@ -404,7 +404,7 @@ Here Due(o) is the tick of assignment plus five. The additional tick of **grace*
 
 <a id="figure-7"></a>
 
-![Figure 7 · deadline, grace tick and the bounded-response monitor R1](figures/figure7.png)
+![Figure 7 · deadline, grace tick and the bounded-response monitor R1](figures/figure7.svg)
 
 *Figure 7 · deadline, grace tick and the bounded-response monitor R1*
 
@@ -417,7 +417,7 @@ Here Due(o) is the tick of assignment plus five. The additional tick of **grace*
 
 <a id="figure-8"></a>
 
-![Figure 8 · the monitor of L1 as an automaton with a cold and a hot state](figures/figure8.png)
+![Figure 8 · the monitor of L1 as an automaton with a cold and a hot state](figures/figure8.svg)
 
 *Figure 8 · the monitor of L1 as an automaton with a cold and a hot state*
 
@@ -490,7 +490,7 @@ The appropriate enforcement mechanism for a norm depends on two factors: the cos
 
 <a id="figure-9"></a>
 
-![Figure 9 · the norms of the fleet placed by cost and controllability](figures/figure9.png)
+![Figure 9 · the norms of the fleet placed by cost and controllability](figures/figure9.svg)
 
 *Figure 9 · the norms of the fleet placed by cost and controllability*
 
@@ -507,7 +507,7 @@ A sanction is intended to influence behavior by signaling to the agent that its 
 
 <a id="figure-10"></a>
 
-![Figure 10 · conditions for sanctioning a missed deadline](figures/figure10.png)
+![Figure 10 · conditions for sanctioning a missed deadline](figures/figure10.svg)
 
 *Figure 10 · conditions for sanctioning a missed deadline*
 
@@ -524,7 +524,7 @@ Two observations indicate that this is more than a matter of policy detail:
 
 <a id="figure-11"></a>
 
-![Figure 11 · F1 in the two possible orders of abandonment and sanction](figures/figure11.png)
+![Figure 11 · F1 in the two possible orders of abandonment and sanction](figures/figure11.svg)
 
 *Figure 11 · F1 in the two possible orders of abandonment and sanction*
 
@@ -547,7 +547,7 @@ Regulation management balances the autonomy of the agents against control over t
 
 <a id="figure-12"></a>
 
-![Figure 12 · the fleet placed in the unified-view grid](figures/figure12.png)
+![Figure 12 · the fleet placed in the unified-view grid](figures/figure12.svg)
 
 *Figure 12 · the fleet placed in the unified-view grid*
 
@@ -647,7 +647,7 @@ With one controller per zone, there is no single instant at which the rules chan
 
 <a id="figure-13"></a>
 
-![Figure 13 · versions of the norm set in each zone controller over time](figures/figure13.png)
+![Figure 13 · versions of the norm set in each zone controller over time](figures/figure13.svg)
 
 *Figure 13 · versions of the norm set in each zone controller over time*
 
@@ -716,7 +716,7 @@ spec SanctionsReflectMisconduct observes eTaskAbandoned, eSanctionApplied {
 
 <a id="figure-14"></a>
 
-![Figure 14 · design-time and run-time checking share most monitors](figures/figure14.png)
+![Figure 14 · design-time and run-time checking share most monitors](figures/figure14.svg)
 
 *Figure 14 · design-time and run-time checking share most monitors*
 
@@ -728,7 +728,7 @@ PObserve reports assertion failures but does not report hot states that remain o
 
 <a id="figure-15"></a>
 
-![Figure 15 · what the checker and PObserve can each establish](figures/figure15.png)
+![Figure 15 · what the checker and PObserve can each establish](figures/figure15.svg)
 
 *Figure 15 · what the checker and PObserve can each establish*
 
@@ -804,7 +804,7 @@ The search detects bugs but does not prove their absence. Models should therefor
 
 <a id="figure-16"></a>
 
-![Figure 16 · the orders of three closure events under the naive protocol](figures/figure16.png)
+![Figure 16 · the orders of three closure events under the naive protocol](figures/figure16.svg)
 
 *Figure 16 · the orders of three closure events under the naive protocol*
 
@@ -913,7 +913,7 @@ Two mobile robots deliver goods through a one-lane corridor consisting of three 
 
 <a id="figure-17"></a>
 
-![Figure 17 · fleet architecture, components by MAOP dimension](figures/figure17.png)
+![Figure 17 · fleet architecture, components by MAOP dimension](figures/figure17.svg)
 
 *Figure 17 · fleet architecture, components by MAOP dimension*
 
@@ -956,7 +956,7 @@ Because each zone controller decides independently ([Figure 17](#figure-17)), a 
 
 <a id="figure-18"></a>
 
-![Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences](figures/figure18.png)
+![Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences](figures/figure18.svg)
 
 *Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences*
 
@@ -968,7 +968,7 @@ The two central results expected from the project are a demonstration that the n
 
 <a id="figure-19"></a>
 
-![Figure 19 · the prepare–drain–commit protocol as two communicating state machines](figures/figure19.png)
+![Figure 19 · the prepare–drain–commit protocol as two communicating state machines](figures/figure19.svg)
 
 *Figure 19 · the prepare–drain–commit protocol as two communicating state machines*
 
@@ -982,7 +982,7 @@ The safety argument rests on the highlighted states. The figure also reveals the
 
 <a id="figure-20"></a>
 
-![Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes](figures/figure20.png)
+![Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes](figures/figure20.svg)
 
 *Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes*
 
@@ -1179,7 +1179,7 @@ The project comprises five phases over 45 calendar days, counted from the start 
 
 <a id="figure-21"></a>
 
-![Figure 21 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure21.png)
+![Figure 21 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure21.svg)
 
 *Figure 21 · work plan: 5 phases, 45 days, 5 deliverables*
 
