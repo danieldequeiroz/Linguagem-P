@@ -18,7 +18,7 @@ The objective of this project is to construct and verify the regulation layer of
 1. The regulation layer is modeled in the P language and verified by systematic model checking (design time).
 2. Execution logs of a running or simulated cell are checked against the same P monitors with PObserve (run time).
 
-[Figure 1](#figure-1) summarizes the problem addressed by the project. A robot arm and an automated guided vehicle (AGV) share a work envelope that admits one agent at a time, and a maintenance technician occasionally needs to enter the cell. Before the technician may enter, the adaptation coordinator installs a new norm set that closes the envelope (a lock-out), while the cell controller continues to admit or deny agents under the norm set it currently holds and the organization continues to assign jobs with deadlines and sanctions. The central risk lies in the transition window, during which these components may act under different norm sets. The project therefore asks two questions: whether a person and an agent can ever occupy the envelope together while the norms change (safety: S1, S2, S4), and whether every job obligation is resolved and every lock-out completes (liveness: L1, L2). Both questions are answered with the same monitors, checked on the model at design time and on logs of the running cell at run time.
+[Figure 1](#figure-1) summarizes the problem addressed by the project. Its left part shows the cell in top view: the fence, the circular work envelope of the arm, the lane of the AGV, and the door with its light curtain, which the cell controller (a PLC) interlocks with the envelope. A robot arm and an automated guided vehicle (AGV) share a work envelope that admits one agent at a time, and a maintenance technician occasionally needs to enter the cell. Before the technician may enter, the adaptation coordinator installs a new norm set that closes the envelope (a lock-out), while the cell controller continues to admit or deny agents under the norm set it currently holds and the organization continues to assign jobs with deadlines and sanctions. The central risk lies in the transition window, during which these components may act under different norm sets. Two questions must be answered: whether a person and an agent can ever occupy the envelope together while the norms change (safety: S1, S2, S4), and whether every job obligation is resolved and every lock-out completes (liveness: L1, L2). Both questions are answered with the same monitors, checked on the model at design time and on logs of the running cell at run time.
 
 <a id="figure-1"></a>
 
@@ -821,19 +821,13 @@ For every monitor, the project must therefore provide (a) a **mutant** of the mo
 
 ## 6. The system: a regulated manufacturing cell
 
-A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 15](#figure-15) shows the layout of the cell, and [Figure 16](#figure-16) its architecture by MAOP dimension.
+A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 1](#figure-1) shows the layout of the cell, and [Figure 15](#figure-15) its architecture by MAOP dimension.
 
 <a id="figure-15"></a>
 
-![Figure 15 · the cell seen from above (illustrative)](figures/figure15.png)
+![Figure 15 · cell architecture, components by MAOP dimension](figures/figure15.png)
 
-*Figure 15 · the cell seen from above (illustrative)*
-
-<a id="figure-16"></a>
-
-![Figure 16 · cell architecture, components by MAOP dimension](figures/figure16.png)
-
-*Figure 16 · cell architecture, components by MAOP dimension*
+*Figure 15 · cell architecture, components by MAOP dimension*
 
 The cell controller is the only means of access to the envelope, so regimented norms hold as long as its norm set is current. Keeping the norm set current during a lock-out is the responsibility of the coordinator, and the correctness of this function is the object of verification in this project.
 
@@ -865,28 +859,28 @@ The cell controller is the only means of access to the envelope, so regimented n
 | A requested lock-out is eventually installed, within a bounded time | obligation on the coordinator | monitored | adaptation | L2, R2 |
 | A resource is reopened only when no person is inside | prohibition on the coordinator | by construction after the fix of E4, monitored | adaptation and safety | S4 |
 
-**Execution policies.** Two policies for executing the lock-out are compared ([Figure 17](#figure-17)):
+**Execution policies.** Two policies for executing the lock-out are compared ([Figure 16](#figure-16)):
 
 - **Naive.** The coordinator declares the new norm set immediately, and the controller installs it whenever the corresponding message arrives.
 - **Two-phase.** The coordinator sends *prepare*; the controller stops admitting agents, waits until the envelope is empty (drain) and then acknowledges. Only after the acknowledgement does the coordinator *commit*.
 
-<a id="figure-17"></a>
+<a id="figure-16"></a>
 
-![Figure 17 · naive vs. two-phase lock-out, as message sequences](figures/figure17.png)
+![Figure 16 · naive vs. two-phase lock-out, as message sequences](figures/figure16.png)
 
-*Figure 17 · naive vs. two-phase lock-out, as message sequences*
+*Figure 16 · naive vs. two-phase lock-out, as message sequences*
 
 In the naive sequence, the controller still holds norm set v0 when the arm requests entry, because v1 is still in transit. The two-phase sequence cannot reach this state, since the technician is authorized to enter only after the controller has drained the envelope and acknowledged.
 
 The naive policy corresponds to a typical first implementation. Demonstrating *why* it is unsafe constitutes the central result of the project.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 18](#figure-18)): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 17](#figure-17)): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
 
-<a id="figure-18"></a>
+<a id="figure-17"></a>
 
-![Figure 18 · the two-phase protocol as two communicating state machines](figures/figure18.png)
+![Figure 17 · the two-phase protocol as two communicating state machines](figures/figure17.png)
 
-*Figure 18 · the two-phase protocol as two communicating state machines*
+*Figure 17 · the two-phase protocol as two communicating state machines*
 
 - **Prepare.** The coordinator sends `eNormPrepare` to every guard. A guard whose resource is closed by the new norm set enters the state `Draining`, in which it denies every new request but allows current occupants to finish. An empty or unaffected guard acknowledges immediately and proceeds directly to `AwaitCommit`.
 - **Acknowledge.** When the last agent leaves, the guard sends `eNormPrepareAck` and waits. It continues to deny requests, because it does not yet know whether the commit has taken place.
@@ -902,7 +896,7 @@ The deliverable is a P project consisting of three parts:
 - a catalogue of monitors checked against that model;
 - a PObserve package that checks the same monitors against execution logs.
 
-A starter kit containing draft versions of all three parts is provided ([Section 9](#9-starter-kit-setup-and-references)). The project consists in making it compile, correcting it, justifying every modeling decision, and extending it.
+A starter kit containing draft versions of all three parts is provided ([Section 9](#9-starter-kit-setup-and-references)). The work consists of making the kit compile, correcting it, justifying every modeling decision, and extending it.
 
 ### 7.1 Model components
 
@@ -1042,13 +1036,13 @@ The root cause is hazard 2 (premature entry) for S1 and hazard 1 (stale admissio
 
 ## 8. Work plan and deliverables
 
-The project is carried out in five phases over 45 calendar days, counted from the start date. Each phase lasts 7 to 11 days and concludes with a short checkpoint meeting and a tagged commit ([Figure 19](#figure-19)).
+The project is carried out in five phases over 45 calendar days, counted from the start date. Each phase lasts 7 to 11 days and concludes with a short checkpoint meeting and a tagged commit ([Figure 18](#figure-18)).
 
-<a id="figure-19"></a>
+<a id="figure-18"></a>
 
-![Figure 19 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure19.png)
+![Figure 18 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure18.png)
 
-*Figure 19 · work plan: 5 phases, 45 days, 5 deliverables*
+*Figure 18 · work plan: 5 phases, 45 days, 5 deliverables*
 
 | Phase | Days | Activities | Exit criterion (checkpoint) |
 | --- | --- | --- | --- |
@@ -1112,7 +1106,7 @@ Appendices: the validation record, and the completed tables of [Sections 7.6](#7
 
 ## 9. Starter kit, setup and references
 
-The `p-regulation` archive is given; its contents are identical to the project folder in the GitHub repository (see Repository and access). This project uses `Common/`, `ManufacturingCell/` and `tools/`.
+The `p-regulation` archive is given; its contents are identical to the project folder in the GitHub repository (see Repository and access). The folders `Common/`, `ManufacturingCell/` and `tools/` are used.
 
 | Path | Content | Status |
 | --- | --- | --- |
