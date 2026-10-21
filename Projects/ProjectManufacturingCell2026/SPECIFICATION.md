@@ -11,6 +11,17 @@ All project materials are hosted in the public GitHub repository [perkusic/P-Lan
 
 **Access.** The repository is public, and no account or authorization is required to use it. It can be browsed on GitHub, cloned (`git clone https://github.com/perkusic/P-Language.git`) or downloaded as a ZIP archive (**Code** → **Download ZIP**). A GitHub account is required only to fork the repository or to propose changes.
 
+**Working without a GitHub account.** No GitHub account is needed at any stage of the project; an account is useful only for forking the repository or proposing changes to it.
+
+1. **Reading.** The repository and this specification can be browsed on GitHub without signing in. After downloading, `Projects/ProjectManufacturingCell2026/SPECIFICATION.html` opens in any web browser, without network access.
+2. **Obtaining the files.** Either download the archive from the repository page (**Code** → **Download ZIP**) and extract it, or, with Git installed, run `git clone https://github.com/perkusic/P-Language.git`; cloning a public repository requires no account.
+3. **Updating.** A clone is updated with `git pull`. A ZIP archive is not updated: download it again and copy the team's own files into the new copy, or switch to a clone.
+4. **Version control.** The checkpoints of [Section 8](#8-work-plan-and-deliverables) require tagged commits, which work in a local repository: in an extracted ZIP archive, run `git init`, then `git add -A` and `git commit` at each step, and `git tag d1` (and so on) at each checkpoint.
+5. **Sharing within a team.** Without a hosting service, a team can exchange its repository with `git bundle create team.bundle --all`, a single file from which the other members clone or pull, or keep the repository in a shared folder.
+6. **Submitting.** Unless the instructor specifies another channel, a deliverable is submitted as a ZIP archive of the team's working copy that includes the `.git` folder, so that the tagged checkpoint commits can be verified.
+
+None of the tools used in the project (P, the .NET SDK, Java, Gradle and PObserve) requires a GitHub account.
+
 ## 1. Introduction
 
 The objective in this project is to construct and verify the regulation layer of a manufacturing cell in two complementary steps:
@@ -1155,6 +1166,20 @@ Individual grades may be adjusted on the basis of the contribution statements an
 8. Conclusion.
 
 Appendices: the validation record, and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity).
+
+**Guidelines for carrying out the project.** The following practices are expected throughout the project; the rubric above rewards several of them directly.
+
+1. **Set up the toolchain first.** In the first week, install the toolchain, compile the starter kit, run one checker test and build the PObserve package once, recording every tool version. A problem found on day 3 is cheap; one found on day 30 is not.
+2. **Read in order.** Follow the reading map of [Appendix A](#appendix-a-reading-map-self-check-questions-misconceptions-and-glossary) and work through the P tutorial before modifying the model.
+3. **Change one thing at a time.** After each change, compile, run the relevant test and record the result before making the next change.
+4. **Predict before running.** Write the expected outcome of every experiment, and the reason for it, before running it; a prediction recorded afterwards is not a prediction.
+5. **Keep the validation record current.** For every run, record the command, tool versions, seed or schedule count and the actual output in section 5 of [INSTRUCTIONS.md](https://github.com/perkusic/P-Language/blob/main/Projects/ProjectManufacturingCell2026/ManufacturingCell/INSTRUCTIONS.md).
+6. **Never weaken a monitor to make a check pass.** If a monitor appears to be wrong, document and justify the change, and show with a mutant that every monitor can still fail ([Section 5.11](#511-sanity-and-vacuity-checks)).
+7. **Report what a check establishes.** "No bug found" holds only for the schedules explored; state their number and justify it ([Section 5.9](#59-what-a-number-of-schedules-guarantees)). Keep model results, checker results and PObserve results distinct, and state the assumptions on which each claim rests ([Section 7.7](#77-modeling-assumptions-and-threats-to-validity)).
+8. **Explain a counterexample before fixing it.** Write it up with the template of [Section 7.8](#78-writing-up-a-counterexample), then correct the design, then re-run the experiment that exposed it.
+9. **Commit often and tag each checkpoint.** Commit at least once per working day and tag each checkpoint (`d1` to `d5`); keep generated folders (`PGenerated`, `PCheckerOutput`) out of version control, except the traces cited as evidence.
+10. **Organize the team explicitly.** Assign an owner to each experiment, have another member review each trace and write-up, and keep the contribution statements up to date.
+11. **Escalate early and prioritize.** A tooling problem that blocks progress for more than a day is raised at the next checkpoint or with the instructor. When time is short, optional work is dropped before required work ([Section 7.5](#75-requirements)).
 
 ## 9. Starter kit, setup and references
 
