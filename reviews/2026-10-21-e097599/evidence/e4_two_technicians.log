@@ -1,0 +1,15 @@
+2026-10-19 08:00:00.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=CONFIG, Capacity=0:1
+2026-10-19 08:00:01.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=1
+2026-10-19 08:00:01.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ADAPT_START, Ver=1
+2026-10-19 08:00:01.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=COMMIT, Ver=1, Closed=0
+2026-10-19 08:00:01.004000 [cell-A] INFO Regulation - : Site=cell-A, Event=HUMAN_ENTER, Res=0
+2026-10-19 08:00:02.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=2
+2026-10-19 08:00:02.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ADAPT_START, Ver=2
+2026-10-19 08:00:02.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=COMMIT, Ver=2, Closed=0
+2026-10-19 08:00:02.004000 [cell-A] INFO Regulation - : Site=cell-A, Event=HUMAN_ENTER, Res=0
+2026-10-19 08:00:03.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=3
+2026-10-19 08:00:03.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=HUMAN_LEAVE, Res=0
+2026-10-19 08:00:03.003000 [cell-A] INFO Regulation - : Site=cell-A, Event=ADAPT_START, Ver=3
+2026-10-19 08:00:03.004000 [cell-A] INFO Regulation - : Site=cell-A, Event=COMMIT, Ver=3, Closed=-
+2026-10-19 08:00:04.001000 [cell-A] INFO Regulation - : Site=cell-A, Event=TICK, Now=4
+2026-10-19 08:00:04.002000 [cell-A] INFO Regulation - : Site=cell-A, Event=ENTER, Agent=1, Res=0, Ver=3

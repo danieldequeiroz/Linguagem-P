@@ -1,0 +1,9 @@
+2026-10-19 08:00:00.001000 [s] INFO Regulation - : Site=s, Event=CONFIG, Capacity=0:1
+2026-10-19 08:00:01.001000 [s] INFO Regulation - : Site=s, Event=TICK, Now=1
+2026-10-19 08:00:01.002000 [s] INFO Regulation - : Site=s, Event=ADAPT_START, Ver=1
+2026-10-19 08:00:04.001000 [s] INFO Regulation - : Site=s, Event=TICK, Now=4
+2026-10-19 08:00:04.002000 [s] INFO Regulation - : Site=s, Event=ADAPT_ABORT, Ver=1
+2026-10-19 08:00:05.001000 [s] INFO Regulation - : Site=s, Event=TICK, Now=5
+2026-10-19 08:00:05.002000 [s] INFO Regulation - : Site=s, Event=ADAPT_START, Ver=1
+2026-10-19 08:00:06.001000 [s] INFO Regulation - : Site=s, Event=TICK, Now=6
+2026-10-19 08:00:06.002000 [s] INFO Regulation - : Site=s, Event=COMMIT, Ver=1, Closed=0

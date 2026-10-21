@@ -1,0 +1,77 @@
+== cell_twophase.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (hot at end)
+  AdaptationCompletes          ok (cold at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   FAIL  obligation 0 of robot 2 sanctioned after abandonment (tick 6)
+== cell_naive.log
+  RegimentationSafety          FAIL  human entered resource 0 while agents were inside
+  NoStaleAdmission             FAIL  agent 2 admitted to resource 0, closed by v1 (guard on v0) (tick 3)
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (hot at end)
+  AdaptationCompletes          ok (cold at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   FAIL  obligation 12 of robot 2 sanctioned after abandonment (tick 35)
+== fleet_twophase.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (hot at end)
+  AdaptationCompletes          ok (cold at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   FAIL  obligation 0 of robot 2 sanctioned after abandonment (tick 8)
+== fleet_naive.log
+  RegimentationSafety          FAIL  agent 1 admitted to resource 1 while a human is inside (tick 3)
+  NoStaleAdmission             FAIL  agent 1 admitted to resource 1, closed by v1 (guard on v0) (tick 3)
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (hot at end)
+  AdaptationCompletes          ok (cold at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   FAIL  obligation 0 of robot 2 sanctioned after abandonment (tick 8)
+== abort_retry.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (cold at end)
+  AdaptationCompletes          FAIL  UNHANDLED eAdaptationStarted in hot InProgress
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        FAIL  UNHANDLED eAdaptationStarted in InProgress
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   ok
+== abort_noretry.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (cold at end)
+  AdaptationCompletes          ok (hot at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        FAIL  adaptation started at 1 not committed at 9
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   ok
+== e4_two_technicians.log
+  RegimentationSafety          ok
+  NoStaleAdmission             ok
+  NoDoubleOutcome              ok
+  EveryObligationResolved      ok (cold at end)
+  AdaptationCompletes          ok (cold at end)
+  AdaptationTerminates         ok (cold at end)
+  ObligationDeadlineRespected  ok
+  AdaptationBoundedTime        ok
+  LockoutBeforeEntry           ok
+  SanctionsReflectMisconduct   ok
