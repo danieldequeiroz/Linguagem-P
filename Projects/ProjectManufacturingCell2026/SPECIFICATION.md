@@ -26,17 +26,41 @@ The objective of this project is to construct and verify the regulation layer of
 
 *Figure 1 · the manufacturing cell and its regulation layer*
 
+**Reading Figure 1.** The left panel shows the physical system: one work envelope (resource 0, capacity 1) shared by the robot arm (agent 1) and the AGV (agent 2), and the cell admission controller, which admits an agent only if the norm set it currently holds leaves the envelope open and the envelope has free capacity. The right panel shows the regulation layer: the adaptation coordinator, which changes the norm set when the technician requests a lock-out, and the organization, which assigns jobs with deadlines and sanctions missed ones. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the agents to `CellAgent`, the controller to `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the organization to `ObligationManager`, and the technician to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: a person enters only after a committed closure and only when the envelope is empty. Physical faults, such as a failed light curtain or an agent that ignores the controller, lie outside the model.
+
+The following must be done with respect to Figure 1:
+
+- map each element to its P machine and to the events that the machine announces ([Section 7.1](#71-model-components)), and include the mapping in deliverable D1;
+- classify each norm as regimented (the controller can prevent the action) or enforced by sanctions (the organization reacts after the violation), and justify the classification ([Section 3.8](#38-choosing-an-enforcement-mechanism));
+- restate the requirement in the note as the safety properties S1 and S2 of the property catalogue ([Section 7.2](#72-property-catalogue)), and identify the events on which each property depends.
+
 <a id="figure-2"></a>
 
 ![Figure 2 · a safe lock-out in four stages](figures/figure2.svg)
 
 *Figure 2 · a safe lock-out in four stages*
 
+**Reading Figure 2.** The four panels show the prepare–drain–commit protocol from the point of view of the envelope. (1) The technician asks the coordinator to close the envelope; the coordinator derives the next norm set (version v + 1) and announces `eAdaptationStarted`. (2) The coordinator sends `eNormPrepare` to the controller; because the envelope is affected by the change, the controller enters the state `Draining` and denies every new request, although an agent may still be inside. (3) When the occupying agent releases the envelope, the controller acknowledges with `eNormPrepareAck` and waits in `AwaitCommit`, where it still denies requests. (4) Once every controller has acknowledged, the coordinator announces `eNormCommitted`, installs the norm set with `eNormCommit`, and notifies the technician with `eAdaptationDone`; only then does the technician enter. The essential invariant is that the envelope is closed to new admissions from stage 2 onward, so that it is empty when the closure is committed. Stage 3 depends on the agent eventually leaving: an agent that never releases the envelope blocks the protocol (experiment E3, property L2). The figure assumes a single technician; overlapping lock-outs require the additional state examined in experiment E4.
+
+The following must be done with respect to Figure 2:
+
+- locate each stage in `AdaptationCoordinator.p` and `ResourceGuard.p`, using the state machines of [Figure 19](#figure-19), and name the event that causes each transition;
+- run `p check -tc tcCellTwoPhase` (experiment E1, [Section 7.3](#73-experiments-priorities-in-75)), confirm that S1–S3, L1, L2 and R3 hold, and justify the number of schedules explored ([Section 5.9](#59-what-a-number-of-schedules-guarantees));
+- run experiment E3 and explain why L2 fails while the safety properties continue to hold ([Section 5.10](#510-what-a-hot-state-violation-means)).
+
 <a id="figure-3"></a>
 
 ![Figure 3 · naive adaptation versus prepare–drain–commit](figures/figure3.svg)
 
 *Figure 3 · naive adaptation versus prepare–drain–commit*
+
+**Reading Figure 3.** The left column shows the naive policy (`twoPhase = false`): the coordinator declares the closure, announcing `eNormCommitted`, and notifies the technician before the controller has installed the new norm set. In the interval between the two, the controller still applies the previous version and may admit an agent; the technician, who relies on the committed norm set, may then share the envelope with that agent. The right column shows the sequence of [Figure 2](#figure-2), in which admission is stopped and emptiness is established before the commit. The unsafe execution is possible but not necessary: it arises only for particular orders of the messages ([Figure 16](#figure-16)), which is why it must be found by systematic exploration of interleavings rather than by testing ([Section 4.5](#45-consistency-during-a-regulation-change)). [Figure 18](#figure-18) shows both executions as message sequences.
+
+The following must be done with respect to Figure 3:
+
+- run `p check -tc tcCellNaive` (experiment E2) until the first violation, and identify the failing monitor (S1 or S2);
+- explain the counterexample with the template of [Section 7.8](#78-writing-up-a-counterexample), naming the step at which the coordinator and the controller hold different norm sets;
+- compare the counterexample with the result of E1 and state which step of the right column excludes the violating interleaving.
 
 The project operationalizes one cell of the conceptual grid proposed by [Yan, Nardin, Boissier & Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) (*A Unified View on Regulation Management in Multi-Agent Systems*, COINE 2025), turning a classification into a system whose properties can be checked mechanically. The grid is spanned by three perspectives: regulation capabilities, programming dimensions and architectural style. The cell considered here is **organization-centric and environment-centric, with a centralized architecture**.
 

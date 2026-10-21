@@ -26,17 +26,41 @@ The objective of this project is to build and verify the regulation layer of a s
 
 *Figure 1 · the robot fleet and its regulation layer*
 
+**Reading Figure 1.** The left panel shows the physical system: a one-lane corridor of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot R1 travels 0 → 1 → 2 and robot R2 travels 2 → 1 → 0, so their paths meet head-on in zone 1, which the picker also needs to enter. The right panel shows the regulation layer: a single adaptation coordinator, which changes the norm set when the picker requests the closure of zone 1, and a single fleet manager, which assigns deliveries with deadlines and sanctions missed ones. Admission is therefore distributed, whereas adaptation and sanctioning are centralized. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the robots to `Robot`, each zone controller to one `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the fleet manager to `ObligationManager`, and the picker to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: the picker enters zone 1 only after a committed closure and only when the zone is empty. Physical faults, such as a failed light curtain or a robot that ignores its controller, lie outside the model.
+
+The following must be done with respect to Figure 1:
+
+- map each element to its P machine and to the events that the machine announces ([Section 7.1](#71-model-components)), and include the mapping in deliverable D1;
+- place the fleet in the unified-view grid ([Figure 14](#figure-14)) and justify which responsibilities are distributed and which are centralized;
+- classify each norm as regimented or enforced by sanctions ([Section 3.8](#38-choosing-an-enforcement-mechanism)), and restate the requirement in the note as the safety properties S1 and S2 ([Section 7.2](#72-property-catalog)).
+
 <a id="figure-2"></a>
 
 ![Figure 2 · closing zone 1 in four stages](figures/figure2.svg)
 
 *Figure 2 · closing zone 1 in four stages*
 
+**Reading Figure 2.** The four panels show the prepare–drain–commit protocol for the closure of zone 1. (1) The picker asks the coordinator to close zone 1; the coordinator derives the next norm set (version v + 1) and announces `eAdaptationStarted`. (2) The coordinator sends `eNormPrepare` to all three zone controllers. The controller of zone 1, which is affected by the change, enters the state `Draining` and denies every new request, although a robot may still be inside; the controllers of zones 0 and 2, which are unaffected, acknowledge at once and continue to admit robots. (3) The robot in zone 1 leaves when the controller of its next zone admits it, or parks in a side bay after three denials; the controller of zone 1 then acknowledges with `eNormPrepareAck` and waits in `AwaitCommit`, where it still denies requests. (4) Once all three controllers have acknowledged, the coordinator announces `eNormCommitted`, installs the norm set with `eNormCommit`, and notifies the picker with `eAdaptationDone`; only then does the picker enter. The essential invariant is that zone 1 is closed to new admissions from stage 2 onward, so that it is empty when the closure is committed. Stage 3 depends on the robot being able to leave: if its next zone is held by the other robot, which in turn waits for zone 1, draining relies on parking, and without parking the corridor deadlocks (experiments E4 and E5).
+
+The following must be done with respect to Figure 2:
+
+- locate each stage in `AdaptationCoordinator.p` and `ResourceGuard.p`, using the state machines of [Figure 21](#figure-21), and name the event that causes each transition;
+- run `p check -tc tcFleetTwoPhase` (experiment E1, [Section 7.3](#73-experiments-priorities-in-75)), confirm that S1–S3, L1–L3 and R3 hold, justify the number of schedules explored ([Section 5.9](#59-what-n-schedules-guarantee)), and verify in a trace that zones 0 and 2 continue to admit robots during the closure;
+- run experiments E4 and E5 and explain whether L2 fails and why ([Section 5.10](#510-what-a-hot-state-violation-means)).
+
 <a id="figure-3"></a>
 
 ![Figure 3 · naive adaptation versus prepare–drain–commit](figures/figure3.svg)
 
 *Figure 3 · naive adaptation versus prepare–drain–commit*
+
+**Reading Figure 3.** The left column shows the naive policy (`twoPhase = false`): the coordinator declares the closure, announcing `eNormCommitted`, and notifies the picker before the controller of zone 1 has installed the new norm set. In the interval between the two, that controller still applies the previous version and may admit a robot to zone 1; the picker, who relies on the committed norm set, may then share the zone with that robot. The right column shows the sequence of [Figure 2](#figure-2), in which admission is stopped and emptiness is established before the commit. The unsafe execution is possible but not necessary: it arises only for particular orders of the messages ([Figure 18](#figure-18)), within the inconsistency window described in [Section 4.6](#46-the-inconsistency-window), which is why it must be found by systematic exploration of interleavings rather than by testing. [Figure 20](#figure-20) shows both executions as message sequences. The note at the bottom concerns a separate question: under either protocol, a robot that is repeatedly denied access may abandon its delivery and be sanctioned; property F1 flags such sanctions as candidates for unfairness, but establishing their cause requires additional evidence ([Section 3.9](#39-conditions-for-a-fair-sanction)).
+
+The following must be done with respect to Figure 3:
+
+- run `p check -tc tcFleetNaive` (experiment E2) until the first violation, identify the failing monitor (S1 or S2), and explain the counterexample with the template of [Section 7.8](#78-reporting-a-counterexample), naming the step at which the coordinator and the controller of zone 1 hold different norm sets;
+- compare the counterexample with the result of E1 and state which step of the right column excludes the violating interleaving;
+- run `p check -tc tcFleetSanctionFairness` (experiment E3) and attribute each flagged sanction to its cause, a closure or a head-on conflict.
 
 The project instantiates one cell of the conceptual grid proposed by [Yan, Nardin, Boissier & Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) (*A Unified View on Regulation Management in Multi-Agent Systems*, COINE 2025) as a system whose properties can be verified. The grid combines three perspectives: regulation capabilities, programming dimensions and architectural style. The cell considered here is **hybrid (environment + organization + agent), with distributed regimentation and centralized adaptation and sanctioning**: each corridor zone has its own controller, which admits or denies robots on the basis of local information only, whereas a single coordinator changes the norm set and a single fleet manager tracks obligations and applies sanctions ([Section 4.3](#43-architectural-styles)).
 
