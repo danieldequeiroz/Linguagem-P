@@ -11,52 +11,62 @@ All project materials are hosted in the public GitHub repository [perkusic/P-Lan
 
 **Access.** The repository is public, and no account or authorization is required to use it. It can be browsed on GitHub, cloned (`git clone https://github.com/perkusic/P-Language.git`) or downloaded as a ZIP archive (**Code** → **Download ZIP**). A GitHub account is required only to fork the repository or to propose changes.
 
-## 1. Summary
+## 1. Introduction
 
 The objective of this project is to construct and verify the regulation layer of a manufacturing cell in two complementary steps:
 
 1. The regulation layer is modeled in the P language and verified by systematic model checking (design time).
 2. Execution logs of a running or simulated cell are checked against the same P monitors with PObserve (run time).
 
-[Figure 1](#figure-1) shows the cell and the regulation layer that controls access to it. [Figure 2](#figure-2) shows how a lock-out is established safely in four stages (request, block new entries, drain, commit), and [Figure 3](#figure-3) contrasts this sequence with a naive adaptation, in which a person and an agent can occupy the envelope together. A robot arm and an automated guided vehicle (AGV) share a work envelope that admits one agent at a time, and a maintenance technician occasionally needs to enter the cell. Before the technician may enter, the adaptation coordinator installs a new norm set that closes the envelope (a lock-out), while the cell controller continues to admit or deny agents under the norm set it currently holds and the organization continues to assign jobs with deadlines and sanctions. The central risk lies in the transition window, during which these components may act under different norm sets. Two questions must be answered: whether a person and an agent can ever occupy the envelope together while the norms change (safety: S1, S2, S4), and whether every job obligation is resolved and every lock-out completes (liveness: L1, L2). The safety monitors are shared: the checker applies them to the model at design time, and PObserve applies them to logs of the running cell at run time. The liveness properties, which a finite log cannot refute, are checked at run time through bounded-response counterparts ([Section 5.8](#58-pobserve-in-more-detail)).
+**The regulation layer.** In a normative multi-agent system, the agents are autonomous: each decides its own actions and may, deliberately or through a fault, fail to comply with the rules of the cell. The *regulation layer* is the part of the system that states these rules and makes them effective without controlling the agents' decisions ([Figure 1](#figure-1)). It comprises four capabilities ([Section 4.1](#41-the-capabilities-in-detail)): it *represents* the norms in force as a versioned norm set; it *monitors* entries, departures, job reports and deadlines in order to detect violations; it *enforces* the norms, either by regimentation, when an environment artifact such as the cell controller prevents a prohibited action, or by sanctioning, when the organization reacts after a violation ([Section 3.8](#38-choosing-an-enforcement-mechanism)); and it *adapts* the norm set while the cell is running, as in the lock-out that closes the envelope before a technician enters ([Section 4](#4-background-regulation-management-in-mas)).
+
+**Why the regulation layer is needed.** Three properties of the cell make an explicit and verified regulation layer necessary. First, the agents may be developed by different parties and cannot be assumed to comply, so safety cannot rest on the correctness of each agent; it must rest on rules that the system itself enforces. Second, the agents share a physical resource with people, so a single erroneous admission can injure a person. Third, the rules change during operation: maintenance requires a lock-out, and while the change is in progress the components may act under different versions of the rules. The regulation layer is therefore the object of design and verification in this project, and its properties must hold irrespective of how the agents behave, both in the model and in the running cell.
 
 <a id="figure-1"></a>
 
-![Figure 1 · the manufacturing cell and its regulation layer](figures/figure1.svg)
+![Figure 1 · the regulation layer between the agents and the cell](figures/figure1.svg)
 
-*Figure 1 · the manufacturing cell and its regulation layer*
+*Figure 1 · the regulation layer between the agents and the cell*
 
-**Reading Figure 1.** The left panel shows the physical system: one work envelope (resource 0, capacity 1) shared by the robot arm (agent 1) and the AGV (agent 2), and the cell admission controller, which admits an agent only if the norm set it currently holds leaves the envelope open and the envelope has free capacity. The right panel shows the regulation layer: the adaptation coordinator, which changes the norm set when the technician requests a lock-out, and the organization, which assigns jobs with deadlines and sanctions missed ones. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the agents to `CellAgent`, the controller to `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the organization to `ObligationManager`, and the technician to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: a person enters only after a committed closure and only when the envelope is empty. Physical faults, such as a failed light curtain or an agent that ignores the controller, lie outside the model.
+[Figure 2](#figure-2) shows the cell and the regulation layer that controls access to it. [Figure 3](#figure-3) shows how a lock-out is established safely in four stages (request, block new entries, drain, commit), and [Figure 4](#figure-4) contrasts this sequence with a naive adaptation, in which a person and an agent can occupy the envelope together. A robot arm and an automated guided vehicle (AGV) share a work envelope that admits one agent at a time, and a maintenance technician occasionally needs to enter the cell. Before the technician may enter, the adaptation coordinator installs a new norm set that closes the envelope (a lock-out), while the cell controller continues to admit or deny agents under the norm set it currently holds and the organization continues to assign jobs with deadlines and sanctions. The central risk lies in the transition window, during which these components may act under different norm sets. Two questions must be answered: whether a person and an agent can ever occupy the envelope together while the norms change (safety: S1, S2, S4), and whether every job obligation is resolved and every lock-out completes (liveness: L1, L2). The safety monitors are shared: the checker applies them to the model at design time, and PObserve applies them to logs of the running cell at run time. The liveness properties, which a finite log cannot refute, are checked at run time through bounded-response counterparts ([Section 5.8](#58-pobserve-in-more-detail)).
 
-The following must be done with respect to Figure 1:
+<a id="figure-2"></a>
+
+![Figure 2 · the manufacturing cell and its regulation layer](figures/figure2.svg)
+
+*Figure 2 · the manufacturing cell and its regulation layer*
+
+**Reading Figure 2.** The left panel shows the physical system: one work envelope (resource 0, capacity 1) shared by the robot arm (agent 1) and the AGV (agent 2), and the cell admission controller, which admits an agent only if the norm set it currently holds leaves the envelope open and the envelope has free capacity. The right panel shows the regulation layer: the adaptation coordinator, which changes the norm set when the technician requests a lock-out, and the organization, which assigns jobs with deadlines and sanctions missed ones. Each element corresponds to a machine of the starter kit ([Section 7.1](#71-model-components)): the agents to `CellAgent`, the controller to `ResourceGuard`, the coordinator to `AdaptationCoordinator`, the organization to `ObligationManager`, and the technician to `HumanRequester`. The note at the bottom states the requirement that the regulation must guarantee: a person enters only after a committed closure and only when the envelope is empty. Physical faults, such as a failed light curtain or an agent that ignores the controller, lie outside the model.
+
+The following must be done with respect to Figure 2:
 
 - map each element to its P machine and to the events that the machine announces ([Section 7.1](#71-model-components)), and include the mapping in deliverable D1;
 - classify each norm as regimented (the controller can prevent the action) or enforced by sanctions (the organization reacts after the violation), and justify the classification ([Section 3.8](#38-choosing-an-enforcement-mechanism));
 - restate the requirement in the note as the safety properties S1 and S2 of the property catalogue ([Section 7.2](#72-property-catalogue)), and identify the events on which each property depends.
 
-<a id="figure-2"></a>
+<a id="figure-3"></a>
 
-![Figure 2 · a safe lock-out in four stages](figures/figure2.svg)
+![Figure 3 · a safe lock-out in four stages](figures/figure3.svg)
 
-*Figure 2 · a safe lock-out in four stages*
+*Figure 3 · a safe lock-out in four stages*
 
-**Reading Figure 2.** The four panels show the prepare–drain–commit protocol from the point of view of the envelope. (1) The technician asks the coordinator to close the envelope; the coordinator derives the next norm set (version v + 1) and announces `eAdaptationStarted`. (2) The coordinator sends `eNormPrepare` to the controller; because the envelope is affected by the change, the controller enters the state `Draining` and denies every new request, although an agent may still be inside. (3) When the occupying agent releases the envelope, the controller acknowledges with `eNormPrepareAck` and waits in `AwaitCommit`, where it still denies requests. (4) Once every controller has acknowledged, the coordinator announces `eNormCommitted`, sends the new norm set to the controller with `eNormCommit`, and notifies the technician with `eAdaptationDone`; only then does the technician enter. The notification may reach the technician before the controller has processed the commit message and installed the norm set; this is safe, because the controller denies every request until it does. The essential invariant is that the envelope is closed to new admissions from stage 2 onward, so that it is empty when the closure is committed. Stage 3 depends on the agent eventually leaving: an agent that never releases the envelope blocks the protocol (experiment E3, property L2). The figure assumes a single technician; overlapping lock-outs require the additional state examined in experiment E4.
+**Reading Figure 3.** The four panels show the prepare–drain–commit protocol from the point of view of the envelope. (1) The technician asks the coordinator to close the envelope; the coordinator derives the next norm set (version v + 1) and announces `eAdaptationStarted`. (2) The coordinator sends `eNormPrepare` to the controller; because the envelope is affected by the change, the controller enters the state `Draining` and denies every new request, although an agent may still be inside. (3) When the occupying agent releases the envelope, the controller acknowledges with `eNormPrepareAck` and waits in `AwaitCommit`, where it still denies requests. (4) Once every controller has acknowledged, the coordinator announces `eNormCommitted`, sends the new norm set to the controller with `eNormCommit`, and notifies the technician with `eAdaptationDone`; only then does the technician enter. The notification may reach the technician before the controller has processed the commit message and installed the norm set; this is safe, because the controller denies every request until it does. The essential invariant is that the envelope is closed to new admissions from stage 2 onward, so that it is empty when the closure is committed. Stage 3 depends on the agent eventually leaving: an agent that never releases the envelope blocks the protocol (experiment E3, property L2). The figure assumes a single technician; overlapping lock-outs require the additional state examined in experiment E4.
 
-The following must be done with respect to Figure 2:
+The following must be done with respect to Figure 3:
 
-- locate each stage in `AdaptationCoordinator.p` and `ResourceGuard.p`, using the state machines of [Figure 19](#figure-19), and name the event that causes each transition;
+- locate each stage in `AdaptationCoordinator.p` and `ResourceGuard.p`, using the state machines of [Figure 20](#figure-20), and name the event that causes each transition;
 - run `p check -tc tcCellTwoPhase` (experiment E1, [Section 7.3](#73-experiments-priorities-in-75)), confirm that S1–S3, L1–L3 and R3 hold, and justify the number of schedules explored ([Section 5.9](#59-what-a-number-of-schedules-guarantees));
 - run experiment E3 and explain why L2 fails while the safety properties continue to hold ([Section 5.10](#510-what-a-hot-state-violation-means)).
 
-<a id="figure-3"></a>
+<a id="figure-4"></a>
 
-![Figure 3 · naive adaptation versus prepare–drain–commit](figures/figure3.svg)
+![Figure 4 · naive adaptation versus prepare–drain–commit](figures/figure4.svg)
 
-*Figure 3 · naive adaptation versus prepare–drain–commit*
+*Figure 4 · naive adaptation versus prepare–drain–commit*
 
-**Reading Figure 3.** The left column shows the naive policy (`twoPhase = false`): the coordinator declares the closure, announcing `eNormCommitted`, and notifies the technician, possibly before the controller has processed the commit message and installed the new norm set. In the interval between the two, the controller still applies the previous version and may admit an agent; the technician, who relies on the committed norm set, may then share the envelope with that agent. The right column shows the sequence of [Figure 2](#figure-2), in which admission is stopped and emptiness is established before the commit. The unsafe execution is possible but not necessary: it arises only for particular orders of the messages ([Figure 16](#figure-16)), which is why it must be found by systematic exploration of interleavings rather than by testing ([Section 4.5](#45-consistency-during-a-regulation-change)). [Figure 18](#figure-18) shows both executions as message sequences.
+**Reading Figure 4.** The left column shows the naive policy (`twoPhase = false`): the coordinator declares the closure, announcing `eNormCommitted`, and notifies the technician, possibly before the controller has processed the commit message and installed the new norm set. In the interval between the two, the controller still applies the previous version and may admit an agent; the technician, who relies on the committed norm set, may then share the envelope with that agent. The right column shows the sequence of [Figure 3](#figure-3), in which admission is stopped and emptiness is established before the commit. The unsafe execution is possible but not necessary: it arises only for particular orders of the messages ([Figure 17](#figure-17)), which is why it must be found by systematic exploration of interleavings rather than by testing ([Section 4.5](#45-consistency-during-a-regulation-change)). [Figure 19](#figure-19) shows both executions as message sequences.
 
-The following must be done with respect to Figure 3:
+The following must be done with respect to Figure 4:
 
 - run `p check -tc tcCellNaive` (experiment E2) until the first violation, and identify the failing monitor (S1 or S2);
 - explain the counterexample with the template of [Section 7.8](#78-writing-up-a-counterexample), naming the step at which the coordinator and the controller hold different norm sets;
@@ -92,7 +102,7 @@ A multi-agent system (MAS) is a set of autonomous agents that share an environme
 
 Most MAS platforms adopt the belief–desire–intention (BDI) model, in which agents reason over *beliefs*, *desires* (goals) and *intentions* (plans to which they have committed). Jason, an interpreter for the AgentSpeak language, is a representative example.
 
-**Multi-Agent Oriented Programming (MAOP).** [Boissier et al.](#references) decompose a MAS into four programming dimensions, each with its own first-class abstractions. The JaCaMo platform combines one technology per dimension ([Figure 4](#figure-4)).
+**Multi-Agent Oriented Programming (MAOP).** [Boissier et al.](#references) decompose a MAS into four programming dimensions, each with its own first-class abstractions. The JaCaMo platform combines one technology per dimension ([Figure 5](#figure-5)).
 
 | Dimension | First-class abstractions | JaCaMo technology | Role in this project |
 | --- | --- | --- | --- |
@@ -101,11 +111,11 @@ Most MAS platforms adopt the belief–desire–intention (BDI) model, in which a
 | Interaction | protocols, messages | Jason speech acts | access request / grant / deny protocol |
 | Organization | roles, groups, missions, norms | Moise + NPL | job obligations, deadlines, sanctions, lock-out procedure |
 
-<a id="figure-4"></a>
+<a id="figure-5"></a>
 
-![Figure 4 · MAOP dimensions and JaCaMo technologies, with the cell's components](figures/figure4.svg)
+![Figure 5 · MAOP dimensions and JaCaMo technologies, with the cell's components](figures/figure5.svg)
 
-*Figure 4 · MAOP dimensions and JaCaMo technologies, with the cell's components*
+*Figure 5 · MAOP dimensions and JaCaMo technologies, with the cell's components*
 
 The physical layer lies outside the MAS; the environment dimension is the interface through which the MAS acts upon it. For this reason, regimented safety norms are placed in the environment.
 
@@ -123,18 +133,18 @@ Agent architectures are commonly classified into three families:
 
 Industrial agents are typically hybrid: a deliberative agent operates on top of a programmable logic controller (PLC) or robot controller that is responsible for real-time control. JaCaMo agents are deliberative at the task level.
 
-A BDI agent executes the following **reasoning cycle** repeatedly ([Figure 5](#figure-5)):
+A BDI agent executes the following **reasoning cycle** repeatedly ([Figure 6](#figure-6)):
 
 1. **Perception.** Percepts (sensor readings, artifact properties) and incoming messages are read, and the *belief base* is updated accordingly.
 2. **Deliberation.** The agent selects the goals it will pursue; the selected goals become *intentions*.
 3. **Plan selection.** A plan is chosen from the plan library whose triggering event matches the goal and whose context condition holds in the current beliefs.
 4. **Action.** One step of one intention is executed (an action, a message or a subgoal), after which the cycle restarts at step 1.
 
-<a id="figure-5"></a>
+<a id="figure-6"></a>
 
-![Figure 5 · the BDI reasoning cycle](figures/figure5.svg)
+![Figure 6 · the BDI reasoning cycle](figures/figure6.svg)
 
-*Figure 5 · the BDI reasoning cycle*
+*Figure 6 · the BDI reasoning cycle*
 
 A simplified version of the robot-arm agent in Jason (AgentSpeak) is shown below:
 
@@ -295,13 +305,13 @@ For this reason, normative MAS commonly treat norms *operationally*, as objects 
 
 #### Deontic logic seen from temporal logic
 
-For those who already know temporal logic, such as CTL and LTL, the intuition behind deontic logic is similar. All three are *normal modal logics*: each has a box operator, its dual diamond operator, and a semantics given by Kripke structures. In each, the box distributes over implication (axiom K), and every theorem may be prefixed with a box (necessitation rule). The logics differ in the interpretation of the accessibility relation ([Figure 6](#figure-6)). In temporal logic, the relation connects a point of a run to its successors; in deontic logic, it connects a world to its *ideal alternatives*, i.e., the worlds in which every norm is respected.
+For those who already know temporal logic, such as CTL and LTL, the intuition behind deontic logic is similar. All three are *normal modal logics*: each has a box operator, its dual diamond operator, and a semantics given by Kripke structures. In each, the box distributes over implication (axiom K), and every theorem may be prefixed with a box (necessitation rule). The logics differ in the interpretation of the accessibility relation ([Figure 7](#figure-7)). In temporal logic, the relation connects a point of a run to its successors; in deontic logic, it connects a world to its *ideal alternatives*, i.e., the worlds in which every norm is respected.
 
-<a id="figure-6"></a>
+<a id="figure-7"></a>
 
-![Figure 6 · the box of temporal logic and the box of deontic logic](figures/figure6.svg)
+![Figure 7 · the box of temporal logic and the box of deontic logic](figures/figure7.svg)
 
-*Figure 6 · the box of temporal logic and the box of deontic logic*
+*Figure 7 · the box of temporal logic and the box of deontic logic*
 
 |  | Temporal logic (LTL / CTL) | Deontic logic (SDL) |
 | --- | --- | --- |
@@ -334,13 +344,13 @@ This reduction provides the conceptual basis for the approach adopted in this pr
 
 #### One trace, two readings
 
-The reduction also clarifies *whose* behavior is being specified ([Figure 7](#figure-7)).
+The reduction also clarifies *whose* behavior is being specified ([Figure 8](#figure-8)).
 
-<a id="figure-7"></a>
+<a id="figure-8"></a>
 
-![Figure 7 · one trace read deontically (agents) and temporally (regulator)](figures/figure7.svg)
+![Figure 8 · one trace read deontically (agents) and temporally (regulator)](figures/figure8.svg)
 
-*Figure 7 · one trace read deontically (agents) and temporally (regulator)*
+*Figure 8 · one trace read deontically (agents) and temporally (regulator)*
 
 - **For the agents, norms are deontic.** An agent may miss a deadline; the specification must therefore not reject such a trace, but must determine its consequences. Requiring G ¬V would be a modeling error: it would convert every norm into a regimented constraint and thereby eliminate the autonomy that characterizes an open MAS.
 - **For the regulator, properties are temporal.** The regulator must sanction every violation exactly once, must never admit an agent that the norm set prohibits, and must complete every adaptation. These are G and F properties that must hold on every run; a run that violates them exposes a defect in the regulator.
@@ -373,13 +383,13 @@ These paradoxes motivate the decision to specify norms *operationally*, as machi
 
 ### 3.3 Lifecycle of a norm instance
 
-Each norm instance evolves according to a small state machine. The monitors defined in [Section 7](#7-technical-specification) observe its transitions through the P events indicated beneath each state ([Figure 8](#figure-8)).
+Each norm instance evolves according to a small state machine. The monitors defined in [Section 7](#7-technical-specification) observe its transitions through the P events indicated beneath each state ([Figure 9](#figure-9)).
 
-<a id="figure-8"></a>
+<a id="figure-9"></a>
 
-![Figure 8 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure8.svg)
+![Figure 9 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure9.svg)
 
-*Figure 8 · lifecycle of an obligation instance, with the P events that mark each state*
+*Figure 9 · lifecycle of an obligation instance, with the P events that mark each state*
 
 An instance that remains in **Active** indefinitely constitutes the failure detected by liveness property L1. An instance that reaches both **Fulfilled** and **Sanctioned** is excluded by safety property S3.
 
@@ -412,14 +422,14 @@ The construction of L1 illustrates how a norm becomes a P monitor in four steps.
 
 1. **Norm.** *Every job assigned to an agent ends either with a report or with a sanction.*
 2. **Temporal property.** G(created(o) → F resolved(o)) for every obligation identifier o, where resolved(o) ≡ fulfilled(o) ∨ sanctioned(o). Because the property is parameterized by o, the monitor maintains the set of pending identifiers rather than a single proposition.
-3. **Automaton.** The property corresponds to the two-state automaton of [Figure 9](#figure-9). The cold state `NoneOpen` means that no obligation is pending; the hot state `SomeOpen` means that at least one obligation still awaits an outcome.
-4. **P monitor.** The automaton is written as a `spec` machine whose cold and hot states mirror [Figure 9](#figure-9) (file `Common/Specs.p`).
+3. **Automaton.** The property corresponds to the two-state automaton of [Figure 10](#figure-10). The cold state `NoneOpen` means that no obligation is pending; the hot state `SomeOpen` means that at least one obligation still awaits an outcome.
+4. **P monitor.** The automaton is written as a `spec` machine whose cold and hot states mirror [Figure 10](#figure-10) (file `Common/Specs.p`).
 
-<a id="figure-9"></a>
+<a id="figure-10"></a>
 
-![Figure 9 · monitor automaton for the liveness property L1, with its cold and hot states](figures/figure9.svg)
+![Figure 10 · monitor automaton for the liveness property L1, with its cold and hot states](figures/figure10.svg)
 
-*Figure 9 · monitor automaton for the liveness property L1, with its cold and hot states*
+*Figure 10 · monitor automaton for the liveness property L1, with its cold and hot states*
 
 ```
 spec EveryObligationResolved observes eObligationCreated, eObligationFulfilled, eSanctionApplied {
@@ -487,13 +497,13 @@ Sanctions may be applied by the organization, by peers or by the environment. Sa
 
 ### 3.8 Choosing an enforcement mechanism
 
-The appropriate enforcement mechanism for a norm depends on two factors: the cost of a single violation, and whether the environment can physically block the forbidden action. [Figure 10](#figure-10) positions the norms of the cell along these two dimensions.
+The appropriate enforcement mechanism for a norm depends on two factors: the cost of a single violation, and whether the environment can physically block the forbidden action. [Figure 11](#figure-11) positions the norms of the cell along these two dimensions.
 
-<a id="figure-10"></a>
+<a id="figure-11"></a>
 
-![Figure 10 · the norms of the cell placed by cost and controllability](figures/figure10.svg)
+![Figure 11 · the norms of the cell placed by cost and controllability](figures/figure11.svg)
 
-*Figure 10 · the norms of the cell placed by cost and controllability*
+*Figure 11 · the norms of the cell placed by cost and controllability*
 
 - **High cost, blockable: regimentation.** The cell controller can refuse entry, and a single collision or injury is unacceptable. The capacity norm and the norm "no agent together with a person" are therefore regimented.
 - **High cost, not blockable: monitoring complemented by a safety layer.** The multi-agent system cannot prevent a person from opening the door. Compliance with the lock-out procedure can only be monitored (property R3); the actual guarantee must therefore be provided by a layer below the MAS, such as a door interlock or an emergency stop.
@@ -504,7 +514,7 @@ The figure also indicates where verification is most critical. A regimented norm
 
 ## 4. Background: regulation management in MAS
 
-Regulation management concerns the balance between agent autonomy and system-level control. It comprises the representation, monitoring, enforcement and run-time modification of regulations. [Yan, Nardin, Boissier and Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) propose a **unified view** that positions any design along three perspectives, and they use the resulting grid to classify existing MAS frameworks. [Figure 11](#figure-11) places the cell in this grid.
+Regulation management concerns the balance between agent autonomy and system-level control. It comprises the representation, monitoring, enforcement and run-time modification of regulations. [Yan, Nardin, Boissier and Sichman](https://hal-emse.ccsd.cnrs.fr/emse-05162306v1) propose a **unified view** that positions any design along three perspectives, and they use the resulting grid to classify existing MAS frameworks. [Figure 12](#figure-12) places the cell in this grid.
 
 | Perspective | Options | This project (cell) |
 | --- | --- | --- |
@@ -512,11 +522,11 @@ Regulation management concerns the balance between agent autonomy and system-lev
 | MAOP dimension | agent-, environment-, interaction-, organization-centric, or hybrid (several at once) | organization-centric (obligations, adaptation) + environment-centric (the cell controller) |
 | Architectural style | centralized vs. decentralized / distributed regulators | **centralized**: one cell controller, one organizational engine |
 
-<a id="figure-11"></a>
+<a id="figure-12"></a>
 
-![Figure 11 · the cell placed in the unified-view grid](figures/figure11.svg)
+![Figure 12 · the cell placed in the unified-view grid](figures/figure12.svg)
 
-*Figure 11 · the cell placed in the unified-view grid*
+*Figure 12 · the cell placed in the unified-view grid*
 
 The COINE 2025 paper is not openly deposited. During the first week, the exact list of capabilities given in the paper is to be verified and the mapping in [Section 7](#7-technical-specification) adjusted accordingly.
 
@@ -586,25 +596,25 @@ The **transition window** is the interval between the decision to change the nor
 
 1. **Stale admission.** The controller, still operating on the previous norm set, admits an agent after the lock-out has been declared (property S2).
 2. **Premature entry.** The technician enters before the envelope has been emptied (properties S1 and R3).
-3. **Lost, reordered or conflicting update.** Two adaptations overlap; e.g., a second technician requests a lock-out while the first lock-out is in force. The coordinator serializes adaptations and numbers the norm sets, so updates are installed one at a time and in version order (property S2). Serialization does not, however, record *who* holds a lock-out. When the first technician leaves and requests reopening, the next norm set reopens the envelope although the second technician is still inside ([Figure 12](#figure-12)). Preventing this hazard requires additional state, the set of lock-out holders per resource, and an additional property, S4: no committed norm set reopens a resource while a person is inside. Experiment E4 reproduces the hazard.
+3. **Lost, reordered or conflicting update.** Two adaptations overlap; e.g., a second technician requests a lock-out while the first lock-out is in force. The coordinator serializes adaptations and numbers the norm sets, so updates are installed one at a time and in version order (property S2). Serialization does not, however, record *who* holds a lock-out. When the first technician leaves and requests reopening, the next norm set reopens the envelope although the second technician is still inside ([Figure 13](#figure-13)). Preventing this hazard requires additional state, the set of lock-out holders per resource, and an additional property, S4: no committed norm set reopens a resource while a person is inside. Experiment E4 reproduces the hazard.
 
-<a id="figure-12"></a>
+<a id="figure-13"></a>
 
-![Figure 12 · two technicians: serialized adaptations reopen an occupied envelope](figures/figure12.svg)
+![Figure 13 · two technicians: serialized adaptations reopen an occupied envelope](figures/figure13.svg)
 
-*Figure 12 · two technicians: serialized adaptations reopen an occupied envelope*
+*Figure 13 · two technicians: serialized adaptations reopen an occupied envelope*
 
 The remedy adopted here is a **prepare–drain–commit** protocol. It borrows the two phases of two-phase commit (2PC) from distributed databases, prepare and commit, but it is not 2PC in the classical sense: each resource has a single participant, no participant can vote *no*, and there is no abort path. Its closest conceptual relative is quiescence-based safe reconfiguration ([Kramer and Magee](https://doi.org/10.1109/32.60317)), in which a component is changed only after it has been driven into a quiescent state; here, the envelope is drained before the new norm set takes effect. The protocol consequently blocks under different conditions than 2PC. Classical 2PC blocks when the coordinator fails after the participants have prepared, leaving them uncertain about the outcome. The cell protocol blocks when the agent inside never leaves, so that the drain never completes. The second case corresponds to liveness property L2, which experiment E3 examines; in a physical cell, it is handled by a lower-level safeguard, the emergency stop, which this project represents only as a modeling limitation. The first case lies outside the starter kit and is an optional extension. A related open question is the cancellation of a prepare, for instance when the technician withdraws the request before the commit: the protocol as given has no abort message, and experiment E8 asks for one. In the remainder of this document, "two-phase" refers to this prepare–drain–commit protocol.
 
 ### 4.6 Lock-out/tag-out as regulation adaptation
 
-The lock-out of the cell is not a hypothetical construct: industrial safety regulations prescribe a lock-out/tag-out (LOTO) procedure, each step of which has a counterpart in the adaptation model ([Figure 13](#figure-13)).
+The lock-out of the cell is not a hypothetical construct: industrial safety regulations prescribe a lock-out/tag-out (LOTO) procedure, each step of which has a counterpart in the adaptation model ([Figure 14](#figure-14)).
 
-<a id="figure-13"></a>
+<a id="figure-14"></a>
 
-![Figure 13 · lock-out/tag-out steps and their counterparts in the model](figures/figure13.svg)
+![Figure 14 · lock-out/tag-out steps and their counterparts in the model](figures/figure14.svg)
 
-*Figure 13 · lock-out/tag-out steps and their counterparts in the model*
+*Figure 14 · lock-out/tag-out steps and their counterparts in the model*
 
 The correspondence clarifies both what the model contributes and what it omits:
 
@@ -661,18 +671,18 @@ spec RegimentationSafety observes eResourceEntered, eHumanEntered /* … */ {
 
 **Checking.** `p compile` builds the project, and `p check -tc <test> -s 10000` executes 10,000 schedules of the given test case. A failed assertion produces a trace under `PCheckerOutput/BugFinding/`, which can be replayed using its seed. The checker is a bug-finding tool: it explores a large number of schedules but proves nothing, not even for the fixed configuration of the model; [Section 5.9](#59-what-a-number-of-schedules-guarantees) explains what a given number of schedules does establish.
 
-**PObserve: the same monitors at run time.** PObserve checks logs of a deployed system against P specifications in four steps ([Figure 14](#figure-14)):
+**PObserve: the same monitors at run time.** PObserve checks logs of a deployed system against P specifications in four steps ([Figure 15](#figure-15)):
 
 1. `p compile --mode pobserve` compiles the monitors (without the model machines) into the Java classes `PEvents`, `PTypes` and `PMachines`.
 2. A Java **log parser** maps each log line to a P event and a partition key (in this project, the site).
 3. The PObserve CLI (`java -jar PObserve-1.0.0.jar --jars <package> --spec <Monitor> -l <log>`) or the JUnit integration replays the events through the monitor.
 4. PObserve reports the first violation together with a replay of the events that led to it.
 
-<a id="figure-14"></a>
+<a id="figure-15"></a>
 
-![Figure 14 · design-time and run-time checking share one set of monitors](figures/figure14.svg)
+![Figure 15 · design-time and run-time checking share one set of monitors](figures/figure15.svg)
 
-*Figure 14 · design-time and run-time checking share one set of monitors*
+*Figure 15 · design-time and run-time checking share one set of monitors*
 
 Design-time and run-time checking therefore share most of their definition of correctness, but not all of it. L1, L2 and L3 are checked only by the checker, and R1 and R2 only by PObserve ([Section 5.6](#56-common-pitfalls)). The run-time monitors are an adequate substitute for the liveness monitors only if this is argued, in one of two ways: by showing that R1 implies L1 under the stated latency of the obligation manager (an obligation due at tick d is resolved by tick d + 1), and that R2 implies L2 under a stated maximum start-to-commit duration; or by adding an announcement emitted *after* the obligation manager has processed a tick (for instance `eTickProcessed`), so that R1 and R2 can also be checked against the model.
 
@@ -680,13 +690,13 @@ PObserve reports assertion failures but not hot states that remain open at the e
 
 On a finite log, the absence of a reported violation is a verdict of *inconclusive* rather than *holds* for every property that a longer log could still violate ([Section 3.4](#34-norms-as-temporal-properties)).
 
-**Scope of each check.** The checker and PObserve answer different questions, and neither can replace the other ([Figure 15](#figure-15)).
+**Scope of each check.** The checker and PObserve answer different questions, and neither can replace the other ([Figure 16](#figure-16)).
 
-<a id="figure-15"></a>
+<a id="figure-16"></a>
 
-![Figure 15 · what the checker and PObserve can each establish](figures/figure15.svg)
+![Figure 16 · what the checker and PObserve can each establish](figures/figure16.svg)
 
-*Figure 15 · what the checker and PObserve can each establish*
+*Figure 16 · what the checker and PObserve can each establish*
 
 - **The checker** explores many schedules, but only of the model. A violation it reports is genuine only to the extent that the model is faithful; a violation in the "model only" region results from an abstraction, such as agents that release the envelope instantaneously. The absence of violations constitutes evidence about the design, bounded by the number of schedules explored.
 - **PObserve** examines few executions, but executions of the deployed system. A violation it reports actually occurred, to the extent that the log is accurate. It provides no information about executions that were not logged, nor about faults that the log cannot represent, such as a sensor that failed to detect a person.
@@ -756,13 +766,13 @@ A run up to a bound on the number of steps is called a **schedule**, and `-s 100
 
 The search finds bugs but does not prove their absence. Models should therefore be kept small (two agents, one technician, a bounded clock) and enlarged only after the small model passes.
 
-**Why interleavings matter.** Concurrent systems fail because of particular orderings of events rather than because of individual events. Consider three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). Since the technician waits for the commit, H always follows C, which leaves three possible orders ([Figure 16](#figure-16)).
+**Why interleavings matter.** Concurrent systems fail because of particular orderings of events rather than because of individual events. Consider three events during the lock-out: the arm leaves the envelope (L), the coordinator commits the new norm set (C), and the technician enters (H). Since the technician waits for the commit, H always follows C, which leaves three possible orders ([Figure 17](#figure-17)).
 
-<a id="figure-16"></a>
+<a id="figure-17"></a>
 
-![Figure 16 · the orders of three lock-out events, and the one that violates S1](figures/figure16.svg)
+![Figure 17 · the orders of three lock-out events, and the one that violates S1](figures/figure17.svg)
 
-*Figure 16 · the orders of three lock-out events, and the one that violates S1*
+*Figure 17 · the orders of three lock-out events, and the one that violates S1*
 
 Two of these orders are safe. The third, C followed by H and then L, places the technician in the envelope together with the arm. Testing would reveal this order only if the scheduler happened to deliver the messages in that sequence, which may be rare on a lightly loaded controller. The checker, in contrast, controls the scheduler and samples schedules with randomized strategies biased toward short races, so that a race involving three events is typically found within seconds; [Section 5.9](#59-what-a-number-of-schedules-guarantees) quantifies this.
 
@@ -811,7 +821,7 @@ The figure also illustrates the effect of a design correction. The two-phase pro
 
 `p check` does not enumerate all schedules. In each iteration, it executes one schedule chosen by a randomized strategy: uniformly random scheduling, or priority-based strategies such as PCT ([Burckhardt et al.](https://doi.org/10.1145/1736020.1736040)), which assigns random priorities to machines and changes them at a small number of randomly chosen steps. The strategies available, and their command-line names, depend on the installed P version (`p check --help`).
 
-- **Probabilistic guarantee.** A bug has *depth* d if it manifests whenever d particular ordering constraints between events are satisfied. For a program with n machines and at most k steps per schedule, a single PCT run finds a bug of depth d with probability at least 1/(n·k^(d−1)). The three-event race of [Figure 16](#figure-16) has depth 2; with about 6 machines and 200 steps, a single run finds it with probability at least 1/1200, and 10,000 runs miss it with probability below (1 − 1/1200)^10000 ≈ 2.4·10⁻⁴. Deeper bugs require many more runs, and random scheduling offers no comparable bound.
+- **Probabilistic guarantee.** A bug has *depth* d if it manifests whenever d particular ordering constraints between events are satisfied. For a program with n machines and at most k steps per schedule, a single PCT run finds a bug of depth d with probability at least 1/(n·k^(d−1)). The three-event race of [Figure 17](#figure-17) has depth 2; with about 6 machines and 200 steps, a single run finds it with probability at least 1/1200, and 10,000 runs miss it with probability below (1 − 1/1200)^10000 ≈ 2.4·10⁻⁴. Deeper bugs require many more runs, and random scheduling offers no comparable bound.
 - **Small-scope hypothesis.** Most protocol defects manifest in small configurations (Jackson). The models of this project are therefore deliberately small, and each result is a statement about the configuration checked (two agents, one or two technicians, `maxTicks` = 10), not about cells of arbitrary size.
 - **Calibration with seeded bugs.** The adequacy of a schedule count can be estimated empirically. A known bug (the naive policy, or a mutant from [Section 5.11](#511-sanity-and-vacuity-checks)) is reintroduced, and the number of schedules until its first detection is recorded for several seeds. A claim about the corrected model should rest on a schedule count well above the largest of these numbers, for example ten times larger.
 - **Reporting.** Every result states the test case, the number of schedules, the strategy, the maximum number of steps per schedule, the seeds, the running time and the P version.
@@ -857,13 +867,13 @@ For every monitor, the project must therefore provide (a) a **mutant** of the mo
 
 ## 6. The system: a regulated manufacturing cell
 
-A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 1](#figure-1) shows the layout of the cell, and [Figure 17](#figure-17) its architecture by MAOP dimension.
+A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one work envelope (resource 0, capacity 1). A single cell controller admits agents to the envelope, and an organizational engine assigns jobs with deadlines. At unpredictable times, a maintenance technician must enter the cell; this first requires a **lock-out**, i.e., a regulation adaptation that closes the envelope to agents. [Figure 2](#figure-2) shows the layout of the cell, and [Figure 18](#figure-18) its architecture by MAOP dimension.
 
-<a id="figure-17"></a>
+<a id="figure-18"></a>
 
-![Figure 17 · cell architecture, components by MAOP dimension](figures/figure17.svg)
+![Figure 18 · cell architecture, components by MAOP dimension](figures/figure18.svg)
 
-*Figure 17 · cell architecture, components by MAOP dimension*
+*Figure 18 · cell architecture, components by MAOP dimension*
 
 The cell controller is the only means of access to the envelope, so regimented norms hold as long as its norm set is current. Keeping the norm set current during a lock-out is the responsibility of the coordinator, and the correctness of this function is the object of verification in this project.
 
@@ -895,28 +905,28 @@ The cell controller is the only means of access to the envelope, so regimented n
 | A requested lock-out is eventually installed, within a bounded time | obligation on the coordinator | monitored | adaptation | L2, R2 |
 | A resource is reopened only when no person is inside | prohibition on the coordinator | by construction after the fix of E4, monitored | adaptation and safety | S4 |
 
-**Execution policies.** Two policies for executing the lock-out are compared ([Figure 18](#figure-18)):
+**Execution policies.** Two policies for executing the lock-out are compared ([Figure 19](#figure-19)):
 
 - **Naive.** The coordinator declares the new norm set immediately, and the controller installs it whenever the corresponding message arrives.
 - **Two-phase.** The coordinator sends *prepare*; the controller stops admitting agents, waits until the envelope is empty (drain) and then acknowledges. Only after the acknowledgement does the coordinator *commit*.
 
-<a id="figure-18"></a>
+<a id="figure-19"></a>
 
-![Figure 18 · naive vs. two-phase lock-out, as message sequences](figures/figure18.svg)
+![Figure 19 · naive vs. two-phase lock-out, as message sequences](figures/figure19.svg)
 
-*Figure 18 · naive vs. two-phase lock-out, as message sequences*
+*Figure 19 · naive vs. two-phase lock-out, as message sequences*
 
 In the naive sequence, the controller still holds norm set v0 when the arm requests entry, because v1 is still in transit. The two-phase sequence cannot reach this state, since the technician is authorized to enter only after the controller has drained the envelope and acknowledged.
 
 The naive policy corresponds to a typical first implementation. Demonstrating *why* it is unsafe constitutes the central result of the project.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 19](#figure-19)): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 20](#figure-20)): the `AdaptationCoordinator` and one `ResourceGuard` per resource.
 
-<a id="figure-19"></a>
+<a id="figure-20"></a>
 
-![Figure 19 · the two-phase protocol as two communicating state machines](figures/figure19.svg)
+![Figure 20 · the two-phase protocol as two communicating state machines](figures/figure20.svg)
 
-*Figure 19 · the two-phase protocol as two communicating state machines*
+*Figure 20 · the two-phase protocol as two communicating state machines*
 
 - **Prepare.** The coordinator sends `eNormPrepare` to every guard. A guard whose resource is closed by the new norm set enters the state `Draining`, in which it denies every new request but allows current occupants to finish. An empty or unaffected guard acknowledges immediately and proceeds directly to `AwaitCommit`.
 - **Acknowledge.** When the last agent leaves, the guard sends `eNormPrepareAck` and waits. It continues to deny requests, because it does not yet know whether the commit has taken place.
@@ -1054,7 +1064,7 @@ A model **over-approximates** the real system if every real behavior is also a b
 Every counterexample reported in D2 and D4 follows the same template:
 
 1. **Setup.** Test case, configuration, P version, strategy, seed and schedule number.
-2. **Shortest violating prefix.** The events that lead to the violation, restricted to the relevant machines and drawn as a message-sequence chart in the style of [Figure 12](#figure-12).
+2. **Shortest violating prefix.** The events that lead to the violation, restricted to the relevant machines and drawn as a message-sequence chart in the style of [Figure 13](#figure-13).
 3. **Failing monitor.** The monitor, its assertion message, and the state of the monitor at the failure.
 4. **Root cause.** The design decision that permits the interleaving, linked to a hazard of [Section 4.5](#45-consistency-during-a-regulation-change).
 5. **Classification.** A genuine defect of the design, or an artifact of the model (with reference to the assumptions of [Section 7.7](#77-modeling-assumptions-and-threats-to-validity), and to [Section 5.10](#510-what-a-hot-state-violation-means) for liveness violations).
@@ -1076,13 +1086,13 @@ The root cause is hazard 2 (premature entry) for S1 and hazard 1 (stale admissio
 
 ## 8. Work plan and deliverables
 
-The project is carried out in five phases over 45 calendar days, counted from the start date. Each phase lasts 7 to 11 days and concludes with a short checkpoint meeting and a tagged commit ([Figure 20](#figure-20)).
+The project is carried out in five phases over 45 calendar days, counted from the start date. Each phase lasts 7 to 11 days and concludes with a short checkpoint meeting and a tagged commit ([Figure 21](#figure-21)).
 
-<a id="figure-20"></a>
+<a id="figure-21"></a>
 
-![Figure 20 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure20.svg)
+![Figure 21 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure21.svg)
 
-*Figure 20 · work plan: 5 phases, 45 days, 5 deliverables*
+*Figure 21 · work plan: 5 phases, 45 days, 5 deliverables*
 
 | Phase | Days | Activities | Exit criterion (checkpoint) |
 | --- | --- | --- | --- |
@@ -1120,7 +1130,7 @@ This section is the authoritative source for phases, deliverables and grading; A
 
 Individual grades may be adjusted on the basis of the contribution statements and the answers given during the presentation.
 
-**Learning outcomes and assessment.** A dot marks the deliverables in which each learning outcome of [Section 1](#1-summary) is assessed.
+**Learning outcomes and assessment.** A dot marks the deliverables in which each learning outcome of [Section 1](#1-introduction) is assessed.
 
 | Learning outcome | D1 | D2 | D3 | D4 | D5 |
 | --- | --- | --- | --- | --- | --- |

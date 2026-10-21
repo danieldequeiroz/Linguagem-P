@@ -11,7 +11,7 @@ All project material is available in the GitHub repository [perkusic/P-Language]
 
 **The repository is public; no account or authorization is required.** It can be browsed on GitHub, cloned (`git clone https://github.com/perkusic/P-Language.git`) or downloaded as a ZIP archive (**Code** button → **Download ZIP**). A GitHub account is required only to fork the repository or to propose changes.
 
-## 1. Summary
+## 1. Introduction
 
 The objective of this project is to build and verify the regulation layer of a small fleet of mobile robots that share a narrow corridor with people. The work proceeds in two steps:
 
