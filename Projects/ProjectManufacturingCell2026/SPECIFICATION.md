@@ -1113,7 +1113,7 @@ The project is carried out in five phases over 45 calendar days, counted from th
 | Model | 8–17 | compilation errors fixed; E1, E2 and at least three further experiments, each with a prediction recorded before the run | day 17: P steps of the validation record completed; experiment log with predictions, results and explanations |
 | Verification | 18–28 | E4: two-technician failure (days 18–22); S4, fix and re-verification (days 23–28); mutants for every monitor ([Section 5.11](#511-sanity-and-vacuity-checks)); calibration of schedule counts ([Section 5.9](#59-what-a-number-of-schedules-guarantees)) | D2 submitted |
 | Run time | 29–38 | PObserve package; sample logs; logs of the two-technician scenario; system-fault and log-defect runs; calibration of the R2 bound | D3 submitted |
-| Analysis | 39–45 | report, threats to validity, presentation | D4 and D5 submitted |
+| Analysis | 39–45 | article draft, threats to validity, presentation | D4 and D5 submitted |
 
 The verification phase constitutes the core of the project. If modeling is delayed, the optional JaCaMo instrumentation of the run-time phase is to be omitted, rather than experiments E1, E2 or E4.
 
@@ -1124,7 +1124,7 @@ The verification phase constitutes the core of the project. If modeling is delay
 | D1 | Background note | 7 | 2–3 pages: MAS, norms, the unified view, P; the cell placed in the grid, with justification; a one-page mapping of each machine in `Common/` to a regulation capability |
 | D2 | Verified model | 28 | compiling P project; results of E1, E2 and the further experiments; the two-technician failing trace explained with the template of [Section 7.8](#78-writing-up-a-counterexample); S4; the fix and all monitors holding afterwards; mutants for every monitor; justification of every schedule count |
 | D3 | PObserve package | 38 | parser (adapted as needed), JUnit tests, runner; results on all logs, including the two-technician scenario; system-fault and log-defect runs; the calibrated R2 bound with its justification |
-| D4 | Final report | 45 | 8–12 pages in a workshop-paper format (e.g. EMAS, COINE or WESAAC), structured as below, with the validation record and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity) as appendices |
+| D4 | Scientific article draft | 45 | a draft scientific article prepared by each team (complete and internally consistent, though not yet ready for submission): 8–12 pages in a workshop-paper format (e.g. EMAS, COINE or WESAAC), with title, authors, abstract, keywords and references, structured as below, with the validation record and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity) as appendices |
 | D5 | Presentation and demonstration | 45 | 15 minutes plus 5 for questions: one checker counterexample run live and one PObserve violation shown |
 
 This section is the authoritative source for phases, deliverables and grading; ASSIGNMENT.md summarizes it for the teams.
@@ -1139,7 +1139,7 @@ This section is the authoritative source for phases, deliverables and grading; A
 | Two technicians: analysis and S4 | D2 | 20% | failure reproduced; interleaving explained; S4 fails before the fix | failure reproduced; explanation partial | failure not reproduced |
 | Two technicians: fix and verification | D2 | 20% | all monitors hold; schedule count justified by calibration; no test weakened | monitors hold; justification weak | fix incomplete, or tests weakened |
 | Run-time monitoring | D3 | 15% | all logs checked; R2 bound justified from data; system faults and log defects distinguished and analyzed | most logs checked; analysis partial | package does not build, or no analysis |
-| Report and presentation | D4, D5 | 15% | claims match the evidence; threats to validity discussed per assumption; design-time / run-time split explained | minor overstatements | claims unsupported by evidence |
+| Article draft and presentation | D4, D5 | 15% | claims match the evidence; threats to validity discussed per assumption; design-time / run-time split explained | minor overstatements | claims unsupported by evidence |
 
 Individual grades may be adjusted on the basis of the contribution statements and the answers given during the presentation.
 
@@ -1154,9 +1154,9 @@ Individual grades may be adjusted on the basis of the contribution statements an
 | LO5 design time versus run time |  | ● | ● | ● | ● |
 | LO6 assumptions and threats to validity |  | ● | ● | ● |  |
 
-**Report template (D4).**
+**Article template (D4).**
 
-1. Introduction and research questions.
+1. Title, authors, abstract (at most 200 words) and keywords; introduction and research questions.
 2. Background and the position of the cell in the unified-view grid (from D1).
 3. Model and norms, with the traceability table of [Section 7.6](#76-traceability).
 4. Design-time results: E1–E8, each counterexample written up with the template of [Section 7.8](#78-writing-up-a-counterexample).
@@ -1165,7 +1165,7 @@ Individual grades may be adjusted on the basis of the contribution statements an
 7. Related work.
 8. Conclusion.
 
-Appendices: the validation record, and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity).
+References follow the conclusion, in the citation style of the chosen venue. Appendices: the validation record, and the completed tables of [Sections 7.6](#76-traceability) and [7.7](#77-modeling-assumptions-and-threats-to-validity).
 
 **Guidelines for carrying out the project.** The following practices are expected throughout the project; the rubric above rewards several of them directly.
 

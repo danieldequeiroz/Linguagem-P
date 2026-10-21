@@ -1252,7 +1252,7 @@ The verification phase constitutes the core of the project. If the modeling work
 | 2 Model | 8–17 | compile errors fixed; modeling decisions justified; E0–E2 and at least three of E3–E5 and E9, each with a prediction recorded before the run | **Checkpoint** (day 17): validation record for the P steps; experiment log with change, prediction, result and explanation | project compiles; E0 shows that every monitor can fail; E1 and E2 recorded |
 | 3 Verification | 18–28 | analysis (days 18–22): denial causes recorded in `eTaskAbandoned`, refined cause-aware monitor; remedy (days 23–28): E6 or E7 | **D2** (day 28): verified model with the refined monitor, counterexample traces for both causes (or an argument that one cannot occur), all safety monitors still holding, the result of the remedy and the justification of the schedule count ([Section 5.9](#59-what-n-schedules-guarantee)) | the Must requirements of [Section 7.5](#75-requirements) that concern the model are met |
 | 4 Run time | 29–38 | PObserve package; logs with denial causes and remedy from the extended simulator; sanction counts by cause before and after the remedy; injection of system faults and log defects ([Section 7.4](#74-run-time-part-pobserve)) | **D3** (day 38): PObserve package, verdicts for every log, counts of flagged sanctions by cause before and after the remedy | JUnit tests pass on the sample logs; every log has a recorded verdict |
-| 5 Analysis | 39–45 | report and presentation | **D4** (day 45): report, 8–12 pages in a workshop-paper format (e.g., EMAS, COINE or WESAAC), with the threats to validity ([Section 7.6](#76-modeling-assumptions-and-threats-to-validity)) and the validation record as an appendix. **D5** (day 45): presentation of 15 minutes plus 5 minutes of questions, with one counterexample replayed live and one PObserve result shown | report and presentation delivered |
+| 5 Analysis | 39–45 | article draft and presentation | **D4** (day 45): scientific article draft prepared by each team (complete and internally consistent, though not yet ready for submission), 8–12 pages in a workshop-paper format (e.g., EMAS, COINE or WESAAC), with title, authors, abstract, keywords and references, and with the threats to validity ([Section 7.6](#76-modeling-assumptions-and-threats-to-validity)) and the validation record as an appendix. **D5** (day 45): presentation of 15 minutes plus 5 minutes of questions, with one counterexample replayed live and one PObserve result shown | article draft and presentation delivered |
 
 This table is the authoritative statement of phases and deliverables; `ASSIGNMENT.md` reproduces it. D1 and the day-17 checkpoint are formative: they receive written feedback, and their content is assessed as part of the report.
 
@@ -1265,19 +1265,19 @@ This table is the authoritative statement of phases and deliverables; `ASSIGNMEN
 | Sanction fairness: analysis and refined monitor | 20% | causes recorded and distinguished; traces for each cause explained; order sensitivity addressed | causes distinguished; traces partially explained | no attribution of causes |
 | Sanction fairness: remedy and verification | 20% | remedy verified for the targeted cases; safety monitors still hold; schedule count justified by calibration | remedy implemented and checked; justification of the schedule count incomplete | remedy not verified |
 | Run-time monitoring | 15% | verdicts for all logs; counts by cause before and after the remedy; system faults and log defects analyzed; clock skew discussed | verdicts and counts; defects partially analyzed | package does not run, or no analysis |
-| Report and presentation | 20% | claims match the evidence; no causal claim beyond what the monitors support; threats to validity complete | minor overstatements; threats partially discussed | claims unsupported by evidence |
+| Article draft and presentation | 20% | claims match the evidence; no causal claim beyond what the monitors support; threats to validity complete | minor overstatements; threats partially discussed | claims unsupported by evidence |
 
 **Learning outcomes, deliverables and assessment.**
 
 | Outcome | D1 | Day 17 | D2 | D3 | D4 | D5 | Assessed in |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LO1 grid and architecture | ✓ |  |  |  | ✓ |  | report and presentation |
+| LO1 grid and architecture | ✓ |  |  |  | ✓ |  | article draft and presentation |
 | LO2 modeling and assumptions |  | ✓ | ✓ |  | ✓ |  | baseline; design experiments |
 | LO3 monitors and counterexamples |  | ✓ | ✓ | ✓ | ✓ | ✓ | design experiments; fairness analysis |
 | LO4 schedules and vacuity |  | ✓ | ✓ |  | ✓ |  | design experiments; remedy |
 | LO5 causes and remedy |  |  | ✓ | ✓ | ✓ | ✓ | fairness analysis; remedy |
 | LO6 run-time monitoring |  |  |  | ✓ | ✓ | ✓ | run-time monitoring |
-| LO7 physical constraints and validity | ✓ |  | ✓ | ✓ | ✓ |  | report and presentation |
+| LO7 physical constraints and validity | ✓ |  | ✓ | ✓ | ✓ |  | article draft and presentation |
 
 **Guidelines for carrying out the project.** The following practices are expected throughout the project; the rubric above rewards several of them directly.
 
