@@ -1092,7 +1092,7 @@ The expected outcomes are **hypotheses** derived from the design. They are consi
 | E6 | Traffic norm (remedy 1): one travel direction at a time | Do flagged sanctions then follow only closures? | traffic-caused cases disappear | refined monitor reports no traffic-caused case; all safety monitors hold | 10,000 | refined-monitor output; safety results |
 | E7 | Excusing obligations (remedy 2): deadlines suspended while the regulation blocks a robot, and obligations abandoned because of a closure excused | Does F1 hold for regulation-caused cases, and at what cost? | suspension alone: F1 still fails; with excusal: no regulation-caused case | refined monitor reports no regulation-caused case; safety monitors and L1 hold | 10,000 | outputs before and after; cost in L1 (checker) and in sanction counts (PObserve) |
 | E8 | Scale: 3–4 robots or 4–5 zones | Where does exploration stop scaling? | run time grows rapidly | run times reported per size | as feasible | table of sizes and times |
-| E9 | Prepare timeout and abort: the coordinator aborts if the zone does not drain within k ticks | Does every adaptation terminate without parking (L3), and are S1 and S2 preserved? | L3 holds; L2 fails by design for an aborted change, which is not installed; S1 and S2 preserved; the picker is refused | prediction confirmed or refuted; acceptance cases: a timeout followed by `ADAPT_ABORT` satisfies L3; a prepare that is neither committed nor aborted violates L3; an aborted prepare never admits the picker and leaves no controller blocked | 10,000 | traces and discussion |
+| E9 | Prepare timeout and abort: the coordinator aborts if the zone does not drain within k ticks | Does every adaptation terminate without parking (L3), and are S1 and S2 preserved? | L3 holds; L2 fails by design for an aborted change, which is not installed (it remains in its hot state or, if the change is retried, reports a new start before the previous commit); S1 and S2 preserved; the picker is refused | prediction confirmed or refuted; acceptance cases: a timeout followed by `ADAPT_ABORT` satisfies L3; a prepare that is neither committed nor aborted violates L3; an aborted prepare never admits the picker and leaves no controller blocked | 10,000 | traces and discussion |
 
 Predictions are recorded before each run. The identifiers E0–E9 are also used in the assignment and in the instructions.
 
@@ -1103,7 +1103,7 @@ Predictions are recorded before each run. The identifiers E0–E9 are also used 
 **Log contract.** Each regulation event is recorded as one log line:
 
 - `Site=fleet-A, Event=ENTER, Agent=1, Res=1, Ver=0`;
-- in addition, `CONFIG` (all zones: `Capacity=0:1;1:1;2:1`), `TICK`, `OBLIGATION`, `FULFILLED`, `SANCTION`, `LEAVE`, `ADAPT_START`, `COMMIT`, `HUMAN_ENTER` and `HUMAN_LEAVE`; in experiment E9 only, `ADAPT_ABORT` (`Ver`), for which the parser must be extended;
+- in addition, `CONFIG` (all zones: `Capacity=0:1;1:1;2:1`), `TICK`, `OBLIGATION`, `FULFILLED`, `SANCTION`, `LEAVE`, `ADAPT_START`, `COMMIT`, `HUMAN_ENTER` and `HUMAN_LEAVE`; in experiment E9 only, `ADAPT_ABORT` (`Ver`), which the parser maps to eAdaptationAborted;
 - `ABANDON` (`Id, Agent, Where`), emitted by a robot when it abandons its task.
 
 Each line is prefixed with a UTC timestamp of microsecond precision. `Site` serves as the partition key.
@@ -1262,7 +1262,7 @@ The `p-regulation` starter kit is given in the project folder of the repository;
 
 | Path | Content | Status |
 | --- | --- | --- |
-| `Common/*.p` | shared model machines and monitors | compiles with P 3.1.0.0, without warnings (21 October 2026); the L3 monitor added afterwards is not yet compiled |
+| `Common/*.p` | shared model machines and monitors | compiles with P 3.1.0.0, without warnings (21 October 2026); later changes (the L3 monitor and the S1, L2 and R2 corrections) are not yet compiled |
 | `MobileRobots/PSrc`, `PSpec`, `PTst` | robots, system configuration, fairness monitor, test cases | compiles with P 3.1.0.0 (21 October 2026); the three test cases run as expected (see below) |
 | `MobileRobots/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API; Java classes generated with `p compile --mode pobserve`; Java build, JUnit and PObserve replay not yet run |
 | `MobileRobots/INSTRUCTIONS.md` | step-by-step commands for both parts | P steps run in the independent evaluation; Java and PObserve steps not yet validated |

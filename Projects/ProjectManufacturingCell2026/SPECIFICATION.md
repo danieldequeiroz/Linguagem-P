@@ -653,7 +653,7 @@ machine ResourceGuard {
 spec RegimentationSafety observes eResourceEntered, eHumanEntered /* … */ {
   start state Watching {
     on eResourceEntered do (e: tEnter) {
-      assert !(e.res in humanIn), "agent admitted while a human is inside";
+      assert !(e.res in humanIn) || humanIn[e.res] == 0, "agent admitted while a human is inside";
     }
   }
 }
@@ -973,7 +973,7 @@ The expected outcomes are **hypotheses** derived from the design. A sample-log s
 | E5 | Deadline pressure | `due` reduced from 4–6 to 2 | more sanctions; S3 and L1 still hold | sanction counts reported per setting; no violation | 10,000 per setting | counts, runs |
 | E6 | Scale | 3–4 agents, larger `maxTicks` | checker time per schedule grows with the configuration | schedules per second reported per configuration | 1,000 per configuration | timing table |
 | E7 | Sanctions during a lock-out (optional) | a monitor stating that no obligation is sanctioned whose agent was denied access during a lock-out within the obligation's active period | the monitor fails under the starter kit's sanction policy | a trace showing the denial and the sanction; a remedy discussed or modeled | 10,000 | trace, policy discussion |
-| E8 | Cancelling a prepare (optional) | the technician withdraws before the commit; an abort message is added | without abort, the lock-out is committed although no longer needed; with abort, S1–S4 and L3 still hold and the envelope reopens (L2 fails by design for an aborted change) | abort path modeled and checked | 10,000 | model change, results |
+| E8 | Cancelling a prepare (optional) | the technician withdraws before the commit; an abort message is added | without abort, the lock-out is committed although no longer needed; with abort, S1–S4 and L3 still hold and the envelope reopens (L2 fails by design for an aborted change: it remains in its hot state or, if the change is retried, reports a new start before the previous commit) | abort path modeled and checked | 10,000 | model change, results |
 
 Before each run, the team records its own prediction in the experiment log (ASSIGNMENT.md); the design hypotheses above do not replace that prediction. A result that contradicts a hypothesis is a finding, not a failure, provided it is explained.
 
@@ -1150,9 +1150,9 @@ The `p-regulation` archive is given; its contents are identical to the project f
 
 | Path | Content | Status |
 | --- | --- | --- |
-| `Common/*.p` | shared model machines and monitors | draft, not yet compiled |
-| `ManufacturingCell/PSrc`, `PTst` | cell agents, system configuration, test cases | draft, not yet compiled |
-| `ManufacturingCell/pobserve/` | Gradle build, parser, JUnit tests, sample logs | parser written against the PObserve API and exercised only with stand-ins for the generated classes; not yet built with `p compile --mode pobserve`; JUnit not yet run |
+| `Common/*.p` | shared model machines and monitors | compiled with P 3.1.0.0 (21 October 2026), except later changes: the L3 monitor and the S1, L2 and R2 corrections |
+| `ManufacturingCell/PSrc`, `PTst` | cell agents, system configuration, test cases | compiled with P 3.1.0.0 (21 October 2026), before the L3 assertions were added to the test cases |
+| `ManufacturingCell/pobserve/` | Gradle build, parser, JUnit tests, sample logs | `parser written against the PObserve API; Java classes generated with p compile --mode pobserve; Java build and JUnit not yet run` |
 | `ManufacturingCell/INSTRUCTIONS.md` | step-by-step commands for both parts, log contract, validation record | written; commands not yet validated |
 | `tools/simulate_logs.py` | generates two-phase / naive logs and previews monitor results | tested |
 | `tools/instrumentation/RegulationLog.java` | logging helper for JaCaMo | compiles |

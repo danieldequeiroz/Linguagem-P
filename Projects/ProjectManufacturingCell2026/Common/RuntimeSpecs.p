@@ -42,9 +42,11 @@ spec ObligationDeadlineRespected observes eObligationCreated, eObligationFulfill
   }
 }
 
-// R2 Every adaptation commits within MAX ticks (bounded version of L2).
-//    A failure points to a resource that could not be drained.
-spec AdaptationBoundedTime observes eAdaptationStarted, eNormCommitted, eTick {
+// R2 Every adaptation commits or is explicitly aborted within MAX ticks
+//    (bounded version of L2 and L3). A failure points to a resource that could
+//    not be drained. An abort (E8/E9) ends the adaptation, so a correctly
+//    abandoned change is not reported, and a retry starts a new measurement.
+spec AdaptationBoundedTime observes eAdaptationStarted, eNormCommitted, eAdaptationAborted, eTick {
   var now: int;
   var startedAt: int;
   var pendingVer: int;
@@ -54,7 +56,7 @@ spec AdaptationBoundedTime observes eAdaptationStarted, eNormCommitted, eTick {
     entry { maxTicks = 5; }
     on eTick do (t: int) { now = t; }
     on eAdaptationStarted do (v: int) { pendingVer = v; startedAt = now; goto InProgress; }
-    ignore eNormCommitted;
+    ignore eNormCommitted, eAdaptationAborted;
   }
 
   state InProgress {
@@ -65,6 +67,7 @@ spec AdaptationBoundedTime observes eAdaptationStarted, eNormCommitted, eTick {
                pendingVer, startedAt, now);
     }
     on eNormCommitted do (n: tNormSet) { goto Idle; }
+    on eAdaptationAborted do (v: int) { goto Idle; }
   }
 }
 
