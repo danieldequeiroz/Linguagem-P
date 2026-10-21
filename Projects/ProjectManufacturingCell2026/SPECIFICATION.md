@@ -22,7 +22,7 @@ The objective of this project is to construct and verify the regulation layer of
 
 <a id="figure-1"></a>
 
-![Figure 1 · the problem: changing the rules of a running cell without endangering people](figures/figure1.png)
+![Figure 1 · the problem: changing the rules of a running cell without endangering people](figures/figure1.svg)
 
 *Figure 1 · the problem: changing the rules of a running cell without endangering people*
 
@@ -67,7 +67,7 @@ Most MAS platforms adopt the belief–desire–intention (BDI) model, in which a
 
 <a id="figure-2"></a>
 
-![Figure 2 · MAOP dimensions and JaCaMo technologies, with the cell's components](figures/figure2.png)
+![Figure 2 · MAOP dimensions and JaCaMo technologies, with the cell's components](figures/figure2.svg)
 
 *Figure 2 · MAOP dimensions and JaCaMo technologies, with the cell's components*
 
@@ -96,7 +96,7 @@ A BDI agent executes the following **reasoning cycle** repeatedly ([Figure 3](#f
 
 <a id="figure-3"></a>
 
-![Figure 3 · the BDI reasoning cycle](figures/figure3.png)
+![Figure 3 · the BDI reasoning cycle](figures/figure3.svg)
 
 *Figure 3 · the BDI reasoning cycle*
 
@@ -263,7 +263,7 @@ For those who already know temporal logic, such as CTL and LTL, the intuition be
 
 <a id="figure-4"></a>
 
-![Figure 4 · the box of temporal logic and the box of deontic logic](figures/figure4.png)
+![Figure 4 · the box of temporal logic and the box of deontic logic](figures/figure4.svg)
 
 *Figure 4 · the box of temporal logic and the box of deontic logic*
 
@@ -302,7 +302,7 @@ The reduction also clarifies *whose* behavior is being specified ([Figure 5](#fi
 
 <a id="figure-5"></a>
 
-![Figure 5 · one trace read deontically (agents) and temporally (regulator)](figures/figure5.png)
+![Figure 5 · one trace read deontically (agents) and temporally (regulator)](figures/figure5.svg)
 
 *Figure 5 · one trace read deontically (agents) and temporally (regulator)*
 
@@ -341,7 +341,7 @@ Each norm instance evolves according to a small state machine. The monitors defi
 
 <a id="figure-6"></a>
 
-![Figure 6 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure6.png)
+![Figure 6 · lifecycle of an obligation instance, with the P events that mark each state](figures/figure6.svg)
 
 *Figure 6 · lifecycle of an obligation instance, with the P events that mark each state*
 
@@ -381,7 +381,7 @@ The construction of L1 illustrates how a norm becomes a P monitor in four steps.
 
 <a id="figure-7"></a>
 
-![Figure 7 · monitor automaton for the liveness property L1, with its cold and hot states](figures/figure7.png)
+![Figure 7 · monitor automaton for the liveness property L1, with its cold and hot states](figures/figure7.svg)
 
 *Figure 7 · monitor automaton for the liveness property L1, with its cold and hot states*
 
@@ -455,7 +455,7 @@ The appropriate enforcement mechanism for a norm depends on two factors: the cos
 
 <a id="figure-8"></a>
 
-![Figure 8 · the norms of the cell placed by cost and controllability](figures/figure8.png)
+![Figure 8 · the norms of the cell placed by cost and controllability](figures/figure8.svg)
 
 *Figure 8 · the norms of the cell placed by cost and controllability*
 
@@ -478,7 +478,7 @@ Regulation management concerns the balance between agent autonomy and system-lev
 
 <a id="figure-9"></a>
 
-![Figure 9 · the cell placed in the unified-view grid](figures/figure9.png)
+![Figure 9 · the cell placed in the unified-view grid](figures/figure9.svg)
 
 *Figure 9 · the cell placed in the unified-view grid*
 
@@ -554,7 +554,7 @@ The **transition window** is the interval between the decision to change the nor
 
 <a id="figure-10"></a>
 
-![Figure 10 · two technicians: serialized adaptations reopen an occupied envelope](figures/figure10.png)
+![Figure 10 · two technicians: serialized adaptations reopen an occupied envelope](figures/figure10.svg)
 
 *Figure 10 · two technicians: serialized adaptations reopen an occupied envelope*
 
@@ -566,7 +566,7 @@ The lock-out of the cell is not a hypothetical construct: industrial safety regu
 
 <a id="figure-11"></a>
 
-![Figure 11 · lock-out/tag-out steps and their counterparts in the model](figures/figure11.png)
+![Figure 11 · lock-out/tag-out steps and their counterparts in the model](figures/figure11.svg)
 
 *Figure 11 · lock-out/tag-out steps and their counterparts in the model*
 
@@ -634,7 +634,7 @@ spec RegimentationSafety observes eResourceEntered, eHumanEntered /* … */ {
 
 <a id="figure-12"></a>
 
-![Figure 12 · design-time and run-time checking share one set of monitors](figures/figure12.png)
+![Figure 12 · design-time and run-time checking share one set of monitors](figures/figure12.svg)
 
 *Figure 12 · design-time and run-time checking share one set of monitors*
 
@@ -648,7 +648,7 @@ On a finite log, the absence of a reported violation is a verdict of *inconclusi
 
 <a id="figure-13"></a>
 
-![Figure 13 · what the checker and PObserve can each establish](figures/figure13.png)
+![Figure 13 · what the checker and PObserve can each establish](figures/figure13.svg)
 
 *Figure 13 · what the checker and PObserve can each establish*
 
@@ -724,7 +724,7 @@ The search finds bugs but does not prove their absence. Models should therefore 
 
 <a id="figure-14"></a>
 
-![Figure 14 · the orders of three lock-out events, and the one that violates S1](figures/figure14.png)
+![Figure 14 · the orders of three lock-out events, and the one that violates S1](figures/figure14.svg)
 
 *Figure 14 · the orders of three lock-out events, and the one that violates S1*
 
@@ -825,7 +825,7 @@ A robot arm (agent 1) and an automated guided vehicle (AGV, agent 2) share one w
 
 <a id="figure-15"></a>
 
-![Figure 15 · cell architecture, components by MAOP dimension](figures/figure15.png)
+![Figure 15 · cell architecture, components by MAOP dimension](figures/figure15.svg)
 
 *Figure 15 · cell architecture, components by MAOP dimension*
 
@@ -866,7 +866,7 @@ The cell controller is the only means of access to the envelope, so regimented n
 
 <a id="figure-16"></a>
 
-![Figure 16 · naive vs. two-phase lock-out, as message sequences](figures/figure16.png)
+![Figure 16 · naive vs. two-phase lock-out, as message sequences](figures/figure16.svg)
 
 *Figure 16 · naive vs. two-phase lock-out, as message sequences*
 
@@ -878,7 +878,7 @@ The naive policy corresponds to a typical first implementation. Demonstrating *w
 
 <a id="figure-17"></a>
 
-![Figure 17 · the two-phase protocol as two communicating state machines](figures/figure17.png)
+![Figure 17 · the two-phase protocol as two communicating state machines](figures/figure17.svg)
 
 *Figure 17 · the two-phase protocol as two communicating state machines*
 
@@ -1044,7 +1044,7 @@ The project is carried out in five phases over 45 calendar days, counted from th
 
 <a id="figure-18"></a>
 
-![Figure 18 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure18.png)
+![Figure 18 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure18.svg)
 
 *Figure 18 · work plan: 5 phases, 45 days, 5 deliverables*
 
