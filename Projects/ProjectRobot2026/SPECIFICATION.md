@@ -18,7 +18,7 @@ The objective of this project is to build and verify the regulation layer of a s
 1. The regulation layer is modeled in the P language and model-checked.
 2. Fleet logs, either simulated or recorded from a ROS 2 system, are checked against the same P monitors with PObserve.
 
-[Figure 1](#figure-1) summarizes the problem addressed by the project. Two robots traverse a one-lane corridor of three zones, each admitting at most one robot, in opposite directions, so that their paths meet head-on; a human picker occasionally requires access to zone 1. Each zone is regulated by its own zone controller, which admits or denies robots according to the version of the norm set that it currently holds, while an adaptation coordinator closes zone 1 by distributing a new norm set. Because the controllers receive the new version at different times, there is a transition window in which they disagree on the norms in force; in addition, a robot that is repeatedly denied access abandons its delivery, parks in a side bay, and is subsequently sanctioned by the fleet manager for the missed deadline. The project therefore asks three questions: whether a person and a robot can ever occupy zone 1 together while the norms change (safety), whether every obligation and every closure is eventually resolved (liveness), and whether robots are sanctioned for delays caused by the regulation or by traffic rather than by their own conduct (sanction fairness).
+[Figure 1](#figure-1) summarizes the problem addressed by the project. Two robots traverse a one-lane corridor of three zones, each admitting at most one robot, in opposite directions, so that their paths meet head-on; a human picker occasionally requires access to zone 1. Each zone is regulated by its own zone controller, which admits or denies robots according to the version of the norm set that it currently holds, while an adaptation coordinator closes zone 1 by distributing a new norm set. Because the controllers receive the new version at different times, there is a transition window in which they disagree on the norms in force; in addition, a robot that is repeatedly denied access abandons its delivery, parks in a side bay, and is subsequently sanctioned by the fleet manager for the missed deadline. Three questions must be answered: whether a person and a robot can ever occupy zone 1 together while the norms change (safety), whether every obligation and every closure is eventually resolved (liveness), and whether robots are sanctioned for delays caused by the regulation or by traffic rather than by their own conduct (sanction fairness).
 
 <a id="figure-1"></a>
 
@@ -220,7 +220,7 @@ Robot fleets face three classical coordination problems, each of which gives ris
 - **Path planning and traffic management.** Multi-agent path finding computes collision-free routes. Industrial fleets frequently rely on the simpler **zone reservation** scheme, in which a robot may enter a zone only while it holds a reservation for that zone. This scheme is adopted in this project.
 - **Deadlock.** Two robots facing each other in a one-lane corridor, each holding its own zone and waiting for the other's, form a cyclic wait. Standard remedies include one-way lanes, priorities, timeouts with back-off (in this project, parking after three denials) and reservation of the entire corridor. [Section 6](#6-the-system-robots-in-a-shared-corridor) analyzes this deadlock in terms of the four necessary conditions identified by Coffman, Elphick and Shoshani.
 
-Each remedy can be expressed as a norm: "one direction at a time" is a prohibition, and "yield to the robot with priority" is an obligation. The project examines whether such norms interact safely with sanctions and zone closures.
+Each remedy can be expressed as a norm: "one direction at a time" is a prohibition, and "yield to the robot with priority" is an obligation. Whether such norms interact safely with sanctions and zone closures must be examined.
 
 **Self-check questions ([Section 2](#2-background-multi-agent-systems)).**
 
@@ -253,7 +253,7 @@ Safety-critical norms (people and robots in the same zone) should be regimented,
 
 **Fairness of sanctions.** A sanction is justified only if the agent could have complied; this is an instance of the principle *ought implies can*. In a fleet, regimentation itself can render compliance impossible: a robot denied entry to a closed zone, or obstructed by another robot in a one-lane corridor, misses its deadline through no fault of its own. Sanctioning such a robot penalizes side effects of the regulation itself and distorts any reputation or incentive scheme built on sanctions.
 
-This project formulates sanction fairness as a property to be verified: *an agent is sanctioned only for its own non-compliance, never for being blocked*. [Dell'Anna, Dastani and Dalpiaz](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf) study the run-time revision of sanctions that prove ineffective. The present project addresses a different question: the detection of unfairness that is inherent in the design. The monitor F1 approximates this property conservatively: it flags a sanction on an obligation whose task the robot abandoned after repeated access denials, but it establishes neither the cause of the denials (regulation or traffic) nor that the denials caused the missed deadline. A violation of F1 therefore identifies a candidate unfair sanction rather than a proven one.
+Sanction fairness is formulated here as a property to be verified: *an agent is sanctioned only for its own non-compliance, never for being blocked*. [Dell'Anna, Dastani and Dalpiaz](https://webspace.science.uu.nl/~dalpi001/papers/dell-dast-dalp-20-jaamas.pdf) study the run-time revision of sanctions that prove ineffective. A different question is addressed here: the detection of unfairness that is inherent in the design. The monitor F1 approximates this property conservatively: it flags a sanction on an obligation whose task the robot abandoned after repeated access denials, but it establishes neither the cause of the denials (regulation or traffic) nor that the denials caused the missed deadline. A violation of F1 therefore identifies a candidate unfair sanction rather than a proven one.
 
 **Norms in JaCaMo.** Moise organizations are compiled into programs of the Normative Programming Language (NPL). An NPL engine creates obligations when agents adopt roles and commit to missions, tracks their deadlines and reports violations to the organization.
 
@@ -604,7 +604,7 @@ The fleet follows the hybrid view. Safety norms reside in the environment (zone 
 | Hierarchical | regulators per area under a supervisor | local decisions with global oversight | the supervisor still observes changes with a delay |
 | Distributed | several peer regulators, each owning part of the system | scales; local, fast decisions; no single point of failure | regulators can disagree during a change; needs a coordination protocol |
 
-Warehouses with hundreds of robots typically require the distributed style. This project studies its smallest non-trivial instance: three zone controllers.
+Warehouses with hundreds of robots typically require the distributed style. Its smallest non-trivial instance, three zone controllers, is studied here.
 
 Strictly, the fleet combines two styles: regimentation is distributed, whereas adaptation, time and sanctioning are centralized.
 
@@ -908,21 +908,15 @@ The effect depends on the property. S2, as implemented, compares each admission 
 
 ## 6. The system: robots in a shared corridor
 
-Two mobile robots deliver goods through a one-lane corridor consisting of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot 1 travels 0 → 1 → 2 and robot 2 travels 2 → 1 → 0; their paths therefore meet head-on. A fleet manager assigns deliveries with deadlines. At unpredictable times, a human picker requires access to zone 1, which first necessitates a **zone closure**: a regulation adaptation that closes zone 1 to robots ([Figure 17](#figure-17)).
+Two mobile robots deliver goods through a one-lane corridor consisting of three zones (0, 1 and 2), each with capacity 1 and its own zone controller. Robot 1 travels 0 → 1 → 2 and robot 2 travels 2 → 1 → 0; their paths therefore meet head-on. A fleet manager assigns deliveries with deadlines. At unpredictable times, a human picker requires access to zone 1, which first necessitates a **zone closure**: a regulation adaptation that closes zone 1 to robots ([Figure 1](#figure-1)).
 
 <a id="figure-17"></a>
 
-![Figure 17 · the corridor seen from above (illustrative)](figures/figure17.png)
+![Figure 17 · fleet architecture, components by MAOP dimension](figures/figure17.png)
 
-*Figure 17 · the corridor seen from above (illustrative)*
+*Figure 17 · fleet architecture, components by MAOP dimension*
 
-<a id="figure-18"></a>
-
-![Figure 18 · fleet architecture, components by MAOP dimension](figures/figure18.png)
-
-*Figure 18 · fleet architecture, components by MAOP dimension*
-
-Because each zone controller decides independently ([Figure 18](#figure-18)), a closure is safe only if all three controllers switch norm sets before the picker enters. The project verifies the coordinator's protocol and the ability of the robots to drain zone 1.
+Because each zone controller decides independently ([Figure 17](#figure-17)), a closure is safe only if all three controllers switch norm sets before the picker enters. The project verifies the coordinator's protocol and the ability of the robots to drain zone 1.
 
 **Normal operation:**
 
@@ -954,28 +948,28 @@ Because each zone controller decides independently ([Figure 18](#figure-18)), a 
 | A delivery ends either fulfilled or sanctioned, never both | integrity of the organization | by construction, monitored | organizational | S3 |
 | Sanction only an agent's own non-compliance | meta-norm on the sanction policy | monitored (approximation) | sanction fairness | F1 |
 
-**Execution policies.** Two policies for executing a closure are compared ([Figure 19](#figure-19)):
+**Execution policies.** Two policies for executing a closure are compared ([Figure 18](#figure-18)):
 
 - **Naive.** The coordinator declares the new norm set immediately, and each zone controller installs it upon receipt of the corresponding message.
 - **Two-phase.** The coordinator sends *prepare*. Controllers whose zone is unaffected acknowledge immediately and continue to serve robots. The controller of the affected zone stops admitting robots, waits until the zone is empty and then acknowledges. The coordinator *commits* only after all controllers have acknowledged.
 
-<a id="figure-19"></a>
+<a id="figure-18"></a>
 
-![Figure 19 · naive vs. prepare–drain–commit zone closure, as message sequences](figures/figure19.png)
+![Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences](figures/figure18.png)
 
-*Figure 19 · naive vs. prepare–drain–commit zone closure, as message sequences*
+*Figure 18 · naive vs. prepare–drain–commit zone closure, as message sequences*
 
 In the naive sequence, the zone 1 controller still holds norm set v0 when the robot requests entry, because v1 is still in transit. The two-phase sequence cannot reach this state, since the picker is notified only after zone 1 has been drained and its controller has acknowledged.
 
 The two central results expected from the project are a demonstration that the naive policy is unsafe and an analysis of the sanctions that even the safe policy applies to robots blocked by regulation or traffic.
 
-**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 20](#figure-20)): the `AdaptationCoordinator` and one `ResourceGuard` per zone.
+**The two-phase protocol as state machines.** In the starter kit, the protocol is distributed over two P machines ([Figure 19](#figure-19)): the `AdaptationCoordinator` and one `ResourceGuard` per zone.
 
-<a id="figure-20"></a>
+<a id="figure-19"></a>
 
-![Figure 20 · the prepare–drain–commit protocol as two communicating state machines](figures/figure20.png)
+![Figure 19 · the prepare–drain–commit protocol as two communicating state machines](figures/figure19.png)
 
-*Figure 20 · the prepare–drain–commit protocol as two communicating state machines*
+*Figure 19 · the prepare–drain–commit protocol as two communicating state machines*
 
 - **Prepare.** The coordinator sends `eNormPrepare` to every zone controller. The controller of zone 1, which the new norm set closes, enters `Draining`: it denies new robots but permits the current occupant to leave. Zones 0 and 2 are unaffected and acknowledge immediately, so they continue to serve robots throughout.
 - **Acknowledge.** When zone 1 is empty, its controller sends `eNormPrepareAck` and continues to deny requests, because it cannot yet determine whether the commit has occurred.
@@ -983,13 +977,13 @@ The two central results expected from the project are a demonstration that the n
 
 The safety argument rests on the highlighted states. The figure also reveals the cost of the protocol: the coordinator remains in `Preparing` until zone 1 is empty, and in the corridor, emptying a zone is not always possible.
 
-**Deadlock in the corridor.** A robot retains its zone until the next zone is granted. Consequently, two robots moving head-on may each hold the zone that the other requires ([Figure 21](#figure-21)). This configuration is a deadlock in the sense of operating systems: a circular wait among processes that hold resources.
+**Deadlock in the corridor.** A robot retains its zone until the next zone is granted. Consequently, two robots moving head-on may each hold the zone that the other requires ([Figure 20](#figure-20)). This configuration is a deadlock in the sense of operating systems: a circular wait among processes that hold resources.
 
-<a id="figure-21"></a>
+<a id="figure-20"></a>
 
-![Figure 21 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes](figures/figure21.png)
+![Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes](figures/figure20.png)
 
-*Figure 21 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes*
+*Figure 20 · head-on robots form a wait-for cycle, and the Coffman condition each remedy removes*
 
 The cycle is relevant to regulation in two respects. First, it can block the closure: if robot 1 occupies zone 1 while waiting for zone 2, zone 1 is never drained and the adaptation never commits. Property L2 (`AdaptationCompletes`) detects this situation when parking is removed. Second, every resolution of the cycle has a normative cost:
 
@@ -1018,7 +1012,7 @@ The deliverable is a P project consisting of three parts:
 - a catalog of monitors checked against this model;
 - a PObserve package that checks the same monitors against logs.
 
-A starter kit containing draft versions of all three parts is provided ([Section 9](#9-starter-kit-setup-and-references)). The project consists of bringing the kit to a compilable state, correcting it, justifying every modeling decision and extending it.
+A starter kit containing draft versions of all three parts is provided ([Section 9](#9-starter-kit-setup-and-references)). The work consists of bringing the kit to a compilable state, correcting it, justifying every modeling decision and extending it.
 
 ### 7.1 Model components
 
@@ -1177,13 +1171,13 @@ A complete write-up adds the setup (here, simulator seed 2 and the naive policy)
 
 ## 8. Work plan and deliverables
 
-The project comprises five phases over 45 calendar days, counted from the start date ([Figure 22](#figure-22)). Each phase lasts between 7 and 11 days and concludes with a short checkpoint meeting and a tagged commit.
+The project comprises five phases over 45 calendar days, counted from the start date ([Figure 21](#figure-21)). Each phase lasts between 7 and 11 days and concludes with a short checkpoint meeting and a tagged commit.
 
-<a id="figure-22"></a>
+<a id="figure-21"></a>
 
-![Figure 22 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure22.png)
+![Figure 21 · work plan: 5 phases, 45 days, 5 deliverables](figures/figure21.png)
 
-*Figure 22 · work plan: 5 phases, 45 days, 5 deliverables*
+*Figure 21 · work plan: 5 phases, 45 days, 5 deliverables*
 
 The verification phase constitutes the core of the project. If the modeling work is delayed, the optional ROS 2 instrumentation and the refinement stretch goal are to be omitted, not experiments E1–E3.
 
@@ -1224,7 +1218,7 @@ This table is the authoritative statement of phases and deliverables; `ASSIGNMEN
 
 ## 9. Starter kit, setup and references
 
-The `p-regulation` starter kit is given in the project folder of the repository; it was originally distributed as an archive. This project uses `Common/`, `MobileRobots/` and `tools/`; `ManufacturingCell/` contains a simpler, centralized variant that serves as a reference.
+The `p-regulation` starter kit is given in the project folder of the repository; it was originally distributed as an archive. The folders `Common/`, `MobileRobots/` and `tools/` are used; `ManufacturingCell/` contains a simpler, centralized variant that serves as a reference.
 
 | Path | Content | Status |
 | --- | --- | --- |
