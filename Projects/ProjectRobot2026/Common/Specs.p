@@ -5,14 +5,26 @@
 // S1 Physical safety of regimented norms (CPS level).
 //    (a) occupancy never exceeds capacity (no collision in the envelope / aisle)
 //    (b) no agent is ever in a resource at the same time as a human
+//    People are counted per resource, so with two people inside, the exit of
+//    one does not make the resource look empty (experiment E4).
 spec RegimentationSafety observes eMonitorConfig, eResourceEntered, eResourceLeft,
                                   eHumanEntered, eHumanLeft {
   var capacity: map[int, int];
   var occupancy: map[int, int];
-  var humanIn: set[int];
+  var humanIn: map[int, int];     // resource -> number of people inside
 
   start state Init {
-    on eMonitorConfig do (c: map[int, int]) { capacity = c; goto Watching; }
+    on eMonitorConfig do (c: map[int, int]) {
+      var rs: seq[int];
+      var i: int;
+      capacity = c;
+      // every configured resource starts empty, so a LEAVE without an earlier
+      // ENTER makes the count negative instead of failing on a missing key
+      rs = keys(c);
+      i = 0;
+      while (i < sizeof(rs)) { occupancy[rs[i]] = 0; humanIn[rs[i]] = 0; i = i + 1; }
+      goto Watching;
+    }
   }
 
   state Watching {
@@ -21,19 +33,20 @@ spec RegimentationSafety observes eMonitorConfig, eResourceEntered, eResourceLef
       occupancy[e.res] = occupancy[e.res] + 1;
       assert occupancy[e.res] <= capacity[e.res],
         format("capacity norm violated in resource {0}", e.res);
-      assert !(e.res in humanIn),
+      assert !(e.res in humanIn) || humanIn[e.res] == 0,
         format("agent {0} admitted to resource {1} while a human is inside", e.agent, e.res);
     }
     on eResourceLeft do (l: tLeave) {
       occupancy[l.res] = occupancy[l.res] - 1;
     }
     on eHumanEntered do (r: int) {
-      humanIn += (r);
+      if (!(r in humanIn)) { humanIn[r] = 0; }
+      humanIn[r] = humanIn[r] + 1;
       assert !(r in occupancy) || occupancy[r] == 0,
         format("human entered resource {0} while agents were inside", r);
     }
     on eHumanLeft do (r: int) {
-      if (r in humanIn) { humanIn -= (r); }
+      if (r in humanIn && humanIn[r] > 0) { humanIn[r] = humanIn[r] - 1; }
     }
   }
 }
@@ -95,6 +108,9 @@ spec EveryObligationResolved observes eObligationCreated, eObligationFulfilled, 
 
 // L2 Every adaptation that starts is eventually committed.
 //    Breaks if a guard can never drain (an agent that never leaves).
+//    An aborted change (E8/E9) is not installed, so L2 fails by design: without
+//    a retry it stays in its hot state; if the change is retried, the new start
+//    is reported by the assertion below rather than as an unhandled event.
 spec AdaptationCompletes observes eAdaptationStarted, eNormCommitted {
   start cold state Idle {
     on eAdaptationStarted goto InProgress;
@@ -102,6 +118,9 @@ spec AdaptationCompletes observes eAdaptationStarted, eNormCommitted {
   }
   hot state InProgress {
     on eNormCommitted goto Idle;
+    on eAdaptationStarted do (v: int) {
+      assert false, format("adaptation v{0} started before the previous adaptation was committed", v);
+    }
   }
 }
 

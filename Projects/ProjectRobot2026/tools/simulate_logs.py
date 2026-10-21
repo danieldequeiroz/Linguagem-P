@@ -25,6 +25,7 @@ Events and fields:
   ENTER        Agent, Res, Ver
   LEAVE        Agent, Res
   ADAPT_START  Ver
+  ADAPT_ABORT  Ver                (only with an abort, experiments E8/E9)
   COMMIT       Ver, Closed=<res>;<res>...  ("-" when empty)
   HUMAN_ENTER  Res
   HUMAN_LEAVE  Res
@@ -293,7 +294,7 @@ def check(log, scenario):
     def fail(mon, msg):
         errs.setdefault(mon, msg)
 
-    cap, occ, human_in = {}, {}, set()
+    cap, occ, human_in = {}, {}, {}   # human_in: resource -> people inside
     committed_ver, committed_closed = 0, set()
     resolved, open_due = set(), {}
     now, adapt_start, adapt_ver = 0, None, None
@@ -303,6 +304,7 @@ def check(log, scenario):
             for pair in f["Capacity"].split(";"):
                 r, c = pair.split(":")
                 cap[int(r)] = int(c)
+                occ.setdefault(int(r), 0)
         elif ev == "TICK":
             now = f["Now"]
             for oid, due in open_due.items():
@@ -315,7 +317,7 @@ def check(log, scenario):
             occ[r] = occ.get(r, 0) + 1
             if occ[r] > cap.get(r, 0):
                 fail("RegimentationSafety", f"capacity exceeded in resource {r} at tick {now}")
-            if r in human_in:
+            if human_in.get(r, 0) > 0:
                 fail("RegimentationSafety", f"agent {f['Agent']} admitted to resource {r} with a human inside (tick {now})")
             if r in committed_closed:
                 fail("NoStaleAdmission", f"agent {f['Agent']} admitted to resource {r} closed by v{committed_ver}, guard on v{f['Ver']} (tick {now})")
@@ -323,15 +325,17 @@ def check(log, scenario):
             occ[f["Res"]] -= 1
         elif ev == "HUMAN_ENTER":
             r = f["Res"]
-            human_in.add(r)
+            human_in[r] = human_in.get(r, 0) + 1
             if occ.get(r, 0) > 0:
                 fail("RegimentationSafety", f"human entered resource {r} while agents were inside (tick {now})")
             if r not in committed_closed:
                 fail("LockoutBeforeEntry", f"human entered resource {r} without a committed lock-out")
         elif ev == "HUMAN_LEAVE":
-            human_in.discard(f["Res"])
+            human_in[f["Res"]] = max(0, human_in.get(f["Res"], 0) - 1)
         elif ev == "ADAPT_START":
             adapt_start, adapt_ver = now, f["Ver"]
+        elif ev == "ADAPT_ABORT":
+            adapt_start = None      # an aborted change ends the adaptation (R2)
         elif ev == "COMMIT":
             if f["Ver"] != committed_ver + 1:
                 fail("NoStaleAdmission", "norm sets committed out of order")

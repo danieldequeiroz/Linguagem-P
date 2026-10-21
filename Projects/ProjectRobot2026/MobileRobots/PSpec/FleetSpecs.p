@@ -26,7 +26,8 @@ event eTaskAbandoned: tAbandon;
 //    So a violation means "an obligation was sanctioned after access was
 //    repeatedly denied", which is a candidate unfair sanction, not a proven one.
 //
-//    We EXPECT this to fail in the checker (not yet run). Remedies to evaluate:
+//    It fails in the checker as intended (first schedule, independent evaluation
+//    of 21 October 2026). Remedies to evaluate:
 //      - a regimented traffic norm ("one direction per corridor")
 //      - an adaptation rule that suspends or extends the obligation's deadline
 //        when the regulation itself blocks the agent

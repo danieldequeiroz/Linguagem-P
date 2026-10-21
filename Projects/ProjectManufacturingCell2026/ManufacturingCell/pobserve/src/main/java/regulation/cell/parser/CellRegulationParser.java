@@ -78,6 +78,8 @@ public class CellRegulationParser implements Parser<PEvent<?>> {
                 return new PEvents.eResourceLeft(new PTypes.PTuple_agent_res(num(f, "Agent"), num(f, "Res")));
             case "ADAPT_START":
                 return new PEvents.eAdaptationStarted(num(f, "Ver"));
+            case "ADAPT_ABORT":
+                return new PEvents.eAdaptationAborted(num(f, "Ver"));
             case "COMMIT":
                 return new PEvents.eNormCommitted(new PTypes.PTuple_ver_clsd(num(f, "Ver"), parseSet(f.get("Closed"))));
             case "HUMAN_ENTER":

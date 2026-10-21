@@ -103,7 +103,7 @@ p check -tc tcCellNaive    -s 10000     # naive adaptation (commit first, instal
 
 ### 2.3 Read the results
 
-Expected results (hypotheses, not yet run):
+Expected results (first schedules observed in the independent evaluation, section 5; the acceptance runs are still to be done):
 
 | Test | Expected | Meaning |
 |---|---|---|
@@ -129,7 +129,7 @@ The ids refer to the experiment table in section 7.3 of the specification, which
 | E5 | Shorter deadlines (`due = 2`) | `ManufacturingSystem` | More sanctions; `EveryObligationResolved` (L1) must still hold |
 | E4 | Two technicians (a challenge, not a check of existing behavior) | add a second `HumanRequester` | See 2.5 |
 
-E6–E8 (specification section 7.3) are further options. In E8 (cancelling a prepare), announce `eAdaptationAborted` with the aborted version and judge liveness by `AdaptationTerminates` (L3: every started adaptation eventually commits or is explicitly aborted, under the same version); `AdaptationCompletes` (L2) fails by design for an aborted change. The starter kit never aborts, so L3 holds there as L2 does.
+E6–E8 (specification section 7.3) are further options. In E8 (cancelling a prepare), announce `eAdaptationAborted` with the aborted version and judge liveness by `AdaptationTerminates` (L3: every started adaptation eventually commits or is explicitly aborted, under the same version); `AdaptationCompletes` (L2) fails by design for an aborted change: without a retry it remains in its hot state, and if the change is retried it reports that an adaptation started before the previous one was committed. `AdaptationBoundedTime` (R2) treats an abort as the end of the adaptation, and the parser maps `ADAPT_ABORT` to `eAdaptationAborted`. A retry reuses the version number of the aborted change, because the coordinator derives the next version from the committed one; L3 and the logs therefore correlate an abort and its retry by that version. The starter kit never aborts, so L3 holds there as L2 does.
 
 ### 2.5 Challenge: two technicians
 
@@ -138,11 +138,11 @@ The coordinator defers a new trigger while an adaptation is in progress, so adap
 1. Technician A requests a lock-out. v1 closes resource 0; A enters.
 2. Technician B requests a lock-out. v2 closes resource 0 again (no change); B enters.
 3. A leaves and requests reopening. v3 opens resource 0, although B is still inside.
-4. The controller admits the arm: `RegimentationSafety` should fail.
+4. The controller admits the arm: `RegimentationSafety` should fail, because it counts the people inside each resource and B is still counted after A leaves.
 
 Serialization orders the norm-set changes, but nothing tracks who is still inside. To fix it:
 - **Track human presence.** The coordinator keeps the set of technicians who hold a lock-out on each resource, and reopens only when the last one leaves.
-- **Verify it.** Add a monitor for property S4 of the specification, "no committed norm set opens a resource while a human is inside" (observe `eHumanEntered`, `eHumanLeft`, `eNormCommitted`), and check that it fails before your fix and holds after. Also run it against a mutant (specification section 5.11) to show it is not vacuous.
+- **Verify it.** Add a monitor for property S4 of the specification, "no committed norm set opens a resource while a human is inside" (observe `eHumanEntered`, `eHumanLeft`, `eNormCommitted`), and check that it fails before your fix and holds after. The events carry only a resource id, so S4 must count the people inside each resource, as `RegimentationSafety` does, rather than record a set of occupied resources: with a set, the exit of A would make the envelope look empty while B is inside. Also run it against a mutant (specification section 5.11) to show it is not vacuous.
 
 ---
 
@@ -172,6 +172,8 @@ Every component that takes part in regulation writes **one line per event**:
 | `ADAPT_START` | `Ver` | adaptation engine (detect) | `eAdaptationStarted` |
 | `COMMIT` | `Ver, Closed=0` (`-` if none) | adaptation engine (execute) | `eNormCommitted` |
 | `HUMAN_ENTER` / `HUMAN_LEAVE` | `Res` | door switch / light curtain | `eHumanEntered` / `eHumanLeft` |
+| `ADAPT_ABORT` | `Ver` | adaptation engine (only with an abort, E8) | `eAdaptationAborted` |
+| `ABANDON` | `Id, Agent, Where` | agent (gave up a job after repeated denials) | none: ignored by the cell parser; present in the sample logs for an optional fairness analysis (E7) |
 
 Rules:
 - Ids are integers.
@@ -292,7 +294,7 @@ The run-time results are only as good as the log. The monitors assume:
 | Problem | Effect |
 |---|---|
 | missing `LEAVE` | occupancy never drops: a later `ENTER` is reported as a capacity violation, a later `HUMAN_ENTER` as an unsafe entry |
-| missing `ENTER` (e.g. the log starts while the arm is in the envelope) | occupancy goes negative and hides real capacity violations |
+| missing `ENTER` (e.g. the log starts while the arm is in the envelope) | occupancy goes negative (every configured resource starts at 0) and hides real capacity violations |
 | missing `COMMIT` | the next `COMMIT` fails the version-order check; `LockoutBeforeEntry` may report a bypass that did not happen |
 | missing `TICK` | bounded monitors cannot fire for that period |
 | duplicate `ENTER` | false capacity violation |

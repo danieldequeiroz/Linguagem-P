@@ -104,7 +104,7 @@ p check -tc tcFleetNaive            -s 10000
 p check -tc tcFleetSanctionFairness -s 10000
 ```
 
-Expected results (hypotheses, not yet run):
+Expected results (first schedules observed in the independent evaluation, section 5; the acceptance runs are still to be done):
 
 | Test | Expected | Meaning |
 |---|---|---|
@@ -124,7 +124,7 @@ So a violation is a *candidate* unfair sanction. To attribute it, log the denial
 
 ### 2.3 Experiments worth running
 
-The experiment ids match section 7.3 of the specification, which also defines E0 (one mutant per monitor, to show that every monitor can fail; run it before trusting any "no bug found") and E9 (prepare timeout and abort). For E9, the coordinator announces an abort with `eAdaptationAborted` (log `ADAPT_ABORT, Ver`); the monitor `AdaptationTerminates` (L3) accepts a commit or an abort, while `AdaptationCompletes` (L2) fails by design for an aborted change. Acceptance cases: a timeout followed by an abort satisfies L3; a prepare neither committed nor aborted violates L3; an aborted prepare never admits the picker and leaves no controller blocked. Write your prediction before each run.
+The experiment ids match section 7.3 of the specification, which also defines E0 (one mutant per monitor, to show that every monitor can fail; run it before trusting any "no bug found") and E9 (prepare timeout and abort). For E9, the coordinator announces an abort with `eAdaptationAborted` (log `ADAPT_ABORT, Ver`); the monitor `AdaptationTerminates` (L3) accepts a commit or an abort, while `AdaptationCompletes` (L2) fails by design for an aborted change: without a retry it remains in its hot state, and if the change is retried it reports that an adaptation started before the previous one was committed. `AdaptationBoundedTime` (R2) treats an abort as the end of the adaptation. A retry reuses the version number of the aborted change, because the coordinator derives the next version from the committed one. Acceptance cases: a timeout followed by an abort satisfies L3; a prepare neither committed nor aborted violates L3; an aborted prepare never admits the picker and leaves no controller blocked. Write your prediction before each run.
 
 | # | Change | Where | What to look for |
 |---|---|---|---|
@@ -154,7 +154,7 @@ Every component that takes part in regulation writes one line per event:
 | `FULFILLED` / `SANCTION` | `Id, Agent` | `eObligationFulfilled` / `eSanctionApplied` |
 | `ENTER` / `LEAVE` | `Agent, Res, Ver` / `Agent, Res` | `eResourceEntered` / `eResourceLeft` |
 | `ADAPT_START` | `Ver` | `eAdaptationStarted` |
-| `ADAPT_ABORT` | `Ver` (E9 only; extend the parser) | `eAdaptationAborted` |
+| `ADAPT_ABORT` | `Ver` (E9 only) | `eAdaptationAborted` |
 | `COMMIT` | `Ver, Closed=1` (`-` if none) | `eNormCommitted` |
 | `HUMAN_ENTER` / `HUMAN_LEAVE` | `Res` | `eHumanEntered` / `eHumanLeft` |
 
@@ -211,7 +211,7 @@ gradle wrapper
 
 These come from the Python mirror of the monitors (`tools/simulate_logs.py --check`, commands in section 5), not from a PObserve run. PObserve is expected to report the same first violations; confirm and record it.
 
-The fairness violation in the *safe* log is the run-time counterpart of the counterexample we **expect** from `tcFleetSanctionFairness`; neither has been confirmed with P tools yet. In a real warehouse, the monitor gives a measurable count of sanctions on obligations abandoned after repeated denials. It does not, by itself, measure how many were caused by regulation (see 2.2).
+The fairness violation in the *safe* log is the run-time counterpart of the counterexample we **expect** from `tcFleetSanctionFairness`; the checker counterpart was observed on the first schedule in the independent evaluation (section 5), whereas the run-time result has not yet been confirmed with PObserve. In a real warehouse, the monitor gives a measurable count of sanctions on obligations abandoned after repeated denials. It does not, by itself, measure how many were caused by regulation (see 2.2).
 
 ### 3.5 More logs and real instrumentation
 
@@ -250,7 +250,7 @@ The run-time results are only as good as the log. The monitors assume:
 | Problem | Effect |
 |---|---|
 | missing `LEAVE` | occupancy never drops: a later `ENTER` is reported as a capacity violation, a later `HUMAN_ENTER` as an unsafe entry |
-| missing `ENTER` (e.g. the log starts while a robot is in a zone) | occupancy goes negative and hides real capacity violations |
+| missing `ENTER` (e.g. the log starts while a robot is in a zone) | occupancy goes negative (every configured resource starts at 0) and hides real capacity violations |
 | missing `COMMIT` | the next `COMMIT` fails the version-order check; `LockoutBeforeEntry` may report a bypass that did not happen |
 | missing `TICK` | bounded monitors cannot fire for that period |
 | duplicate `ENTER` | false capacity violation |
@@ -308,7 +308,7 @@ Across 500 simulated two-phase runs (seeds 0–499, 60 ticks), there were 4,479 
 
 | Step | Command | Tool versions | Seed / schedules | Actual result |
 |---|---|---|---|---|
-| Compile the model | `p compile` | P 3.1.0.0, .NET SDK 8.0.426 | — | succeeds, no warnings (independent evaluation, 2026-10-21; before L3 was added) |
+| Compile the model | `p compile` | P 3.1.0.0, .NET SDK 8.0.426 | — | succeeds, no warnings (independent evaluation, 2026-10-21; before L3 and the S1, L2 and R2 corrections were added) |
 | Compile for PObserve | `p compile --mode pobserve` | P 3.1.0.0 | — | Java classes generated (independent evaluation, 2026-10-21) |
 | Two-phase design (E1) | `p check -tc tcFleetTwoPhase -s 100000` | P 3.1.0.0 | 30-second run, 3,442 schedules | no bug (independent evaluation, 2026-10-21); the 100,000-schedule run is still to do |
 | Naive design (E2) | `p check -tc tcFleetNaive -s 10000` | P 3.1.0.0 | schedule 1 | S2 fails: robot 2 admitted under v0 to zone 1, closed by v1 (independent evaluation, 2026-10-21) |
